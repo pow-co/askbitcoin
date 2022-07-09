@@ -15,11 +15,11 @@ nconf.env({
   transform
 })
 
-const global_file = `/etc/rabbi/config.json`
+const global_file = `/etc/rabbi/rabbi.json`
 
-const user_file = `${os.homedir()}/.rabbi/config.json`
+const user_file = `${os.homedir()}/.rabbi/rabbi.json`
 
-const project_file = `${process.cwd()}/.rabbi/config.json`
+const project_file = `${process.cwd()}/.rabbi/rabbi.json`
 
 nconf.add('project_file', { type: 'file', file: project_file, transform })
 
@@ -64,6 +64,10 @@ nconf.defaults({
   amqp_url: 'amqp://guest:guest@rabbitmq:5672/rabbi',
   amqp_exchange: 'rabbi'
 })
+
+nconf.required([
+  'onchain_app_identity'
+])
 
 export default nconf
 

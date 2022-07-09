@@ -44,14 +44,34 @@ if (config.get('prometheus_enabled')) {
     },
     options: {
       description: 'Prometheus Metrics about Node.js Process & Business-Level Metrics',
-      tags: ['system']
+      tags: ['api', 'system']
     }
   })
 
 }
 
+const Question = Joi.object().label('Question')
+const Questions = Joi.array().items(Question).label('Questions')
+
+const Answer = Joi.object({ }).label('Answer')
+const Answers = Joi.array().items(Answer).label('Answers')
+
+const Link = Joi.object({
+  name: Joi.string().required(),
+  href: Joi.string().required()
+}).label('Link')
+const Links = Joi.array().items(Link).label('Links')
+
+const Output = Joi.object({
+  script: Joi.string().required(),
+  value: Joi.number().optional()
+}).label('Output')
+
+const Outputs = Joi.array().items(Output).label('Outputs')
+
 server.route({
-  method: 'GET', path: '/api/v0/status',
+  method: 'GET',
+  path: '/api/v0/status',
   handler: handlers.Status.index,
   options: {
     description: 'Simply check to see that the server is online and responding',
@@ -61,7 +81,146 @@ server.route({
       schema: Joi.object({
         status: Joi.string().valid('OK', 'ERROR').required(),
         error: Joi.string().optional()
-      }).label('ServerStatus')
+      }).label('ServerStatusResponse')
+    }
+  }
+})
+
+server.route({
+  method: 'POST',
+  path: '/api/v1/questions/new',
+  handler: handlers.Questions.build,
+  options: {
+    description: 'Returns required Transaction Outputs for a AskBitcoinQuestion',
+    tags: ['api', 'questions'],
+    response: {
+      failAction: 'log',
+      schema: Joi.object({
+        outputs: Outputs.required(),
+        error: Joi.string().optional()
+      }).label('BuildQuestionResponse')
+    }
+  }
+})
+
+server.route({
+  method: 'POST',
+  path: '/api/v1/answers/new',
+  handler: handlers.Answers.build,
+  options: {
+    description: 'Returns required Transaction Outputs for a AnswerQuestionOutput',
+    tags: ['api', 'answers'],
+    response: {
+      failAction: 'log',
+      schema: Joi.object({
+        outputs: Outputs.required(),
+        error: Joi.string().optional()
+      }).label('BuildNewAnswer')
+    }
+  }
+})
+
+server.route({
+  method: 'POST',
+  path: '/api/v1/questions',
+  handler: handlers.Questions.create,
+  options: {
+    description: 'Submit signed bitcoin transaction containing AskQuestion',
+    tags: ['api', 'questions'],
+    response: {
+      failAction: 'log',
+      schema: Joi.object({
+        outputs: Outputs.required(),
+        error: Joi.string().optional()
+      }).label('AskQuestionTransaction')
+    }
+  }
+})
+
+server.route({
+  method: 'POST',
+  path: '/api/v1/answers',
+  handler: handlers.Answers.create,
+  options: {
+    description: 'Submit signed bitcoin transaction containing AnswerQuestion',
+    tags: ['api', 'answers'],
+    response: {
+      failAction: 'log',
+      schema: Joi.object({
+        outputs: Outputs.required(),
+        error: Joi.string().optional()
+      }).label('AnswerQuestionTransaction')
+    }
+  }
+})
+
+server.route({
+  method: 'GET',
+  path: '/api/v1/answers',
+  handler: handlers.Answers.index,
+  options: {
+    description: 'List all Answers Ranked by Proof of Work',
+    tags: ['api', 'answers'],
+    response: {
+      failAction: 'log',
+      schema: Joi.object({
+        answers: Answers.required()
+      }).label('ListAnswersResponse')
+    }
+  }
+})
+
+server.route({
+  method: 'GET',
+  path: '/api/v1/questions',
+  handler: handlers.Questions.index,
+  options: {
+    description: 'List all Questions Ranked by Proof of Work',
+    tags: ['api', 'questions'],
+    response: {
+      failAction: 'log',
+      schema: Joi.object({
+        questions: Questions.label('Questions').required()
+      }).label('ListQuestionsResponse')
+    }
+  }
+})
+
+
+server.route({
+  method: 'GET',
+  path: '/api/v1/questions/{txid}',
+  handler: handlers.Questions.show,
+  options: {
+    description: 'Show a Question with Answers and Work',
+    tags: ['api', 'questions'],
+    response: {
+      failAction: 'log',
+      schema: Joi.object({
+        question: Questions.required(),
+        answers: Answers.required(),
+        work: Joi.number().required(),
+        links: Links.required()
+      }).label('ShowQuestionResponse')
+    }
+  }
+})
+
+server.route({
+  method: 'GET',
+  path: '/api/v1/answers/{txid}',
+  handler: handlers.Answers.show,
+  options: {
+    description: 'Show an Answers with Question and Work',
+    tags: ['api', 'answers'],
+    response: {
+      failAction: 'log',
+      schema: Joi.object({
+        question: Question,
+        answer: Answer,
+        work: Joi.number(),
+        links: Links
+      }).label('ShowAnswerResponse')
     }
   }
 })
@@ -78,12 +237,12 @@ export async function start() {
 
     const swaggerOptions = {
       info: {
-        title: 'API Docs',
+        title: 'Ask Bitcoin API',
         version: Pack.version,
-        description: 'Developer API Documentation \n\n *** DEVELOPERS *** \n\n Edit this file under `swaggerOptions` in `src/server.ts` to better describe your service.'
+        description: 'Ask Bitcoin a Question - Bitcoin AI Ranks the Top Answers'
       },
       schemes: ['https'],
-      host: 'http://localhost:8000',
+      host: 'https://askbitcoin.ai',
       documentationPath: '/',
       grouping: 'tags'
     }

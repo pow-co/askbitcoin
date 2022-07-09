@@ -10,26 +10,64 @@ import { start as actors } from '../rabbi/actors'
 
 import { start as main } from '../main'
 
+import * as askBitcoin from '../'
+
+
 program
   .version(version)
   .option('--config <path>')
-  .option('--host <ipaddress>')
-  .option('--port <integer>')
-  .option('--prometheus_enabled <boolean>')
-  .option('--amqp_enabled <boolean>')
-  .option('--http_api_enabled <boolean>')
-  .option('--swagger_enabled <boolean>')
-  .option('--postgres_enabled <boolean>')
-  .option('--database_url <connection_string>')
-  .option('--amqp_url <connection_string>')
-  .option('--amqp_exchange <name>')
-  .option('--amqp_enabled <boolean>')
+  .option('--onchain_app_id <string>')
+  .option('--start <timestamp>')
+  .option('--end <timestamp>')
 
 program
-  .command('echo <statement>')
-  .action((statement) => {
+  .command('list_questions')
+  .action(async () => {
 
-    console.log({ statement })
+    let questions = await askBitcoin.questions.list()
+
+    console.log(questions)
+
+    process.exit(0)
+
+  })
+
+program
+  .command('ask_question')
+  .action(async () => {
+
+    let question: askBitcoin.Question = await askBitcoin.questions.ask('')
+
+    console.log(question)
+
+    process.exit(0)
+
+  })
+
+program
+  .command('view_answers <question_txid>')
+  .action(async (txid) => {
+
+    let question: askBitcoin.Question = await askBitcoin.questions.find(txid)
+    
+    let answers: askBitcoin.Answer[] = await askBitcoin.answers.list({ question })
+
+    process.exit(0)
+
+  })
+
+program
+  .command('answer_question')
+  .action(async () => {
+
+    let question = await askBitcoin.questions.find('')
+
+    let answer: askBitcoin.Answer = await askBitcoin.questions.answer({
+      question,
+      content: ''
+    })
+
+    console.log(answer)
 
     process.exit(0)
 
@@ -42,7 +80,6 @@ program
     main()
 
   })
-
 program
   .command('server')
   .action(() => {
@@ -60,3 +97,4 @@ program
   })
 
 program.parse(process.argv)
+
