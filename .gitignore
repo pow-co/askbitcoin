@@ -1,0 +1,15 @@
+.idea/
+.vscode/
+node_modules/
+build/
+tmp/
+temp/.env
+.env
+.bit
+get402.json
+**/*.swp
+**/*.swo
+*.swo
+*.swp
+dist/
+.rabbi/config.json
