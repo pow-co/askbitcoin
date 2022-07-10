@@ -243,7 +243,7 @@ export async function start() {
       },
       schemes: ['https'],
       host: 'https://askbitcoin.ai',
-      documentationPath: '/',
+      documentationPath: '/api',
       grouping: 'tags'
     }
 
@@ -263,6 +263,30 @@ export async function start() {
     ]);
 
     log.info('server.api.documentation.swagger', swaggerOptions)
+
+    if (config.get('webui_enabled')) {
+
+      const H2o2 = require('@hapi/h2o2');
+
+      log.debug('webui.enabled')
+
+      await server.register(H2o2);
+
+      server.route({
+        method: 'GET',
+        path: '/{param*}',
+        handler: {
+            proxy: {
+                host: config.get('webui_host'),
+                port: config.get('webui_port'),
+                protocol: 'http',
+                passThrough: true
+            }
+        }
+      });
+
+    }
+
   }
 
   await server.start();

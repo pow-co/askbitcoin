@@ -51,10 +51,13 @@ process.on('SIGHUP', () => {
 
 })
 
+import { join } from 'path'
+
 nconf.defaults({
   askbitcoin_onchain_app_id: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', // askbitcoin.ai
   powco_onchain_app_id: '15QcoZ8nsMYdYr2k2QNJ4YUzBzrTPSsKyq', // pow.co
   leveldb_path: `${process.cwd()}/.rabbi/onchain_db`,
+
   host: '0.0.0.0',
   port: '5200',
   prometheus_enabled: true,
@@ -62,7 +65,10 @@ nconf.defaults({
   swagger_enabled: true,
   postgres_enabled: true,
   amqp_enabled: false,
-  loki_enabled: false
+  loki_enabled: false,
+  webui_enabled: true,
+  webui_host: '127.0.0.1',
+  webui_port: 3000
 })
 
 nconf.required([

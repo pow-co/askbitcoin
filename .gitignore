@@ -14,3 +14,4 @@ get402.json
 dist/
 .rabbi/
 .runcache/
+web-ui/node_modules/

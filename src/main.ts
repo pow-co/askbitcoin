@@ -11,6 +11,10 @@ export async function start() {
 
   console.log('askbitcoin.start')
 
+  if (config.get('webui_enabled')) {
+
+  }
+
   if (config.get('http_api_enabled')) {
 
     server();
