@@ -1,7 +1,7 @@
 {
    "name": "askbitcoin",
    "version": "0.2.0",
-   "private": true,
+   "private": false,
    "description": "Ask Bitcoin a Question - Receive Answers with Proof of Work",
    "scripts": {
       "start": "ts-node src/main.ts",
