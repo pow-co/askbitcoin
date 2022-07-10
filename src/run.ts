@@ -1,6 +1,8 @@
 
 const Run = require('run-sdk')
 
-export const run = new Run({ network: 'main' })
+const blockchain = new Run.plugins.WhatsOnChain({ network: 'main' })
+
+export const run = new Run({ blockchain })
 
 

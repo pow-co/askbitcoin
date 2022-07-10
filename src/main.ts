@@ -5,9 +5,11 @@ import { start as server } from './server'
 
 import { start as actors } from './rabbi/actors'
 
-import { sync as planaria_sync_boost } from './planaria'
+import { sync_boost_orders, sync_ask_bitcoin } from './planaria'
 
 export async function start() {
+
+  console.log('askbitcoin.start')
 
   if (config.get('http_api_enabled')) {
 
@@ -21,9 +23,27 @@ export async function start() {
 
   }
 
-  if (config.get('planaria_sync_boost')) {
+  if (config.get('sync_boost_orders')) {
 
-    planaria_sync_boost();
+    if (!process.env.PLANARIA_TOKEN) {
+
+      throw new Error('PLANARIA_TOKEN environment variable require to sync boost orders')
+
+    }
+
+    sync_boost_orders();
+
+  }
+
+  if (config.get('sync_ask_bitcoin')) {
+
+    if (!process.env.PLANARIA_TOKEN) {
+
+      throw new Error('PLANARIA_TOKEN environment variable require to sync boost orders')
+
+    }
+
+    sync_ask_bitcoin();
 
   }
 
