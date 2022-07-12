@@ -1,49 +1,16 @@
 require("dotenv").config()
 
-//import { Crawler } from './rabbi/planaria'
-import { Crawler } from '/Users/zyler/github/rabbijs/rabbi/lib/planaria'
-
-//import { CrawlerBase } from '/Users/zyler/github/powe-co/nucleic'
+import { Crawler } from './rabbi/planaria'
 
 import { log } from './log'
 
 import config from './config'
 
-import { leveldb } from './rabbi/onchain'
+//import { leveldb } from './rabbi/onchain'
 
 import { run } from './run'
 
-/*class OnchainCrawler extends CrawlerBase {
-
-  app: string;
-
-  key: string;
-
-  constructor(params: {token: string, app: string, key:string}) {
-
-    super(params.token)
-
-    this.app = params.app;
-    this.key = params.key
-  }
-
-  onTransaction(tx) {
-
-    console.log(tx)
-
-  }
-
-}
-
-
-let occ = new OnchainCrawler({
-  app: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN',
-  key: 'questin',
-  token: config.get('planaria_token')
-})
-
-occ.start()
-*/
+export const onchainQueue = require('fastq').promise(handleOnchainTransaction, 1)
 
 export async function sync_boost_orders() {
 
@@ -61,7 +28,7 @@ export async function sync_boost_orders() {
 
       let hash = json['tx']['h']
 
-      leveldb.get(hash, async (error, hex) => {
+      /*leveldb.get(hash, async (error, hex) => {
 
         if (!hex) {
 
@@ -69,11 +36,10 @@ export async function sync_boost_orders() {
 
         }
 
-        //console.log({ hex, hash })
-
         await leveldb.put(hash, hex)
 
       })
+      */
 
     }
   })
@@ -83,8 +49,6 @@ export async function sync_boost_orders() {
 }
 
 export async function sync_ask_bitcoin() {
-
-  console.log({ sync_ask_bitcoin })
 
   const block_height_start = 738000
 
@@ -104,6 +68,8 @@ export async function sync_ask_bitcoin() {
         project: {
           "blk": 1,
           "tx.h": 1,
+          "tx.t": 1,
+          "out.i": 1,
           "out.s2": 1,
           "out.s3": 1,
           "out.s4": 1,
@@ -127,13 +93,18 @@ export async function sync_ask_bitcoin() {
 
       outputs.map(output => {
 
-        let message = {
-          app: output['s3'],
+        let message: OnchainTransaction = {
+          tx_id: json['tx']['h'],
+          tx_index: output['i'],
+          app_id: output['s3'],
           key: output['s4'],
-          value: JSON.parse(output['s5'])
+          value: JSON.parse(output['s5']),
+          nonce: output['s6'],
+          author: output['s7'],
+          signature: output['s8']
         }
 
-        console.log(message)
+        onchainQueue.push(message)
 
       })
 
@@ -202,3 +173,95 @@ export async function sync_boostpow_onchain() {
 
 }
 
+interface OnchainTransaction {
+  tx_id: string;
+  tx_index: number;
+  app_id: string;
+  key: string;
+  value: string;
+  nonce?: string;
+  author?: string;
+  signature?: string;
+}
+
+import { knex } from './knex'
+
+async function handleOnchainTransaction(data: OnchainTransaction) {
+
+  let [record] = await knex('onchain_events').where({
+    tx_id: data.tx_id,
+    tx_index: data.tx_index
+  }).select('id')
+
+  if (record) {
+
+    log.debug('onchain.transaction.duplicate', data)
+
+    return
+
+  } else {
+
+    const { tx_id, tx_index, app_id, key, value, nonce, author, signature } = data
+
+    const insert = {
+      tx_id,
+      tx_index,
+      app_id,
+      key,
+      value,
+    }
+
+    if (nonce) { insert['nonce'] = nonce }
+    if (author) { insert['author'] = author }
+    if (signature) { insert['signature'] = signature }
+
+    const result = await knex('onchain_events').insert(insert)
+
+    log.info('onchain.event.recorded', insert)
+
+    if (key === 'question') {
+
+      let [question] = await knex('questions').where({ tx_id }).select('*')
+
+      if (!question) {
+
+        const insert = {
+          tx_id,
+          content: JSON.parse(value).content,
+          author
+        }
+
+        await knex('questions').insert(insert)
+
+        log.info('question.recorded', insert)
+
+      }
+
+    }
+
+    if (key === 'answer') {
+
+      let [answer] = await knex('answers').where({ tx_id }).select('*')
+
+      if (!answer) {
+
+        const { content, question_id } = JSON.parse(value)
+
+        const insert = {
+          tx_id,
+          question_id,
+          content,
+          author
+        }
+
+        await knex('answers').insert(insert)
+
+        log.info('answer.recorded', insert)
+
+      }
+
+    }
+
+  }
+
+}

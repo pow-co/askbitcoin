@@ -1,11 +1,6 @@
 // material-ui
 import { useTheme } from '@mui/material/styles';
 
-/**
- * if you want to use image instead of <svg> uncomment following.
- */
- //import logoDark from 'assets/images/logo-dark.svg';
- import logo from '../../../public/assets/images/logo-white.png';
 // ==============================|| LOGO SVG ||============================== //
 
 const Logo = () => {
@@ -13,7 +8,7 @@ const Logo = () => {
 
   return (
   
-    <img src={theme.palette.mode === 'dark' ? '/assets/images/logo-dark.png' : '/assets/images/logo-light-no-background-margins.png'} alt="Berry" width="180" />
+    <img src={theme.palette.mode === 'dark' ? '/assets/images/askbitcoin_logo_inverted_without_margins_or_background.png' : '/assets/images/askbitcoin_logo_without_margins_or_background.png'} alt="Berry" width="180" />
         /**
 
 

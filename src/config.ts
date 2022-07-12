@@ -55,6 +55,7 @@ import { join } from 'path'
 
 nconf.defaults({
   askbitcoin_onchain_app_id: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', // askbitcoin.ai
+  onchain_app_id: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', // askbitcoin.ai
   powco_onchain_app_id: '15QcoZ8nsMYdYr2k2QNJ4YUzBzrTPSsKyq', // pow.co
   leveldb_path: `${process.cwd()}/.rabbi/onchain_db`,
 
@@ -68,7 +69,8 @@ nconf.defaults({
   loki_enabled: false,
   webui_enabled: true,
   webui_host: '127.0.0.1',
-  webui_port: 3000
+  webui_port: 3000,
+  sync_ask_bitcoin: true
 })
 
 nconf.required([

@@ -161,19 +161,19 @@ const ProfileSection = () => {
                     <Box sx={{ p: 2, pb: 0 }}>
                       <Stack>
                         <Stack direction="row" spacing={0.5} alignItems="center">
-                          <Typography variant="h4">Good Morning,</Typography>
+                          <Typography variant="h4">Hello,</Typography>
                           <Typography component="span" variant="h4" sx={{ fontWeight: 400 }}>
                             {user ? user.name : 'Jone Doe'}
                           </Typography>
                         </Stack>
-                        <Typography variant="subtitle2">Project Admin</Typography>
+                        <Typography variant="subtitle2">Bitcoin User</Typography>
                       </Stack>
                       <OutlinedInput
                         sx={{ width: '100%', pr: 1, pl: 2, my: 2 }}
                         id="input-search-profile"
                         value={value}
                         onChange={(e) => setValue(e.target.value)}
-                        placeholder="Search profile options"
+                        placeholder="Search popular topics"
                         startAdornment={
                           <InputAdornment position="start">
                             <IconSearch stroke={1.5} size="1rem" color={theme.palette.grey[500]} />
@@ -201,7 +201,7 @@ const ProfileSection = () => {
                               <Grid item>
                                 <Grid item container alignItems="center" justifyContent="space-between">
                                   <Grid item>
-                                    <Typography variant="subtitle1">Start DND Mode</Typography>
+                                    <Typography variant="subtitle1">Double Extra Boost Mode</Typography>
                                   </Grid>
                                   <Grid item>
                                     <Switch
@@ -259,34 +259,7 @@ const ProfileSection = () => {
                             </ListItemIcon>
                             <ListItemText primary={<Typography variant="body2">Account Settings</Typography>} />
                           </ListItemButton>
-                          <ListItemButton
-                            sx={{ borderRadius: `${borderRadius}px` }}
-                            selected={selectedIndex === 1}
-                            onClick={(event) => handleListItemClick(event, 1)}
-                          >
-                            <ListItemIcon>
-                              <IconUser stroke={1.5} size="1.3rem" />
-                            </ListItemIcon>
-                            <ListItemText
-                              primary={
-                                <Grid container spacing={1} justifyContent="space-between">
-                                  <Grid item>
-                                    <Typography variant="body2">Social Profile</Typography>
-                                  </Grid>
-                                  <Grid item>
-                                    <Chip
-                                      label="02"
-                                      size="small"
-                                      sx={{
-                                        bgcolor: theme.palette.mode === 'dark' ? theme.palette.dark.dark : theme.palette.warning.dark,
-                                        color: theme.palette.background.default
-                                      }}
-                                    />
-                                  </Grid>
-                                </Grid>
-                              }
-                            />
-                          </ListItemButton>
+
                           <ListItemButton sx={{ borderRadius: `${borderRadius}px` }} selected={selectedIndex === 4} onClick={handleLogout}>
                             <ListItemIcon>
                               <IconLogout stroke={1.5} size="1.3rem" />

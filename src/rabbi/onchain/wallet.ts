@@ -45,8 +45,6 @@ export class Wallet {
 
     let json = await result.json()
 
-    console.log('woc_unspent', json)
-
     return []
   }
 
@@ -67,8 +65,6 @@ export class Wallet {
     this.utxos = await run.blockchain.utxos(this.address)
 
     await this.WOC_list_address_utxos()
-
-    console.log(this.utxos)
 
   }
 
@@ -114,8 +110,6 @@ export class Wallet {
           }]*/
         }
       }
-
-      console.log('new transaction', JSON.stringify(newTransaction))
 
       filepay.build(newTransaction, (error, tx) => {
 

@@ -3,15 +3,29 @@ import config from './config'
 
 import { start as server } from './server'
 
+import { knex } from './knex'
+
 import { start as actors } from './rabbi/actors'
 
 import { sync_boost_orders, sync_ask_bitcoin } from './planaria'
 
+import { onchain } from './rabbi/onchain/bitsocket'
+
+import { spawn } from 'child_process'
+
+import { log } from './log'
+
 export async function start() {
 
-  console.log('askbitcoin.start')
+  await knex.migrate.latest();
 
   if (config.get('webui_enabled')) {
+
+    const nextjs = spawn("npm", ["run", "start"], {
+
+      cwd: `${process.cwd()}/web-ui`
+
+    });
 
   }
 
@@ -48,6 +62,32 @@ export async function start() {
     }
 
     sync_ask_bitcoin();
+
+    const app_id = config.get('askbitcoin_onchain_app_id')
+
+    onchain(app_id).on('*', (event) => {
+
+      log.info(`onchain.${app_id}.event`, event)
+
+    })
+
+    onchain(app_id).on('question', (value) => {
+
+      log.info(`onchain.${app_id}.question`, value)
+
+    })
+
+    onchain(app_id).on('answer', (value) => {
+
+      log.info(`onchain.${app_id}.answer`, value)
+
+    })
+
+    onchain(app_id).on('error', (error) => {
+
+      log.error(`onchain.${app_id}.error`, error)
+
+    })
 
   }
 

@@ -39,7 +39,7 @@ export class Crawler extends EventEmitter{
       res.body
         .pipe(split2())
         .pipe(through2(async (chunk, enc, callback) => {
-          //console.log(chunk.toString())
+
           let json = JSON.parse(chunk.toString())
 
           this.emit('chunk', json)

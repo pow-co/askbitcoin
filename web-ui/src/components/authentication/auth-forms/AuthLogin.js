@@ -37,7 +37,8 @@ import AnimateButton from 'components/ui-component/extended/AnimateButton';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
-const Google = '/assets/images/icons/social-google.svg';
+const Relayx = '/assets/images/icons/relayx.svg';
+
 
 // ============================|| FIREBASE - LOGIN ||============================ //
 
@@ -84,9 +85,9 @@ const FirebaseLogin = ({ loginProp, ...others }) => {
               }}
             >
               <Box sx={{ mr: { xs: 1, sm: 2 }, width: 20, height: 20, marginRight: matchDownSM ? 8 : 16 }}>
-                <Image src={Google} alt="Berry Dashboard" layout="intrinsic" width="16px" height="16px" />
+                <Image src={Relayx} alt="Ask Bitcoin Dashboard" layout="intrinsic" width="16px" height="16px" />
               </Box>
-              Sign in with RelayX
+              Connect RelayX
             </Button>
           </AnimateButton>
         </Grid>
@@ -137,7 +138,7 @@ const FirebaseLogin = ({ loginProp, ...others }) => {
             <Box sx={{ mt: 2 }}>
               <AnimateButton>
                 <Button href='/questions' disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="secondary">
-                  Skip Sign in
+                  Skip to the Truth
                 </Button>
               </AnimateButton>
             </Box>

@@ -36,10 +36,10 @@ const Login = () => {
                       <Grid item>
                         <Stack alignItems="center" justifyContent="center" spacing={1}>
                           <Typography color={theme.palette.secondary.main} gutterBottom variant={matchDownSM ? 'h3' : 'h2'}>
-                            Hi, Welcome Back
+                            Upgrade Your Intelligence
                           </Typography>
                           <Typography variant="caption" fontSize="16px" textAlign={matchDownSM ? 'center' : 'inherit'}>
-                            Connect your wallet to continue
+                            The Bitcoin Giga Mind will answer using Proof of Work
                           </Typography>
                         </Stack>
                       </Grid>
@@ -47,9 +47,6 @@ const Login = () => {
                   </Grid>
                   <Grid item xs={12}>
                     <AuthLogin />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Divider />
                   </Grid>
                 </Grid>
               </AuthCardWrapper>

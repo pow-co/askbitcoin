@@ -1,20 +1,64 @@
 // material-ui
-import { Typography } from '@mui/material';
+import { Typography, Grid, CardContent, Stack, Rating } from '@mui/material';
 
 // project imports
 import MainCard from 'components/ui-component/cards/MainCard';
+import { gridSpacing } from 'store/constant';
+import StarTwoToneIcon from '@mui/icons-material/StarTwoTone';
+import StarBorderTwoToneIcon from '@mui/icons-material/StarBorderTwoTone';
+import RateReviewTwoToneIcon from '@mui/icons-material/RateReviewTwoTone';
+
+import Link from 'next/link'
+
+
 
 // ==============================|| SAMPLE PAGE ||============================== //
+import { useAPI } from 'hooks/useAPI';
 
-const SamplePage = () => (
+const SamplePage = () => {
+
+  let { data, error, refresh, loading } = useAPI('/questions')
+
+  console.log({ data, error, refresh, loading })
+
+  if (error) {
+    console.log('ERROR', error)
+    return <p>Error</p>
+  }
+
+  if (loading && !data) {
+    return <p>Loading...</p>
+  }
+
+  const { questions } = data
+
+  return (
+
   <MainCard title="Questions with Most Proof of Work">
-    <Typography variant="body2">
-      Lorem ipsum dolor sit amen, consenter nipissing eli, sed do elusion tempos incident ut laborers et doolie magna alissa. Ut enif ad
-      minim venice, quin nostrum exercitation illampu laborings nisi ut liquid ex ea commons construal. Duos aube grue dolor in reprehended
-      in voltage veil esse colum doolie eu fujian bulla parian. Exceptive sin ocean cuspidate non president, sunk in culpa qui officiate
-      descent molls anim id est labours.
-    </Typography>
+
+    <Stack direction="column" justifyContent="flex-end">
+
+      {questions.map(question => {
+        return (
+          <Link
+            color="text.secondary"
+            underline="always"
+            href={`/questions/${question.tx_id}`}
+            sx={{ typography: 'body2', display: 'flex', alignItems: 'center' }}
+          >
+          <MainCard title={question.value.content}>
+            <Typography variant="body2">
+              {question.author ? `Author: ${question.author}` : 'Anonymous Author'}
+            </Typography>
+          </MainCard>
+          </Link>
+        ) 
+      })}
+    </Stack>
+
   </MainCard>
-);
+  )
+};
+
 SamplePage.Layout = 'authGuard';
 export default SamplePage;

@@ -1,0 +1,34 @@
+
+import useSWR from 'swr';
+
+export const DOMAIN = '/'
+
+//export const BASE = `https://${DOMAIN}/v1/api`;
+export const BASE = `/api/v1`;
+
+import axios from '../utils/axios'
+
+//const axiosInstance = axios.create({ baseURL: process.env.HOST_API_KEY || '' });
+const axiosInstance = axios.create({ baseURL: '' });
+
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => Promise.reject((error.response && error.response.data) || 'Something went wrong')
+);
+
+export default axiosInstance;
+
+
+export function fetcher(params) {
+    return axios(params).then(({data}) => {
+        return data;
+    })
+}
+
+export function useAPI(path) {
+
+    let {data, error, mutate: refresh, isValidating: loading} = useSWR(`${BASE}${path}`, fetcher)
+    
+    return { data, error, refresh, loading}
+
+}

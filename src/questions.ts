@@ -9,6 +9,8 @@ import config from './config'
 
 import { Wallet } from './rabbi/onchain'
 
+import { knex } from './knex'
+
 type QuestionsStore = {
   [key: string]: Question
 }
@@ -42,7 +44,11 @@ interface Query {
 
 export async function list(query: Query = {}): Promise<Question[]> {
 
-  return []
+  let result = await knex('onchain_events').where({
+    key: 'question'
+  }).select('*')
+
+  return result
 
 }
 
@@ -84,8 +90,6 @@ export async function ask(wallet: Wallet, content: string, options: AskQuestionO
 
   let transaction = await wallet.publish('question', { content })
 
-  console.log({ transaction })
-
   return {
     content,
     answers: [],
@@ -105,9 +109,8 @@ interface NewAnswer {
 export async function answer(wallet: Wallet, newAnswer: NewAnswer): Promise<Answer> {
 
   let utxos = await wallet.sync()
-  console.log(newAnswer.question)
 
-  let transaction = await wallet.build('answer', {
+  let transaction = await wallet.publish('answer', {
     txid: newAnswer.question.transaction.txid,
     content: newAnswer.content
   })
@@ -120,6 +123,50 @@ export async function answer(wallet: Wallet, newAnswer: NewAnswer): Promise<Answ
       hex: transaction.serialize()
     }
   }
+
+}
+
+export async function loadQuestions(): Promise<Question[]> {
+
+  let questions = await knex('onchain_events')
+    .where({
+      key: 'question'
+    })
+    .select('*')
+
+  return questions.map(question => {
+
+    try {
+
+      const value = JSON.parse(question.value)
+
+      return Object.assign(question, { value })
+
+    } catch(error) {
+
+      return null
+
+    }
+
+  }).filter(question => !!question)
+}
+
+export async function loadQuestion({ tx_id }: {tx_id: string}): Promise<Question> {
+
+  let [question] = await knex('onchain_events')
+    .where({
+      key: 'question',
+      tx_id
+    })
+    .select('*')
+
+  if (!question) {
+    return
+  }
+
+  const value = JSON.parse(question.value)
+
+  return Object.assign(question, { value })
 
 }
 

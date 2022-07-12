@@ -1,14 +1,31 @@
 
 const EventSource = require('eventsource')
 
+import { knex } from '../../knex'
+
+import { log } from '../../log'
+
 import { EventEmitter } from 'events'
 
 import config from '../../config'
 
+import { onchainQueue } from '../../planaria'
+
+const app_id = config.get('askbitcoin_onchain_app_id')
+
 function onTransaction(value) {
 
-  //console.log(value)
+}
 
+interface OnchainTransaction {
+  tx_id: string;
+  tx_index: number;
+  app_id: string;
+  key: string;
+  value: string;
+  nonce?: string;
+  author?: string;
+  signature?: string;
 }
 
 export async function bitsocket(query: any, emitter?: EventEmitter) {
@@ -67,8 +84,6 @@ export async function bitsocket(query: any, emitter?: EventEmitter) {
 
       const event = payload.data[0]
 
-      //console.log(event)
-
       const output = {
         app_id: event.out[0].s3,
         key: event.out[0].s4,
@@ -80,18 +95,51 @@ export async function bitsocket(query: any, emitter?: EventEmitter) {
 
       if (emitter) {
 
-        emitter.emit(output.key, output.value)
+        try {
+
+          output.value = JSON.parse(output.value)
+
+          emitter.emit(output.key, output.value)
+
+          emitter.emit('*', output)
+
+        } catch(error) {
+
+          log.debug.error('onchain.error', error)
+
+        }
 
       }
 
       onTransaction(Object.assign(output, {"eventsource": true}))
+
+      let outputs = event.out
+        .filter(({s2}) => s2 === 'onchain')
+        .filter(({s3}) => s3 === app_id)
+
+      outputs.map(output => {
+
+        let message: OnchainTransaction = {
+          tx_id: event['tx']['h'],
+          tx_index: output['i'],
+          app_id: output['s3'],
+          key: output['s4'],
+          value: JSON.parse(output['s5']),
+          nonce: output['s6'],
+          author: output['s7'],
+          signature: output['s8']
+        }
+
+        onchainQueue.push(message)
+      })
+
 
     }
 
   }
 }
 
-function onchain({app_id}: {app_id: string}) {
+export function onchain({app_id}: {app_id: string}) {
 
   const emitter = new EventEmitter()
 
@@ -103,24 +151,4 @@ function onchain({app_id}: {app_id: string}) {
   return emitter
 
 }
-
-const app_id = config.get('askbitcoin_onchain_app_id')
-
-onchain(app_id).on('event', () => {
-
-})
-
-onchain(app_id).on('question', (value) => {
-
-  console.log('QUESTION', value)
-
-})
-
-onchain(app_id).on('answer', () => {
-
-})
-
-onchain(app_id).on('error', () => {
-
-})
 

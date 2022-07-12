@@ -1,6 +1,6 @@
 {
-  "name": "berry-react-material-next-js",
-  "version": "3.1.1",
+  "name": "askbitcoin-web-ui",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -86,6 +86,8 @@
     "remark-gfm": "^1.0.0",
     "slick-carousel": "^1.8.1",
     "stylis-plugin-rtl": "^2.1.1",
+    "swagger-ui-react": "^4.12.0",
+    "swr": "^1.3.0",
     "uuid": "^8.3.2",
     "web-vitals": "^2.1.4",
     "yup": "^0.32.11"

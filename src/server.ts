@@ -189,7 +189,7 @@ server.route({
 
 server.route({
   method: 'GET',
-  path: '/api/v1/questions/{txid}',
+  path: '/api/v1/questions/{tx_id}',
   handler: handlers.Questions.show,
   options: {
     description: 'Show a Question with Answers and Work',
@@ -208,7 +208,7 @@ server.route({
 
 server.route({
   method: 'GET',
-  path: '/api/v1/answers/{txid}',
+  path: '/api/v1/answers/{tx_id}',
   handler: handlers.Answers.show,
   options: {
     description: 'Show an Answers with Question and Work',

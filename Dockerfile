@@ -13,8 +13,14 @@ RUN npm install
 # Bundle app source
 COPY . /usr/src/app
 
+WORKDIR /usr/src/app/web-ui
+
+RUN npm install
+
 RUN npm run build
 
-RUN npm link
+WORKDIR /usr/src/app
 
-CMD rabbi start
+RUN mkdir .rabbi
+
+CMD npm start

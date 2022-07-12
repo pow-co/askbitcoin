@@ -56,6 +56,10 @@ program
   .command('list_questions')
   .action(async () => {
 
+    //let client = new Client({url: 'http://localhost:5200'})
+
+    //let questions = client.listQuestions()
+
     let questions = await AskBitcoin.questions.list()
 
     console.log(questions)
@@ -93,17 +97,32 @@ program
   })
 
 program
-  .command('answer_question <txid> <answer>')
-  .action(async (txid, content) => {
+  .command('answer_question <question_id> <answer>')
+  .action(async (question_id, content) => {
 
     const wallet = await loadWallet()
 
-    let question = await AskBitcoin.questions.find(txid)
+    var tx_id, tx_index;
 
-    console.log('__FOUND QUESTION', question)
+    if (question_id.match('_')) {
+
+      [tx_id, tx_index] = question_id.split('_')
+
+      tx_index = tx_index.replace('o', '')
+
+    } else {
+
+      tx_id = question_id
+
+    }
 
     let answer: AskBitcoin.Answer = await AskBitcoin.questions.answer(wallet, {
-      question,
+      question: {
+        content: '',
+        transaction: {
+          txid: tx_id
+        }
+      },
       content
     })
 
@@ -114,13 +133,14 @@ program
   })
 
 
-program
+/*program
   .command('start')
   .action(() => {
 
     //main()
 
   })
+  */
 
 /*
 
