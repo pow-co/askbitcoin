@@ -4,12 +4,12 @@ import useSWR from 'swr';
 export const DOMAIN = '/'
 
 //export const BASE = `https://${DOMAIN}/v1/api`;
-export const BASE = `/api/v1`;
+export const BASE = `https://askbitcoin.ai/api/v1`;
 
 import axios from '../utils/axios'
 
 //const axiosInstance = axios.create({ baseURL: process.env.HOST_API_KEY || '' });
-const axiosInstance = axios.create({ baseURL: '' });
+const axiosInstance = axios.create({ baseURL: 'https://askbitcoin.ai' });
 
 axiosInstance.interceptors.response.use(
   (response) => response,

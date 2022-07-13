@@ -5,6 +5,8 @@ import { Button, Card, CardContent, Grid, Stack, Typography } from '@mui/materia
 // project imports
 import AnimateButton from 'components/ui-component/extended/AnimateButton';
 
+import { FormattedMessage } from 'react-intl';
+
 // styles
 const CardStyle = styled(Card)(({ theme }) => ({
   background: theme.palette.mode === 'dark' ? theme.palette.dark[800] : theme.palette.warning.light,
@@ -46,7 +48,7 @@ const UpgradePlanCard = () => {
       <CardContent>
         <Grid container direction="column" spacing={2}>
           <Grid item>
-            <Typography variant="h4">Upgrade your Intelligence</Typography>
+            <Typography variant="h4"><FormattedMessage id='upgrade-your-intelligence' /></Typography>
           </Grid>
           <Grid item>
             <Typography
@@ -54,15 +56,14 @@ const UpgradePlanCard = () => {
               color={theme.palette.mode === 'dark' ? 'textSecondary' : 'grey.900'}
               sx={{ opacity: theme.palette.mode === 'dark' ? 1 : 0.6 }}
             >
-              Exclusive capabilities and intelligence for <br />
-              NFT subscribers.
+              <FormattedMessage id="upgrade-intelligence-description"/>
             </Typography>
           </Grid>
           <Grid item>
             <Stack direction="row">
               <AnimateButton>
                 <Button variant="contained" color="warning" sx={{ boxShadow: 'none' }}>
-                  Get the NFT
+                  <FormattedMessage id="get-the-nft"/>
                 </Button>
               </AnimateButton>
             </Stack>

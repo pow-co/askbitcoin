@@ -11,6 +11,9 @@ import Logo from 'components/ui-component/Logo';
 import AuthFooter from 'components/ui-component/cards/AuthFooter';
 import useAuth from 'hooks/useAuth';
 
+import { FormattedMessage } from 'react-intl';
+
+
 // ================================|| AUTH3 - LOGIN ||================================ //
 
 const Login = () => {
@@ -36,10 +39,10 @@ const Login = () => {
                       <Grid item>
                         <Stack alignItems="center" justifyContent="center" spacing={1}>
                           <Typography color={theme.palette.secondary.main} gutterBottom variant={matchDownSM ? 'h3' : 'h2'}>
-                            Upgrade Your Intelligence
+                            <FormattedMessage id="upgrade-your-intelligence"/>
                           </Typography>
                           <Typography variant="caption" fontSize="16px" textAlign={matchDownSM ? 'center' : 'inherit'}>
-                            The Bitcoin Giga Mind will answer using Proof of Work
+                            <FormattedMessage id="giga-mind"/>
                           </Typography>
                         </Stack>
                       </Grid>

@@ -19,6 +19,8 @@ import {
 
 // assets
 import TableChartOutlinedIcon from '@mui/icons-material/TableChartOutlined';
+import { FormattedMessage } from 'react-intl';
+
 
 // styles
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
@@ -61,7 +63,7 @@ function LinearProgressWithLabel({ value, ...others }) {
         <Grid container justifyContent="space-between">
           <Grid item>
             <Typography variant="h6" sx={{ color: theme.palette.mode === 'dark' ? theme.palette.dark.light : theme.palette.primary[800] }}>
-              Progress
+              <FormattedMessage id="progress"/>
             </Typography>
           </Grid>
           <Grid item>
@@ -113,10 +115,10 @@ const MenuCard = () => {
                   variant="subtitle1"
                   sx={{ color: theme.palette.mode === 'dark' ? theme.palette.dark.light : theme.palette.primary[800] }}
                 >
-                  Full Text Search?
+                  <FormattedMessage id="full-text-search"/>
                 </Typography>
               }
-              secondary={<Typography variant="caption"> Buy the NFT</Typography>}
+              secondary={<Typography variant="caption"><FormattedMessage id="get-the-nft"/></Typography>}
             />
           </ListItem>
         </List>

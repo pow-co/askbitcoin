@@ -14,6 +14,8 @@ import Link from 'next/link'
 
 // ==============================|| SAMPLE PAGE ||============================== //
 import { useAPI } from 'hooks/useAPI';
+import { FormattedMessage } from 'react-intl';
+
 
 const SamplePage = () => {
 
@@ -27,14 +29,14 @@ const SamplePage = () => {
   }
 
   if (loading && !data) {
-    return <p>Loading...</p>
+    return <p><FormattedMessage id="loading"/></p>
   }
 
   const { questions } = data
 
   return (
 
-  <MainCard title="Questions with Most Proof of Work">
+  <MainCard title={<FormattedMessage id="questions-pow" />}>
 
     <Stack direction="column" justifyContent="flex-end">
 

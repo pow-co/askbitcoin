@@ -24,6 +24,10 @@ import {
   Typography
 } from '@mui/material';
 
+import BoringAvatar from "boring-avatars";
+
+import Image from 'next/image';
+
 // third-party
 import PerfectScrollbar from 'react-perfect-scrollbar';
 
@@ -36,6 +40,11 @@ import useAuth from 'hooks/useAuth';
 // assets
 import { IconLogout, IconSearch, IconSettings, IconUser } from '@tabler/icons';
 import useConfig from 'hooks/useConfig';
+
+import { useRouter} from 'next/router'
+import AlertItemDelete from 'components/application/kanban/Board/AlertItemDelete';
+
+import { FormattedMessage } from 'react-intl';
 
 const User1 = '/assets/images/users/user-round.svg';
 
@@ -52,6 +61,8 @@ const ProfileSection = () => {
   const { logout, user } = useAuth();
   const [open, setOpen] = useState(false);
 
+  const router = useRouter();
+
   /**
    * anchorRef is used on different components and specifying one type leads to other components throwing an error
    * */
@@ -59,9 +70,14 @@ const ProfileSection = () => {
   const handleLogout = async () => {
     try {
       await logout();
+      router.push('/')
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleLogin = async () => {
+    router.push('/')
   };
 
   const handleClose = (event) => {
@@ -90,6 +106,19 @@ const ProfileSection = () => {
     prevOpen.current = open;
   }, [open]);
 
+  const avatar = <Avatar
+  src={user?.email ? `https://bitpic.network/u/${user.email}`: 'https://bitpic.network/u/unknown'}
+  sx={{
+    ...theme.typography.mediumAvatar,
+    margin: '8px 0 8px 8px !important',
+    cursor: 'pointer'
+  }}
+  ref={anchorRef}
+  aria-controls={open ? 'menu-list-grow' : undefined}
+  aria-haspopup="true"
+  color="inherit"
+/>
+
   return (
     <>
       <Chip
@@ -113,18 +142,7 @@ const ProfileSection = () => {
           }
         }}
         icon={
-          <Avatar
-            src={User1}
-            sx={{
-              ...theme.typography.mediumAvatar,
-              margin: '8px 0 8px 8px !important',
-              cursor: 'pointer'
-            }}
-            ref={anchorRef}
-            aria-controls={open ? 'menu-list-grow' : undefined}
-            aria-haspopup="true"
-            color="inherit"
-          />
+          avatar
         }
         label={<IconSettings stroke={1.5} size="1.5rem" color={theme.palette.primary.main} />}
         variant="outlined"
@@ -161,19 +179,19 @@ const ProfileSection = () => {
                     <Box sx={{ p: 2, pb: 0 }}>
                       <Stack>
                         <Stack direction="row" spacing={0.5} alignItems="center">
-                          <Typography variant="h4">Hello,</Typography>
+                          <Typography variant="h4"></Typography>
                           <Typography component="span" variant="h4" sx={{ fontWeight: 400 }}>
-                            {user ? user.name : 'Jone Doe'}
+                          {user ? user.name : <FormattedMessage id="signed-out"/>}
                           </Typography>
                         </Stack>
-                        <Typography variant="subtitle2">Bitcoin User</Typography>
+                        <Typography variant="subtitle2">{user?.email ? <FormattedMessage id="signed-in"/> : <FormattedMessage id="anonymous-user"/>}</Typography>
                       </Stack>
                       <OutlinedInput
                         sx={{ width: '100%', pr: 1, pl: 2, my: 2 }}
                         id="input-search-profile"
                         value={value}
                         onChange={(e) => setValue(e.target.value)}
-                        placeholder="Search popular topics"
+                        placeholder="Search Popular Questions"
                         startAdornment={
                           <InputAdornment position="start">
                             <IconSearch stroke={1.5} size="1rem" color={theme.palette.grey[500]} />
@@ -201,7 +219,7 @@ const ProfileSection = () => {
                               <Grid item>
                                 <Grid item container alignItems="center" justifyContent="space-between">
                                   <Grid item>
-                                    <Typography variant="subtitle1">Double Extra Boost Mode</Typography>
+                                    <Typography variant="subtitle1"><FormattedMessage id="double-extra-boost-mode"/></Typography>
                                   </Grid>
                                   <Grid item>
                                     <Switch
@@ -217,7 +235,7 @@ const ProfileSection = () => {
                               <Grid item>
                                 <Grid item container alignItems="center" justifyContent="space-between">
                                   <Grid item>
-                                    <Typography variant="subtitle1">Allow Notifications</Typography>
+                                    <Typography variant="subtitle1"><FormattedMessage id="allow-notifications"/></Typography>
                                   </Grid>
                                   <Grid item>
                                     <Switch
@@ -249,23 +267,29 @@ const ProfileSection = () => {
                             }
                           }}
                         >
-                          <ListItemButton
-                            sx={{ borderRadius: `${borderRadius}px` }}
-                            selected={selectedIndex === 0}
-                            onClick={(event) => handleListItemClick(event, 0)}
-                          >
-                            <ListItemIcon>
-                              <IconSettings stroke={1.5} size="1.3rem" />
-                            </ListItemIcon>
-                            <ListItemText primary={<Typography variant="body2">Account Settings</Typography>} />
-                          </ListItemButton>
 
+
+                          {user?.email &&
+                          <>
+   
                           <ListItemButton sx={{ borderRadius: `${borderRadius}px` }} selected={selectedIndex === 4} onClick={handleLogout}>
-                            <ListItemIcon>
-                              <IconLogout stroke={1.5} size="1.3rem" />
-                            </ListItemIcon>
-                            <ListItemText primary={<Typography variant="body2">Logout</Typography>} />
-                          </ListItemButton>
+                              <ListItemIcon>
+                                <IconLogout stroke={1.5} size="1.3rem" />
+                              </ListItemIcon>
+                              <ListItemText primary={<Typography variant="body2"><FormattedMessage id="sign-out"/></Typography>} />
+                            </ListItemButton>
+                          </>
+
+
+                          }
+                          {!user?.email &&
+                            <ListItemButton sx={{ borderRadius: `${borderRadius}px` }} selected={selectedIndex === 4} onClick={handleLogin}>
+                              <ListItemIcon>
+                                <IconLogout stroke={1.5} size="1.3rem" />
+                              </ListItemIcon>
+                              <ListItemText primary={<Typography variant="body2">Login</Typography>} />
+                            </ListItemButton>
+                          }
                         </List>
                       </Box>
                     </PerfectScrollbar>

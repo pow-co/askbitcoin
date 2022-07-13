@@ -11,6 +11,8 @@ import RateReviewTwoToneIcon from '@mui/icons-material/RateReviewTwoTone';
 import Link from 'next/link'
 
 
+import { FormattedMessage } from 'react-intl';
+
 
 // ==============================|| SAMPLE PAGE ||============================== //
 import { useAPI } from 'hooks/useAPI';
@@ -27,7 +29,7 @@ const AnswersPage = () => {
   }
 
   if (loading && !data) {
-    return <p>Loading...</p>
+    return <p><FormattedMessage id="loading"/></p>
   }
 
   const { answers } = data
@@ -36,7 +38,7 @@ const AnswersPage = () => {
 
   return (
 
-  <MainCard title="Questions with Most Proof of Work">
+  <MainCard title={<FormattedMessage id="answers-pow"/>}>
 
     <Stack direction="column" justifyContent="flex-end">
 

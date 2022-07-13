@@ -8,6 +8,8 @@ import { useAPI } from 'hooks/useAPI';
 
 import { useRouter } from 'next/router'
 
+import { FormattedMessage } from 'react-intl'
+
 
 // ==============================|| SAMPLE PAGE ||============================== //
 
@@ -24,7 +26,7 @@ const SamplePage = () => {
   }
 
   if (loading && !data) {
-    return <p>Loading...</p>
+    return <p><FormattedMessage id="loading"/></p>
   }
   console.log({data})
 

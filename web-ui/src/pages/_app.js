@@ -26,10 +26,12 @@ import Snackbar from 'components/ui-component/extended/Snackbar';
 
 import { ConfigProvider } from 'contexts/ConfigContext';
 
-import { FirebaseProvider as AuthProvider } from '../contexts/FirebaseContext';
+//import { FirebaseProvider as AuthProvider } from '../contexts/FirebaseContext';
 // import { Auth0Provider as AuthProvider } from '../contexts/Auth0Context';
 //import { JWTProvider as AuthProvider } from 'contexts/JWTContext';
 // import { AWSCognitoProvider as AuthProvider } from 'contexts/AWSCognitoContext';
+import { RelayxProvider as AuthProvider } from '../contexts/RelayxContext';
+
 
 const Noop = ({ children }) => <> {children} </>;
 
