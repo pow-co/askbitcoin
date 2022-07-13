@@ -18,7 +18,7 @@ import Post from 'components/ui-component/cards/Post';
 import FormControl from 'components/ui-component/extended/Form/FormControl';
 import Avatar from 'components/ui-component/extended/Avatar';
 
-const SamplePage = () => {
+const QuestionPage = () => {
   const { user } = useAuth();
   let { data, error, refresh, loading } = useAPI('/questions');
 
@@ -51,5 +51,5 @@ const SamplePage = () => {
   );
 };
 
-SamplePage.Layout = 'authGuard';
-export default SamplePage;
+QuestionPage.Layout = 'authGuard';
+export default QuestionPage;
