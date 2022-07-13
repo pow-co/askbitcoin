@@ -22,11 +22,11 @@ describe('Swagger Documentation', () => {
 
   })
 
-  it('GET / should return the swagger documentation', async () => {
+  it('GET /api should return the swagger documentation', async () => {
 
     const response = await server.inject({
       method: 'GET',
-      url: '/'
+      url: '/api'
     })
 
     expect(response.statusCode).to.be.equal(200)
