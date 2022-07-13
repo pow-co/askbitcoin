@@ -1,58 +1,57 @@
 // material-ui
 import { Typography } from '@mui/material';
 
+import Link from 'next/link';
+
 // project imports
 import MainCard from 'components/ui-component/cards/MainCard';
+import Post from 'components/ui-component/cards/Post';
+import FormControl from 'components/ui-component/extended/Form/FormControl';
 
 import { useAPI } from 'hooks/useAPI';
 
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/router';
 
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage } from 'react-intl';
 
+// ==============================|| QUESTION DETAIL PAGE ||============================== //
 
-// ==============================|| SAMPLE PAGE ||============================== //
+const QuestionDetailPage = () => {
+  const { query } = useRouter();
 
-const SamplePage = () => {
-  const { query } = useRouter()
+  let { data, error, refresh, loading } = useAPI(`/questions/${query.question_id}`);
 
-  let { data, error, refresh, loading } = useAPI(`/questions/${query.question_id}`)
-
-  console.log({ data, error, refresh, loading })
+  console.log({ data, error, refresh, loading });
 
   if (error) {
-    console.log('ERROR', error)
-    return <p>Error</p>
+    console.log('ERROR', error);
+    return <p>Error</p>;
   }
 
   if (loading && !data) {
-    return <p><FormattedMessage id="loading"/></p>
+    return (
+      <p>
+        <FormattedMessage id="loading" />
+      </p>
+    );
   }
-  console.log({data})
+  console.log({ data });
 
-
-  const { question, answers } = data
-
+  const { question, answers } = data;
 
   return (
     <>
-    <h1>Question</h1>
-    <MainCard title={question.value.content}>
-      <Typography variant="body2">
-        {question.author ? `Author: ${question.author}` : 'Anonymous Author'}
-      </Typography>
-    </MainCard>
-    <h2>Answers</h2>
-    {answers.map(answer => {
-
-      return (<MainCard title={answer.value.content}>
-        <Typography variant="body2">
-          {answer.author ? `Author: ${answer.author}` : 'Anonymous Author'}
-        </Typography>
-      </MainCard>)
-    })}
+      <h1>Question</h1>
+      <MainCard>
+        <Post post={question} />
+      </MainCard>
+      <h2>Answers</h2>
+      <FormControl placeholder="Add your answer" />
+      {answers.map((answer) => {
+        return <Post key={answer.tx_id} answer post={answer} />;
+      })}
     </>
-  )
+  );
 };
-SamplePage.Layout = 'authGuard';
-export default SamplePage;
+QuestionDetailPage.Layout = 'authGuard';
+export default QuestionDetailPage;

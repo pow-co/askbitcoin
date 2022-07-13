@@ -8,60 +8,44 @@ import StarTwoToneIcon from '@mui/icons-material/StarTwoTone';
 import StarBorderTwoToneIcon from '@mui/icons-material/StarBorderTwoTone';
 import RateReviewTwoToneIcon from '@mui/icons-material/RateReviewTwoTone';
 
-import Link from 'next/link'
+import Link from 'next/link';
 
-
-import { FormattedMessage } from 'react-intl';
-
-
-// ==============================|| SAMPLE PAGE ||============================== //
+// ==============================|| ANSWER PAGE ||============================== //
 import { useAPI } from 'hooks/useAPI';
+import { FormattedMessage } from 'react-intl';
+import Post from 'components/ui-component/cards/Post';
 
 const AnswersPage = () => {
+  let { data, error, refresh, loading } = useAPI('/answers');
 
-  let { data, error, refresh, loading } = useAPI('/answers')
-
-  console.log({ data, error, refresh, loading })
+  console.log({ data, error, refresh, loading });
 
   if (error) {
-    console.log('ERROR', error)
-    return <p>Error</p>
+    console.log('ERROR', error);
+    return <p>Error</p>;
   }
 
   if (loading && !data) {
-    return <p><FormattedMessage id="loading"/></p>
+    return (
+      <p>
+        <FormattedMessage id="loading" />
+      </p>
+    );
   }
 
-  const { answers } = data
+  const { answers } = data;
 
-  console.log({ answers })
+  console.log({ answers });
 
   return (
-
-  <MainCard title={<FormattedMessage id="answers-pow"/>}>
-
-    <Stack direction="column" justifyContent="flex-end">
-
-      {answers.map(answer => {
-        return (
-          <Link
-            color="text.secondary"
-            underline="always"
-            href={`/questions/${answer.value.txid}`}
-            sx={{ typography: 'body2', display: 'flex', alignItems: 'center' }}
-          >
-          <MainCard title={answer.value.content}>
-            <Typography variant="body2">
-              {answer.author ? `Author: ${answer.author}` : 'Anonymous Author'}
-            </Typography>
-          </MainCard>
-          </Link>
-        ) 
-      })}
-    </Stack>
-
-  </MainCard>
-  )
+    <MainCard title={<FormattedMessage id="answers-pow" />}>
+      <Stack direction="column" justifyContent="flex-end">
+        {answers.map((answer) => {
+          return <Post key={answer.tx_id} answer post={answer} />;
+        })}
+      </Stack>
+    </MainCard>
+  );
 };
 
 AnswersPage.Layout = 'authGuard';

@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import * as React from 'react';
+import Link from 'next/link';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -43,6 +44,7 @@ import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import ThumbUpAltTwoToneIcon from '@mui/icons-material/ThumbUpAltTwoTone';
 import ChatBubbleTwoToneIcon from '@mui/icons-material/ChatBubbleTwoTone';
 import useConfig from 'hooks/useConfig';
+import { useRouter } from 'next/router';
 
 const avatarImage = '/assets/images/profile/';
 
@@ -100,15 +102,17 @@ FormInput.propTypes = {
 
 // ==============================|| SOCIAL PROFILE - POST ||============================== //
 
-const Post = ({ commentAdd, handleCommentLikes, handlePostLikes, handleReplayLikes, post, replyAdd }) => {
+const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAdd, answer }) => {
   const theme = useTheme();
-  const { id, data, profile } = post;
+  const router = useRouter();
+  const { tx_id, value, author } = post;
 
   const { borderRadius } = useConfig();
   const matchesXS = useMediaQuery(theme.breakpoints.down('md'));
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const handleClick = (event) => {
+    event.stopPropagation();
     setAnchorEl(event.currentTarget);
   };
 
@@ -118,6 +122,7 @@ const Post = ({ commentAdd, handleCommentLikes, handlePostLikes, handleReplayLik
 
   const [anchorSharedEl, setAnchorSharedEl] = React.useState(null);
   const handleSharedClick = (event) => {
+    event.stopPropagation();
     setAnchorSharedEl(event.currentTarget);
   };
 
@@ -125,11 +130,18 @@ const Post = ({ commentAdd, handleCommentLikes, handlePostLikes, handleReplayLik
     setAnchorSharedEl(null);
   };
 
-  const [openComment, setOpenComment] = React.useState(!(data.comments && data.comments.length > 0));
-  const handleChangeComment = () => {
-    setOpenComment((prev) => !prev);
+  //const [openComment, setOpenComment] = React.useState(!(data.comments && data.comments.length > 0));
+  const handleChangeComment = (event) => {
+    event.stopPropagation();
+    //setOpenComment((prev) => !prev);
   };
 
+  const handleBoost = async (event) => {
+    event.stopPropagation();
+    console.log('Im boostiiiing');
+  };
+
+  /* 
   let commentsResult = <></>;
 
   if (data && data.comments) {
@@ -144,7 +156,7 @@ const Post = ({ commentAdd, handleCommentLikes, handlePostLikes, handleReplayLik
         handleReplayLikes={handleReplayLikes}
       />
     ));
-  }
+  } */
 
   const methods = useForm({
     resolver: yupResolver(validationSchema)
@@ -174,24 +186,31 @@ const Post = ({ commentAdd, handleCommentLikes, handlePostLikes, handleReplayLik
     reset({ name: '' });
   };
 
+  const navigate = (event) => {
+    event.stopPropagation();
+    router.push(`/${answer ? 'answers' : 'questions'}/${tx_id}`);
+  };
+
   return (
-    <MainCard>
+    <MainCard onClick={navigate}>
       <Grid container spacing={1}>
         <Grid item xs={12}>
           <Grid container wrap="nowrap" alignItems="center" spacing={1}>
             <Grid item>
-              <Avatar alt="User 1" src={`${avatarImage}/${profile.avatar}`} />
+              <Avatar alt="User 1" src={author?.email ? `https://bitpic.network/u/${author.email}` : 'https://bitpic.network/u/unknown'} />
             </Grid>
             <Grid item xs zeroMinWidth>
               <Grid container alignItems="center" spacing={1}>
                 <Grid item>
                   <Typography align="left" variant="h5" component="div">
-                    {profile.name}
+                    {author ? author.name : 'Anonymous'}
                   </Typography>
                 </Grid>
                 <Grid item>
                   <Typography align="left" variant="caption">
-                    <FiberManualRecordIcon sx={{ width: '10px', height: '10px', opacity: 0.5, m: '0 5px' }} /> {profile.time}
+                    <FiberManualRecordIcon sx={{ width: '10px', height: '10px', opacity: 0.5, m: '0 5px' }} />
+                    {/* {question.time} */}
+                    tx
                   </Typography>
                 </Grid>
               </Grid>
@@ -252,32 +271,32 @@ const Post = ({ commentAdd, handleCommentLikes, handlePostLikes, handleReplayLik
             }
           }}
         >
-          <ReactMarkdown remarkPlugins={[gfm]}>{data.content}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[gfm]}>{value.content}</ReactMarkdown>
         </Grid>
 
         {/* post - photo grid */}
-        {data && data.images && data.images.length > 0 && (
-          <Grid item xs={12}>
-            <ImageList itemData={data.images} />
-          </Grid>
-        )}
+        {/* {data && data.images && data.images.length > 0 && (
+            <Grid item xs={12}>
+              <ImageList itemData={data.images} />
+            </Grid>
+          )} */}
 
         {/* post - video */}
-        {data.video && (
-          <Grid item xs={12} sx={{ '&.MuiGrid-root': { pt: 2 } }}>
-            <CardMedia
-              sx={{
-                borderRadius: `${borderRadius}px`,
-                height: 330,
-                [theme.breakpoints.down('xl')]: {
-                  height: 220
-                }
-              }}
-              component="iframe"
-              src={`https://www.youtube.com/embed/${data.video}`}
-            />
-          </Grid>
-        )}
+        {/* {data.video && (
+            <Grid item xs={12} sx={{ '&.MuiGrid-root': { pt: 2 } }}>
+              <CardMedia
+                sx={{
+                  borderRadius: `${borderRadius}px`,
+                  height: 330,
+                  [theme.breakpoints.down('xl')]: {
+                    height: 220
+                  }
+                }}
+                component="iframe"
+                src={`https://www.youtube.com/embed/${data.video}`}
+              />
+            </Grid>
+          )} */}
 
         {/* post - comment, likes and replay history */}
         <Grid item xs={12}>
@@ -291,102 +310,103 @@ const Post = ({ commentAdd, handleCommentLikes, handlePostLikes, handleReplayLik
             <Grid item>
               <Stack direction="row" spacing={2}>
                 <Button
-                  variant="text"
-                  onClick={() => handlePostLikes(id)}
-                  color="inherit"
-                  size="small"
-                  startIcon={<ThumbUpAltTwoToneIcon color={data && data.likes && data.likes.like ? 'primary' : 'inherit'} />}
-                >
-                  {data && data.likes && data.likes.value ? data.likes.value : 0}
-                  <Typography color="inherit" sx={{ fontWeight: 500, ml: 0.5, display: { xs: 'none', sm: 'block' } }}>
-                    likes
-                  </Typography>
-                </Button>
-                <Button
                   onClick={handleChangeComment}
                   size="small"
                   variant="text"
                   color="inherit"
                   startIcon={<ChatBubbleTwoToneIcon color="secondary" />}
                 >
-                  {data.comments ? data.comments.length : 0} comments
+                  {/* {data.comments ? data.comments.length : 0} comments */}0
+                </Button>
+                <Button
+                  variant="text"
+                  onClick={handleBoost}
+                  color="inherit"
+                  size="small"
+                  //startIcon={<ThumbUpAltTwoToneIcon color={data && data.likes && data.likes.like ? 'primary' : 'inherit'} />}
+                  startIcon={<ThumbUpAltTwoToneIcon color={'inherit'} />}
+                >
+                  {/* {data && data.likes && data.likes.value ? data.likes.value : 0} */}0
+                  <Typography color="inherit" sx={{ fontWeight: 500, ml: 0.5, display: { xs: 'none', sm: 'block' } }}>
+                    boosts
+                  </Typography>
                 </Button>
               </Stack>
             </Grid>
-            <Grid item>
-              <IconButton onClick={handleSharedClick} size="large">
-                <ShareTwoToneIcon sx={{ width: '1rem', height: '1rem' }} />
-              </IconButton>
-              <Menu
-                id="menu-post"
-                anchorEl={anchorSharedEl}
-                keepMounted
-                open={Boolean(anchorSharedEl)}
-                onClose={handleSharedClose}
-                variant="selectedMenu"
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right'
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right'
-                }}
-                sx={{
-                  '& .MuiSvgIcon-root': {
-                    marginRight: '14px',
-                    fontSize: '1.25rem'
-                  }
-                }}
-              >
-                <MenuItem onClick={handleSharedClose}>
-                  <ShareTwoToneIcon fontSize="inherit" /> Share Now
-                </MenuItem>
-                <MenuItem onClick={handleSharedClose}>
-                  <PeopleAltTwoToneIcon fontSize="inherit" /> Share to Friends
-                </MenuItem>
-                <MenuItem onClick={handleSharedClose}>
-                  <ChatTwoToneIcon fontSize="inherit" /> Send in Messanger
-                </MenuItem>
-                <MenuItem onClick={handleSharedClose}>
-                  <ContentCopyTwoToneIcon fontSize="inherit" /> Copy Link
-                </MenuItem>
-              </Menu>
-            </Grid>
+            {/* <Grid item>
+                <IconButton onClick={handleSharedClick} size="large">
+                  <ShareTwoToneIcon sx={{ width: '1rem', height: '1rem' }} />
+                </IconButton>
+                <Menu
+                  id="menu-post"
+                  anchorEl={anchorSharedEl}
+                  keepMounted
+                  open={Boolean(anchorSharedEl)}
+                  onClose={handleSharedClose}
+                  variant="selectedMenu"
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right'
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right'
+                  }}
+                  sx={{
+                    '& .MuiSvgIcon-root': {
+                      marginRight: '14px',
+                      fontSize: '1.25rem'
+                    }
+                  }}
+                >
+                  <MenuItem onClick={handleSharedClose}>
+                    <ShareTwoToneIcon fontSize="inherit" /> Share Now
+                  </MenuItem>
+                  <MenuItem onClick={handleSharedClose}>
+                    <PeopleAltTwoToneIcon fontSize="inherit" /> Share to Friends
+                  </MenuItem>
+                  <MenuItem onClick={handleSharedClose}>
+                    <ChatTwoToneIcon fontSize="inherit" /> Send in Messanger
+                  </MenuItem>
+                  <MenuItem onClick={handleSharedClose}>
+                    <ContentCopyTwoToneIcon fontSize="inherit" /> Copy Link
+                  </MenuItem>
+                </Menu>
+              </Grid> */}
           </Grid>
         </Grid>
         {/* add new comment */}
-        <Collapse in={openComment} sx={{ width: '100%' }}>
-          {openComment && (
-            <Grid item xs={12} sx={{ pt: 2 }}>
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <Grid container spacing={2} alignItems="flex-start">
-                  <Grid item sx={{ display: { xs: 'none', sm: 'block' } }}>
-                    <Avatar
-                      sx={{ mt: 0.75 }}
-                      alt="User 1"
-                      src={profile && profile.avatar ? `${avatarImage}${profile.avatar}` : `${avatarImage}user-1.png`}
-                      size="xs"
-                    />
+        {/* <Collapse in={openComment} sx={{ width: '100%' }}>
+            {openComment && (
+              <Grid item xs={12} sx={{ pt: 2 }}>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <Grid container spacing={2} alignItems="flex-start">
+                    <Grid item sx={{ display: { xs: 'none', sm: 'block' } }}>
+                      <Avatar
+                        sx={{ mt: 0.75 }}
+                        alt="User 1"
+                        src={profile && profile.avatar ? `${avatarImage}${profile.avatar}` : `${avatarImage}user-1.png`}
+                        size="xs"
+                      />
+                    </Grid>
+                    <Grid item xs zeroMinWidth>
+                      <FormProvider {...methods}>
+                        <FormInput fullWidth name="name" label="Write a comment..." size={matchesXS ? 'small' : 'medium'} bug={errors} />
+                      </FormProvider>
+                    </Grid>
+                    <Grid item>
+                      <AnimateButton>
+                        <Button type="submit" variant="contained" color="secondary" size={matchesXS ? 'small' : 'large'} sx={{ mt: 0.5 }}>
+                          Comment
+                        </Button>
+                      </AnimateButton>
+                    </Grid>
                   </Grid>
-                  <Grid item xs zeroMinWidth>
-                    <FormProvider {...methods}>
-                      <FormInput fullWidth name="name" label="Write a comment..." size={matchesXS ? 'small' : 'medium'} bug={errors} />
-                    </FormProvider>
-                  </Grid>
-                  <Grid item>
-                    <AnimateButton>
-                      <Button type="submit" variant="contained" color="secondary" size={matchesXS ? 'small' : 'large'} sx={{ mt: 0.5 }}>
-                        Comment
-                      </Button>
-                    </AnimateButton>
-                  </Grid>
-                </Grid>
-              </form>
-            </Grid>
-          )}
-        </Collapse>
-        {commentsResult}
+                </form>
+              </Grid>
+            )}
+          </Collapse>
+          {commentsResult} */}
       </Grid>
     </MainCard>
   );

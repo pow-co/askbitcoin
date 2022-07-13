@@ -5,7 +5,6 @@ import Link from 'Link';
 
 import { FormattedMessage } from 'react-intl';
 
-
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import {
@@ -42,13 +41,11 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 const Relayx = '/assets/images/icons/relayx.svg';
 
-import Script from 'next/script'
+import Script from 'next/script';
 
-import {useRouter} from 'next/router'
+import { useRouter } from 'next/router';
 
-
-
-// ============================|| FIREBASE - LOGIN ||============================ //
+// ============================|| RELAYX - LOGIN ||============================ //
 
 const AuthLogin = ({ loginProp, ...others }) => {
   const theme = useTheme();
@@ -56,22 +53,22 @@ const AuthLogin = ({ loginProp, ...others }) => {
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
   const { borderRadius } = useConfig();
   const [checked, setChecked] = React.useState(true);
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const router = useRouter();
 
   const { login } = useAuth();
-  
+
   const relayHandler = async () => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       let result = await login();
 
-      console.log('relay.auth.result', result)
-      setIsSubmitting(false)
+      console.log('relay.auth.result', result);
+      setIsSubmitting(false);
 
       if (result.paymail) {
-        router.push('/questions')
+        router.push('/questions');
       }
     } catch (err) {
       console.error(err);
@@ -108,22 +105,28 @@ const AuthLogin = ({ loginProp, ...others }) => {
               <Box sx={{ mr: { xs: 1, sm: 2 }, width: 20, height: 20, marginRight: matchDownSM ? 8 : 16 }}>
                 <Image src={Relayx} alt="Ask Bitcoin Dashboard" layout="intrinsic" width="16px" height="16px" />
               </Box>
-              <FormattedMessage id="connect-relayx"/>
+              <FormattedMessage id="connect-relayx" />
             </Button>
           </AnimateButton>
         </Grid>
-
-
       </Grid>
 
-            <Box sx={{ mt: 2 }}>
-              <AnimateButton>
-                <Button href='/questions' disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="secondary">
-                <FormattedMessage id="skip-sign-in"/>
-                </Button>
-              </AnimateButton>
-            </Box>
-
+      <Box sx={{ mt: 2 }}>
+        <AnimateButton>
+          <Button
+            href="/questions"
+            disableElevation
+            disabled={isSubmitting}
+            fullWidth
+            size="large"
+            type="submit"
+            variant="contained"
+            color="secondary"
+          >
+            <FormattedMessage id="skip-sign-in" />
+          </Button>
+        </AnimateButton>
+      </Box>
     </>
   );
 };

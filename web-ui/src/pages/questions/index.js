@@ -8,58 +8,47 @@ import StarTwoToneIcon from '@mui/icons-material/StarTwoTone';
 import StarBorderTwoToneIcon from '@mui/icons-material/StarBorderTwoTone';
 import RateReviewTwoToneIcon from '@mui/icons-material/RateReviewTwoTone';
 
-import Link from 'next/link'
+import Link from 'next/link';
 
-
-
-// ==============================|| SAMPLE PAGE ||============================== //
+// ==============================|| QUESTION PAGE ||============================== //
 import { useAPI } from 'hooks/useAPI';
+import useAuth from 'hooks/useAuth';
 import { FormattedMessage } from 'react-intl';
-
+import Post from 'components/ui-component/cards/Post';
+import FormControl from 'components/ui-component/extended/Form/FormControl';
+import Avatar from 'components/ui-component/extended/Avatar';
 
 const SamplePage = () => {
+  const { user } = useAuth();
+  let { data, error, refresh, loading } = useAPI('/questions');
 
-  let { data, error, refresh, loading } = useAPI('/questions')
-
-  console.log({ data, error, refresh, loading })
+  console.log({ data, error, refresh, loading });
 
   if (error) {
-    console.log('ERROR', error)
-    return <p>Error</p>
+    console.log('ERROR', error);
+    return <p>Error</p>;
   }
 
   if (loading && !data) {
-    return <p><FormattedMessage id="loading"/></p>
+    return (
+      <p>
+        <FormattedMessage id="loading" />
+      </p>
+    );
   }
 
-  const { questions } = data
+  const { questions } = data;
 
   return (
-
-  <MainCard title={<FormattedMessage id="questions-pow" />}>
-
-    <Stack direction="column" justifyContent="flex-end">
-
-      {questions.map(question => {
-        return (
-          <Link
-            color="text.secondary"
-            underline="always"
-            href={`/questions/${question.tx_id}`}
-            sx={{ typography: 'body2', display: 'flex', alignItems: 'center' }}
-          >
-          <MainCard title={question.value.content}>
-            <Typography variant="body2">
-              {question.author ? `Author: ${question.author}` : 'Anonymous Author'}
-            </Typography>
-          </MainCard>
-          </Link>
-        ) 
-      })}
-    </Stack>
-
-  </MainCard>
-  )
+    <MainCard title={<FormattedMessage id="questions-pow" />}>
+      <FormControl placeholder="Ask Bitcoin a question" />
+      <Stack direction="column" justifyContent="flex-end">
+        {questions.map((question) => {
+          return <Post key={question.tx_id} post={question} />;
+        })}
+      </Stack>
+    </MainCard>
+  );
 };
 
 SamplePage.Layout = 'authGuard';
