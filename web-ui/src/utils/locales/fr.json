@@ -33,7 +33,7 @@
   "product-list": "Liste de produits",
   "checkout": "Vérifier",
 
-  "forms": "Formes",
+  "forms": "Formulaires",
   "components": "Composantes",
   "autocomplete": "Saisie Automatique",
   "button": "Bouton",
@@ -81,7 +81,7 @@
   "alert": "Alerte",
   "dialog": "Dialogue",
   "pagination": "Pagination",
-  "progress": "Le progrès",
+  "progress": "Progrès",
   "rating": "Notation",
   "snackbar": "cafétéria",
   "speeddial": "Numérotation rapide",
