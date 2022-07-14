@@ -45,12 +45,11 @@ jobs:
             docker push $DOCKER_REPO:$CIRCLE_BRANCH
 
   deploy:
-    machine:
-      image: ubuntu-2004:202201-02
+    machine: true
     steps:
       - run:
           name: Deploy to Web Servers
-          command: echo 'NO DEPLOY! INSERT DEPLOY COMMAND HERE'
+          command: ssh $DEPLOY_HOST "$DEPLOY_COMMAND"
 
 
 workflows:
