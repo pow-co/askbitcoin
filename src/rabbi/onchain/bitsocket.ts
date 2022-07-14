@@ -11,12 +11,6 @@ import config from '../../config'
 
 import { onchainQueue } from '../../planaria'
 
-function onTransaction(value) {
-
-  console.log('ON TRANSACTION', value)
-
-}
-
 interface OnchainTransaction {
   tx_id: string;
   tx_index: number;
@@ -26,11 +20,10 @@ interface OnchainTransaction {
   nonce?: string;
   author?: string;
   signature?: string;
+  source?: string;
 }
 
 export function bitsocket(app_id: string): EventEmitter {
-
-  console.log("APP ID", app_id)
 
   const emitter = new EventEmitter()
 
@@ -84,8 +77,6 @@ export function bitsocket(app_id: string): EventEmitter {
         index: event['tx']['i']
       }
 
-      log.info('__output__', output)
-
       if (emitter) {
 
         try {
@@ -104,16 +95,9 @@ export function bitsocket(app_id: string): EventEmitter {
 
       }
 
-      onTransaction(Object.assign(output, {"eventsource": true}))
-
-      console.log('__event__', event)
-      console.log({ app_id })
-
       let outputs = event.out
         .filter(({s2}) => s2 === 'onchain')
         .filter(({s3}) => s3 === app_id)
-
-      console.log("out-puts", outputs)
 
       outputs.map(output => {
 
@@ -125,10 +109,9 @@ export function bitsocket(app_id: string): EventEmitter {
           value: JSON.parse(output['s5']),
           nonce: output['s6'],
           author: output['s7'],
-          signature: output['s8']
+          signature: output['s8'],
+          source: 'bitsocket'
         }
-
-        console.log("__bitsocket", message)
 
         onchainQueue.push(message)
       })

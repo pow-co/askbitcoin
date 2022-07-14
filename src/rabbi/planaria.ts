@@ -7,6 +7,7 @@ import * as through2 from 'through2'
 
 import fetch from 'node-fetch';
 
+import config from '../config'
 
 interface CrawlerParams {
   query: any;
@@ -31,7 +32,7 @@ export class Crawler extends EventEmitter{
       method: "post",
       headers: {
         'Content-type': 'application/json; charset=utf-8',
-        'token': 'eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiIxRlRyUWRaRjczd21tSFpVbzRhQzI1a0JWNUprWFRoeGl3IiwiaXNzdWVyIjoiZ2VuZXJpYy1iaXRhdXRoIn0.SHovaVkvTncvNmI0M1Q4WFZ0Ulk2SHdEMXQzOGM1RHJkVTFoTEYyLzhJeEhGZzJsSDQxeldzRG1vdUttemJPb2pJTXd4aVM5Qk9VNjFQNUhJK2x6bUxNPQ'
+        'token': config.get('planaria_token')
       },
       body: JSON.stringify(this.query)
     })

@@ -1,5 +1,7 @@
 require("dotenv").config()
 
+import * as boostpow from 'boostpow'
+
 import { Crawler } from './rabbi/planaria'
 
 import { getTransaction } from './powco'
@@ -28,64 +30,12 @@ export async function sync_boost_orders() {
 
     onTransaction: async (json) => {
 
-      let hash = json['tx']['h']
-
-      /*leveldb.get(hash, async (error, hex) => {
-
-        if (!hex) {
-
-          hex = await run.blockchain.fetch(hash)
-
-        }
-
-        await leveldb.put(hash, hex)
-
-      })
-      */
-
     }
   })
 
   crawler.start()
 
 }
-
-export async function _sync_boost_onchain() {
-
-  const block_height_start = 0
-
-  const crawler = new Crawler({
-
-    query: {
-      q: {
-        find: { "out.s0": "boostpow", "blk.i": { "$gt": block_height_start } },
-      }
-    },
-
-    onTransaction: async (json) => {
-
-      let hash = json['tx']['h']
-
-      /*leveldb.get(hash, async (error, hex) => {
-
-        if (!hex) {
-
-          hex = await run.blockchain.fetch(hash)
-
-        }
-
-        await leveldb.put(hash, hex)
-
-      })
-      */
-
-    }
-  })
-
-  crawler.start()
-
-}
-
 
 export async function sync_ask_bitcoin() {
 
@@ -150,9 +100,9 @@ export async function sync_all_onchain(app_id: string) {
           value: JSON.parse(output['s5']),
           nonce: output['s6'],
           author: output['s7'],
-          signature: output['s8']
+          signature: output['s8'],
+          source: 'bitbus'
         }
-        console.log('__planaria', message)
 
         onchainQueue.push(message)
 
@@ -216,10 +166,9 @@ export async function sync_onchain_app(app_id: string) {
           value: JSON.parse(output['s5']),
           nonce: output['s6'],
           author: output['s7'],
-          signature: output['s8']
+          signature: output['s8'],
+          source: 'bitbus'
         }
-
-        console.log('__planaria', message)
 
         onchainQueue.push(message)
 
@@ -298,6 +247,7 @@ export interface OnchainTransaction {
   nonce?: string;
   author?: string;
   signature?: string;
+  source?: string;
 }
 
 import { knex } from './knex'
@@ -396,9 +346,39 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
 
           let proof_txid = value.tx_id || tx_id
 
+          // get proof transaction
+          // verify valid boost proof
+          // check if already in database
+          // insert into database
+
           let proof_tx = await getTransaction(proof_txid)
 
-          console.log({ proof_tx })
+          console.log("__PROOF_TX", proof_tx.toString())
+
+          let proof = boostpow.BoostPowJobProof.fromTransaction(proof_tx)
+
+          console.log("__PROOF", proof)
+
+          let json = Object.assign(proof.toObject(), {
+            tx_id: proof.txid,
+            tx_index: proof.vin
+          })
+
+          const [record] = await knex('boostpow_proofs').where({
+            tx_id: proof.txid,
+            tx_index: proof.vin
+          })
+          .select('*')
+
+          console.log('record', record)
+
+          if (!record) {
+
+            const result = await knex('boostpow_proofs').insert(json)
+
+            console.log('insert result', result)
+
+          }
 
         }
 

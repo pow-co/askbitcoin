@@ -40,6 +40,8 @@ exports.up = function(knex) {
 
     table.date('timestamp').notNullable();
 
+    table.unique(['tx_id', 'tx_index'])
+
   })
 
 };
@@ -48,9 +50,9 @@ exports.up = function(knex) {
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.down = function(knex) {
+exports.down = async function(knex) {
 
-  knex.schema.dropTable('boostpow_proofs')
+  return knex.schema.dropTable('boostpow_proofs')
   
 };
 
