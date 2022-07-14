@@ -35,7 +35,6 @@ const initialState = {
   user: null
 };
 
-
 const setSession = (serviceToken) => {
   if (serviceToken) {
     localStorage.setItem('serviceToken', serviceToken);
@@ -59,41 +58,37 @@ export const RelayxProvider = ({ children }) => {
         const paymail = window.localStorage.getItem('relayx.paymail');
         const name = window.localStorage.getItem('relayx.paymail');
         const pubkey = window.localStorage.getItem('relayx.pubkey');
-            console.log('RELAY AUTH', relayAuth)
+        console.log('RELAY AUTH', relayAuth);
 
-            if (relayAuth) {
-                console.log('DISPATCH', {
-                    type: LOGIN,
-                    payload: {
-                      isLoggedIn: true,
-                      user: {
-                        email: paymail,
-                        id: pubkey,
-                        name: paymail
-                      }
-                    }
-                  })
-        
-                  dispatch({
-                    type: LOGIN,
-                    payload: {
-                      isLoggedIn: true,
-                      user: {
-                        email: paymail,
-                        id: pubkey,
-                        name: paymail
-                      }
-                    }
-                  });
-            } else {
-                dispatch({
-                    type: LOGOUT
-                  });
+        if (relayAuth) {
+          console.log('DISPATCH', {
+            type: LOGIN,
+            payload: {
+              isLoggedIn: true,
+              user: {
+                email: paymail,
+                id: pubkey,
+                name: paymail
+              }
             }
+          });
 
-
-
-
+          dispatch({
+            type: LOGIN,
+            payload: {
+              isLoggedIn: true,
+              user: {
+                email: paymail,
+                id: pubkey,
+                name: paymail
+              }
+            }
+          });
+        } else {
+          dispatch({
+            type: LOGOUT
+          });
+        }
       } catch (err) {
         console.error(err);
         dispatch({
@@ -105,37 +100,33 @@ export const RelayxProvider = ({ children }) => {
     init();
   }, []);
 
+  async function relayxSignIn() {
+    const token = await relayone.authBeta();
 
-async function relayxSignIn() {
+    const json = JSON.parse(atob(token.split('.')[0]));
 
-    const token = await relayone.authBeta()
-  
-    const json = JSON.parse(atob(token.split('.')[0]))
-  
-    localStorage.setItem('relayx.token', token)
-    localStorage.setItem('relayx.auth', JSON.stringify(json))
-    localStorage.setItem('relayx.paymail', json.paymail)
-    localStorage.setItem('relayx.pubkey', json.pubkey)
-    localStorage.setItem('relayx.origin', json.origin)
-    localStorage.setItem('relayx.issued_at', json.issued_at)
-  
-    return json
-    
+    localStorage.setItem('relayx.token', token);
+    localStorage.setItem('relayx.auth', JSON.stringify(json));
+    localStorage.setItem('relayx.paymail', json.paymail);
+    localStorage.setItem('relayx.pubkey', json.pubkey);
+    localStorage.setItem('relayx.origin', json.origin);
+    localStorage.setItem('relayx.issued_at', json.issued_at);
+
+    return json;
   }
 
   const login = async (email, password) => {
+    const token = await relayone.authBeta();
 
-    const token = await relayone.authBeta()
-  
-    const json = JSON.parse(atob(token.split('.')[0]))
-  
-    localStorage.setItem('relayx.token', token)
-    localStorage.setItem('relayx.auth', JSON.stringify(json))
-    localStorage.setItem('relayx.paymail', json.paymail)
-    localStorage.setItem('relayx.pubkey', json.pubkey)
-    localStorage.setItem('relayx.origin', json.origin)
-    localStorage.setItem('relayx.issued_at', json.issued_at)
-  
+    const json = JSON.parse(atob(token.split('.')[0]));
+
+    localStorage.setItem('relayx.token', token);
+    localStorage.setItem('relayx.auth', JSON.stringify(json));
+    localStorage.setItem('relayx.paymail', json.paymail);
+    localStorage.setItem('relayx.pubkey', json.pubkey);
+    localStorage.setItem('relayx.origin', json.origin);
+    localStorage.setItem('relayx.issued_at', json.issued_at);
+
     const user = {
       id: json.pubkey,
       email: json.paymail,
@@ -149,7 +140,7 @@ async function relayxSignIn() {
       }
     });
 
-    return json
+    return json;
   };
 
   const register = async (email, password, firstName, lastName) => {
@@ -182,12 +173,15 @@ async function relayxSignIn() {
 
   const logout = () => {
     setSession(null);
-    window.localStorage.removeItem('relayx.token')
-    window.localStorage.removeItem('relayx.auth')
-    window.localStorage.removeItem('relayx.paymail')
-    window.localStorage.removeItem('relayx.domain')
-    window.localStorage.removeItem('relayx.issued_at')
-
+    window.localStorage.removeItem('relayx.token');
+    window.localStorage.removeItem('relayx.auth');
+    window.localStorage.removeItem('relayx.paymail');
+    window.localStorage.removeItem('relayx.domain');
+    window.localStorage.removeItem('relayx.issued_at');
+    window.localStorage.removeItem('berry-cart');
+    window.localStorage.removeItem('berry-next-js-config');
+    window.localStorage.removeItem('relayx.origin');
+    window.localStorage.removeItem('relayx.pubkey');
 
     dispatch({ type: LOGOUT });
   };
@@ -200,7 +194,9 @@ async function relayxSignIn() {
     return <Loader />;
   }
 
-  return <RelayxContext.Provider value={{ ...state, login, logout, register, resetPassword, updateProfile }}>{children}</RelayxContext.Provider>;
+  return (
+    <RelayxContext.Provider value={{ ...state, login, logout, register, resetPassword, updateProfile }}>{children}</RelayxContext.Provider>
+  );
 };
 
 RelayxProvider.propTypes = {

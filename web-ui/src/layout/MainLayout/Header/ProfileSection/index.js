@@ -24,7 +24,7 @@ import {
   Typography
 } from '@mui/material';
 
-import BoringAvatar from "boring-avatars";
+import BoringAvatar from 'boring-avatars';
 
 import Image from 'next/image';
 
@@ -41,7 +41,7 @@ import useAuth from 'hooks/useAuth';
 import { IconLogout, IconSearch, IconSettings, IconUser } from '@tabler/icons';
 import useConfig from 'hooks/useConfig';
 
-import { useRouter} from 'next/router'
+import { useRouter } from 'next/router';
 import AlertItemDelete from 'components/application/kanban/Board/AlertItemDelete';
 
 import { FormattedMessage } from 'react-intl';
@@ -70,14 +70,14 @@ const ProfileSection = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      router.push('/')
+      router.push('/');
     } catch (err) {
       console.error(err);
     }
   };
 
   const handleLogin = async () => {
-    router.push('/')
+    router.push('/');
   };
 
   const handleClose = (event) => {
@@ -106,18 +106,20 @@ const ProfileSection = () => {
     prevOpen.current = open;
   }, [open]);
 
-  const avatar = <Avatar
-  src={user?.email ? `https://bitpic.network/u/${user.email}`: 'https://bitpic.network/u/unknown'}
-  sx={{
-    ...theme.typography.mediumAvatar,
-    margin: '8px 0 8px 8px !important',
-    cursor: 'pointer'
-  }}
-  ref={anchorRef}
-  aria-controls={open ? 'menu-list-grow' : undefined}
-  aria-haspopup="true"
-  color="inherit"
-/>
+  const avatar = (
+    <Avatar
+      src={user?.email ? `https://bitpic.network/u/${user.email}` : 'https://bitpic.network/u/unknown'}
+      sx={{
+        ...theme.typography.mediumAvatar,
+        margin: '8px 0 8px 8px !important',
+        cursor: 'pointer'
+      }}
+      ref={anchorRef}
+      aria-controls={open ? 'menu-list-grow' : undefined}
+      aria-haspopup="true"
+      color="inherit"
+    />
+  );
 
   return (
     <>
@@ -141,9 +143,7 @@ const ProfileSection = () => {
             lineHeight: 0
           }
         }}
-        icon={
-          avatar
-        }
+        icon={avatar}
         label={<IconSettings stroke={1.5} size="1.5rem" color={theme.palette.primary.main} />}
         variant="outlined"
         ref={anchorRef}
@@ -181,10 +181,12 @@ const ProfileSection = () => {
                         <Stack direction="row" spacing={0.5} alignItems="center">
                           <Typography variant="h4"></Typography>
                           <Typography component="span" variant="h4" sx={{ fontWeight: 400 }}>
-                          {user ? user.name : <FormattedMessage id="signed-out"/>}
+                            {user ? user.name : <FormattedMessage id="signed-out" />}
                           </Typography>
                         </Stack>
-                        <Typography variant="subtitle2">{user?.email ? <FormattedMessage id="signed-in"/> : <FormattedMessage id="anonymous-user"/>}</Typography>
+                        <Typography variant="subtitle2">
+                          {user?.email ? <FormattedMessage id="signed-in" /> : <FormattedMessage id="anonymous-user" />}
+                        </Typography>
                       </Stack>
                       <OutlinedInput
                         sx={{ width: '100%', pr: 1, pl: 2, my: 2 }}
@@ -219,7 +221,9 @@ const ProfileSection = () => {
                               <Grid item>
                                 <Grid item container alignItems="center" justifyContent="space-between">
                                   <Grid item>
-                                    <Typography variant="subtitle1"><FormattedMessage id="double-extra-boost-mode"/></Typography>
+                                    <Typography variant="subtitle1">
+                                      <FormattedMessage id="double-extra-boost-mode" />
+                                    </Typography>
                                   </Grid>
                                   <Grid item>
                                     <Switch
@@ -235,7 +239,9 @@ const ProfileSection = () => {
                               <Grid item>
                                 <Grid item container alignItems="center" justifyContent="space-between">
                                   <Grid item>
-                                    <Typography variant="subtitle1"><FormattedMessage id="allow-notifications"/></Typography>
+                                    <Typography variant="subtitle1">
+                                      <FormattedMessage id="allow-notifications" />
+                                    </Typography>
                                   </Grid>
                                   <Grid item>
                                     <Switch
@@ -267,29 +273,34 @@ const ProfileSection = () => {
                             }
                           }}
                         >
-
-
-                          {user?.email &&
-                          <>
-   
-                          <ListItemButton sx={{ borderRadius: `${borderRadius}px` }} selected={selectedIndex === 4} onClick={handleLogout}>
-                              <ListItemIcon>
-                                <IconLogout stroke={1.5} size="1.3rem" />
-                              </ListItemIcon>
-                              <ListItemText primary={<Typography variant="body2"><FormattedMessage id="sign-out"/></Typography>} />
-                            </ListItemButton>
-                          </>
-
-
-                          }
-                          {!user?.email &&
+                          {user?.email && (
+                            <>
+                              <ListItemButton
+                                sx={{ borderRadius: `${borderRadius}px` }}
+                                selected={selectedIndex === 4}
+                                onClick={handleLogout}
+                              >
+                                <ListItemIcon>
+                                  <IconLogout stroke={1.5} size="1.3rem" />
+                                </ListItemIcon>
+                                <ListItemText
+                                  primary={
+                                    <Typography variant="body2">
+                                      <FormattedMessage id="sign-out" />
+                                    </Typography>
+                                  }
+                                />
+                              </ListItemButton>
+                            </>
+                          )}
+                          {!user?.email && (
                             <ListItemButton sx={{ borderRadius: `${borderRadius}px` }} selected={selectedIndex === 4} onClick={handleLogin}>
                               <ListItemIcon>
                                 <IconLogout stroke={1.5} size="1.3rem" />
                               </ListItemIcon>
                               <ListItemText primary={<Typography variant="body2">Login</Typography>} />
                             </ListItemButton>
-                          }
+                          )}
                         </List>
                       </Box>
                     </PerfectScrollbar>
