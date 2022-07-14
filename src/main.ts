@@ -65,25 +65,49 @@ export async function start() {
 
     const app_id = config.get('askbitcoin_onchain_app_id')
 
-    onchain(app_id).on('*', (event) => {
+    const boostpow = config.get('boostpow_onchain_app_id')
+
+    onchain(boostpow).on('*', (event) => {
+      log.info('onchain.boostpow.event', event)
+    })
+
+    onchain(boostpow).on('proof', ({ txid, input }) => {
+
+      log.info(`onchain.${boostpow}.proof`, {txid, input})
+
+      // if no txid then txid is this transaction
+      // download the raw transaction
+      // check to see if transaction in fact contains boost proofs
+
+    })
+
+    onchain(boostpow).on('job', (job) => {
+
+      log.info(`onchain.${boostpow}.job`, job)
+
+    })
+
+    const askbitcoin = onchain(app_id)
+
+    askbitcoin.on('*', (event) => {
 
       log.info(`onchain.${app_id}.event`, event)
 
     })
 
-    onchain(app_id).on('question', (value) => {
+    askbitcoin.on('question', (value) => {
 
       log.info(`onchain.${app_id}.question`, value)
 
     })
 
-    onchain(app_id).on('answer', (value) => {
+    askbitcoin.on('answer', (value) => {
 
       log.info(`onchain.${app_id}.answer`, value)
 
     })
 
-    onchain(app_id).on('error', (error) => {
+    askbitcoin.on('error', (error) => {
 
       log.error(`onchain.${app_id}.error`, error)
 

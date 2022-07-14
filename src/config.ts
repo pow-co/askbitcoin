@@ -57,6 +57,7 @@ nconf.defaults({
   askbitcoin_onchain_app_id: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', // askbitcoin.ai
   onchain_app_id: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', // askbitcoin.ai
   powco_onchain_app_id: '15QcoZ8nsMYdYr2k2QNJ4YUzBzrTPSsKyq', // pow.co
+  boostpow_onchain_app_id: "18pPQigu7j69ioDcUG9dACE1iAN9nCfowr", // boostpow
   leveldb_path: `${process.cwd()}/.rabbi/onchain_db`,
 
   host: '0.0.0.0',
@@ -70,7 +71,8 @@ nconf.defaults({
   webui_enabled: true,
   webui_host: '127.0.0.1',
   webui_port: 3000,
-  sync_ask_bitcoin: true
+  sync_ask_bitcoin: true,
+  ask_bitcoin_user_private_key: null
 })
 
 nconf.required([

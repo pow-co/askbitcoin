@@ -1,3 +1,4 @@
+!["Ask Bitcoin Banner Logo"](https://doge.bitcoinfiles.org/e86b44813ecd36827a611037d8435c202609a111c46d283b049b59ac7f2d6788)
 
 # Typescript API Server
 

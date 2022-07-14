@@ -11,9 +11,9 @@ import config from '../../config'
 
 import { onchainQueue } from '../../planaria'
 
-const app_id = config.get('askbitcoin_onchain_app_id')
-
 function onTransaction(value) {
+
+  console.log('ON TRANSACTION', value)
 
 }
 
@@ -28,18 +28,20 @@ interface OnchainTransaction {
   signature?: string;
 }
 
-export async function bitsocket(query: any, emitter?: EventEmitter) {
+export function bitsocket(app_id: string): EventEmitter {
+
+  console.log("APP ID", app_id)
+
+  const emitter = new EventEmitter()
 
   const block_height = 0
 
-  let simpleQuery = new Object(query)
-
-  //query['r'] = true
-  //query['raw'] = true
-
-  query = {
+  const query = {
     q: {
-      find: query,
+      find: {
+        "out.s2": "onchain",
+        "out.s3": app_id
+      },
       project: {
         "raw": 1,
         "blk": 1,
@@ -63,17 +65,6 @@ export async function bitsocket(query: any, emitter?: EventEmitter) {
 
   var b64 = Buffer.from(JSON.stringify(Object.assign({"v": 3}, query))).toString("base64")
 
-  /*var b64 = Buffer.from(JSON.stringify({
-    "v": 3,
-    "q": {
-      "find": {
-        "out.s2": "onchain"
-      }
-    }
-
-  })).toString("base64")
-  */
-
   const sock = new EventSource('https://txo.bitsocket.network/s/'+b64)
 
   sock.onmessage = async function(e){
@@ -93,6 +84,8 @@ export async function bitsocket(query: any, emitter?: EventEmitter) {
         index: event['tx']['i']
       }
 
+      log.info('__output__', output)
+
       if (emitter) {
 
         try {
@@ -105,7 +98,7 @@ export async function bitsocket(query: any, emitter?: EventEmitter) {
 
         } catch(error) {
 
-          log.debug.error('onchain.error', error)
+          log.debug('onchain.bitsocket.json.parse.error', error)
 
         }
 
@@ -113,9 +106,14 @@ export async function bitsocket(query: any, emitter?: EventEmitter) {
 
       onTransaction(Object.assign(output, {"eventsource": true}))
 
+      console.log('__event__', event)
+      console.log({ app_id })
+
       let outputs = event.out
         .filter(({s2}) => s2 === 'onchain')
         .filter(({s3}) => s3 === app_id)
+
+      console.log("out-puts", outputs)
 
       outputs.map(output => {
 
@@ -130,6 +128,8 @@ export async function bitsocket(query: any, emitter?: EventEmitter) {
           signature: output['s8']
         }
 
+        console.log("__bitsocket", message)
+
         onchainQueue.push(message)
       })
 
@@ -137,18 +137,13 @@ export async function bitsocket(query: any, emitter?: EventEmitter) {
     }
 
   }
-}
-
-export function onchain({app_id}: {app_id: string}) {
-
-  const emitter = new EventEmitter()
-
-  bitsocket({
-    "out.s2": "onchain",
-    "out.s3": app_id
-  }, emitter)
 
   return emitter
+}
+
+export function onchain(app_id: string): EventEmitter {
+
+  return bitsocket(app_id)
 
 }
 
