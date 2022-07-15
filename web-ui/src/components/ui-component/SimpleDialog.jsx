@@ -75,7 +75,10 @@ export function BoostpowQrCodeDialog(props) {
     value = 0.05
   }
 
-  const handleClose = () => {
+  const handleClose = (event) => {
+    event.preventDefault();
+
+    console.log('__HANDLE', event)
     onClose();
   };
 

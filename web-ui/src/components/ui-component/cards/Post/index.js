@@ -55,7 +55,7 @@ import { useRouter } from 'next/router';
 
 const avatarImage = '/assets/images/profile/';
 
-
+import axios from 'utils/axios';
 
 import {QRCodeSVG} from 'qrcode.react';
 
@@ -133,9 +133,8 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
+  const handleClose = (event) => {
 
-    console.log('handle close')
 
     setQrDialogOpen(false)
   };
@@ -157,13 +156,81 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
   };
 
   const handleBoost = async (event) => {
-    event.stopPropagation();
 
-    enqueueSnackbar(`BOOST THIS ${event}`);
+    event.preventDefault();
 
-    console.log(event);
+    const value = 0.05
+    const currency = 'USD'
 
-    console.log('Im boostiiiing');
+    enqueueSnackbar(`Getting Boostpow Details for ${value} ${currency} of Proof of Work`, {
+      anchorOrigin: {
+        vertical: 'top',
+        horizontal: 'center'
+      }
+    })
+
+    let { data } = await axios.get(`https://askbitcoin.ai/api/v1/boostpow/${tx_id}/new?value=${value}&currency=${currency}`)
+
+    console.log('boostpow.payment_request', data)
+
+    enqueueSnackbar(`Posting Boostpow Order: ${content}`, {
+      anchorOrigin: {
+        vertical: 'top',
+        horizontal: 'center'
+      },
+      variant: 'info'
+    })
+
+    try {
+
+      const send = {
+        opReturn: ['onchain', '18pPQigu7j69ioDcUG9dACE1iAN9nCfowr', 'job', JSON.stringify({
+          index: 0
+        })],
+        amount: data.outputs[0].amount / 100000000,
+        to: data.outputs[0].script,
+        currency: 'BSV'
+      }
+
+      console.log('relayx.send.params', send)
+
+      let result = await relayone.send(send)
+
+      console.log('relayx.send.result', result)
+
+      enqueueSnackbar(`Boostpow Order Posted`, {
+        anchorOrigin: {
+          vertical: 'top',
+          horizontal: 'center'
+        },
+        variant: 'success'
+      })
+
+      enqueueSnackbar(`boostpow.job ${result.txid}`, {
+        anchorOrigin: {
+          vertical: 'bottom',
+          horizontal: 'center'
+        },
+        persist: true
+      })
+  
+      console.log('relay.quote', result)
+
+    } catch(error) {
+
+      console.error('relayx', error)
+
+      enqueueSnackbar(`Error Posting Boostpow Order: ${error.message}`, {
+        anchorOrigin: {
+          vertical: 'top',
+          horizontal: 'center'
+        },
+        variant: 'error'
+      })
+    }
+
+
+
   };
 
   /* 
@@ -363,7 +430,11 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
                 </Button>
                 <Button
                   variant="text"
-                  onClick={(e) => { setQrDialogOpen(true); return false }}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setQrDialogOpen(true);
+                    return false;
+                  }}
                   color="inherit"
                   size="small"
                   //startIcon={<ThumbUpAltTwoToneIcon color={data && data.likes && data.likes.like ? 'primary' : 'inherit'} />}

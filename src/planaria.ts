@@ -248,8 +248,6 @@ export async function sync_boostpow_onchain() {
 
   boostpow_proofs_crawler.start()
 
-  boostpow_jobs_crawler
-
 }
 
 export interface OnchainTransaction {
