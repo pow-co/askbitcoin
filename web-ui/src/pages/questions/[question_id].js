@@ -1,5 +1,5 @@
 // material-ui
-import { Typography } from '@mui/material';
+import { Typography, Grid } from '@mui/material';
 
 import Link from 'next/link';
 
@@ -7,6 +7,7 @@ import Link from 'next/link';
 import MainCard from 'components/ui-component/cards/MainCard';
 import Post from 'components/ui-component/cards/Post';
 import FormControl from 'components/ui-component/extended/Form/FormControl';
+import FormControlSelect from 'components/ui-component/extended/Form/FormControlSelect';
 
 import { useAPI } from 'hooks/useAPI';
 
@@ -75,17 +76,23 @@ const QuestionDetailPage = () => {
   const { question, answers } = data;
 
   return (
-    <>
-      <h1>Question</h1>
-      <MainCard>
-        <Post post={question} />
-      </MainCard>
-      <h2>Answers</h2>
+    <MainCard>
+      <Post post={question} />
       <FormControl question={question.tx_id} submit={postAnswer} placeholder="Add your answer" />
+      <Grid container sx={{ pb: '16px' }} spacing={1}>
+        <Grid item xs={6}>
+          <Typography align="right" variant="h2">
+            <FormattedMessage id="answers-pow" />
+          </Typography>
+        </Grid>
+        <Grid item xs={6}>
+          <FormControlSelect />
+        </Grid>
+      </Grid>
       {answers.map((answer) => {
         return <Post key={answer.tx_id} answer post={answer} />;
       })}
-    </>
+    </MainCard>
   );
 };
 QuestionDetailPage.Layout = 'authGuard';

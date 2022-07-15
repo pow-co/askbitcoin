@@ -68,20 +68,18 @@ const AnswerDetailPage = () => {
 
   const { question, answer } = data;
 
-  const events = useEvents(`answers.${query.answer_id.question}`, onAnswer);
+  //const events = useEvents(`answers.${query.answer_id}.question`, onAnswer);
 
-  window.events = events;
+  //window.events = events;
 
   return (
-    <>
+    <MainCard>
       <h1>Answer</h1>
-      <MainCard>
-        <Post answer post={answer} />
-      </MainCard>
+      <Post answer post={answer} />
       <h2>Question</h2>
       <Post post={question} />
       <FormControl question={question.tx_id} submit={postAnswer} placeholder="Answer this question" />
-    </>
+    </MainCard>
   );
 };
 AnswerDetailPage.Layout = 'authGuard';
