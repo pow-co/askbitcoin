@@ -1,9 +1,7 @@
 
 import useSWR from 'swr';
 
-export const DOMAIN = 'localhost:5200'
-
-export const BASE = `http://${DOMAIN}/api/v1`;
+export const BASE = `/api/v1`;
 //export const BASE = `https://askbitcoin.ai/api/v1`;
 
 import axios from '../utils/axios'
