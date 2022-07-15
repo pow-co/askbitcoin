@@ -3,7 +3,7 @@ import { run } from '../../run'
 
 import { log } from '../../log'
 
-import { badRequest } from 'Boom'
+import { badRequest } from 'boom'
 
 export async function create (req, h) {
 
