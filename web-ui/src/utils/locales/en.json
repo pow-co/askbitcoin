@@ -154,6 +154,15 @@
   "allow-notifications": "Allow Notifications",
   "search-popular-questions": "Search Popular Questions",
 
+  "language-en": "English",
+  "language-fr": "French",
+  "language-ja": "Japanese",
+  "language-ro": "Romanian",
+  "language-zh": "Chinese",
+  "language-ar": "Arabic",
+  "language-la": "Latin",
+  "language-ru": "Russian",
+
   "title": "Multi Language",
   "home": "Home",
   "change": "Change Language",
@@ -162,6 +171,13 @@
   "connect-relayx": "Connect Relayx",
   "skip-sign-in": "Skip Sign In",
   "full-text-search": "Full Text Search?",
-  "questions-pow": "Questions with Most Proof of Work",
-  "answers-pow": "Answers with Most Proof of Work"
+  "questions-pow": "Top questions",
+  "answers-pow": "Top answers",
+  "loading":"Loading...",
+  "all-time": "All time",
+  "year": "Year",
+  "month": "Month",
+  "week": "Week",
+  "day": "Day",
+  "hour": "Hour"
 }

@@ -20,6 +20,7 @@ import Avatar from 'components/ui-component/extended/Avatar';
 
 import { useSnackbar } from 'notistack';
 import { useEvents } from 'hooks/useEvents';
+import FormControlSelect from 'components/ui-component/extended/Form/FormControlSelect';
 
 import { useRouter } from 'next/router';
 import axios from 'utils/axios'
@@ -122,8 +123,18 @@ const QuestionPage = () => {
   const { questions } = data;
 
   return (
-    <MainCard title={<FormattedMessage id="questions-pow" />}>
+    <MainCard>
       <FormControl submit={postQuestion} placeholder="Ask Bitcoin a question" />
+      <Grid container sx={{ pb: '16px' }} spacing={1}>
+        <Grid item xs={6}>
+          <Typography align="right" variant="h2">
+            <FormattedMessage id="questions-pow" />
+          </Typography>
+        </Grid>
+        <Grid item xs={6}>
+          <FormControlSelect />
+        </Grid>
+      </Grid>
       <Stack direction="column" justifyContent="flex-end">
         {questions.map((question) => {
           return <Post key={question.id} post={question} />;

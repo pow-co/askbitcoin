@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { useAPI } from 'hooks/useAPI';
 import { FormattedMessage } from 'react-intl';
 import Post from 'components/ui-component/cards/Post';
+import FormControlSelect from 'components/ui-component/extended/Form/FormControlSelect';
 
 const AnswersPage = () => {
   let { data, error, refresh, loading } = useAPI('/answers');
@@ -39,6 +40,16 @@ const AnswersPage = () => {
 
   return (
     <MainCard title={<FormattedMessage id="answers-pow" />}>
+      <Grid container sx={{ pb: '16px' }} spacing={1}>
+        <Grid item xs={6}>
+          <Typography align="right" variant="h2">
+            <FormattedMessage id="answers-pow" />
+          </Typography>
+        </Grid>
+        <Grid item xs={6}>
+          <FormControlSelect />
+        </Grid>
+      </Grid>
       <Stack direction="column" justifyContent="flex-end">
         {answers.map((answer) => {
           return <Post key={answer.tx_id} answer post={answer} />;

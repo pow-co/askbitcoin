@@ -158,5 +158,11 @@
   "questions-pow": "大多数工作证明的问题",
   "answers-pow": "工作量证明最多的答案",
   "authors-pow": "工作量证明最多的作者",
-  "loading": "正在加载..."
+  "loading": "正在加载...",
+  "all-time": "All time",
+  "year": "Year",
+  "month": "Month",
+  "week": "Week",
+  "day": "Day",
+  "hour": "Hour"
 }

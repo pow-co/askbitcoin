@@ -3,11 +3,51 @@ import { useState } from 'react';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import { Divider, FormControl, InputAdornment, MenuItem, TextField } from '@mui/material';
+import { Divider, FormControl, InputAdornment, MenuItem, Select, Typography } from '@mui/material';
+import { FormattedMessage } from 'react-intl';
 
 // ==============================|| FORM CONTROL SELECT ||============================== //
 
-const FormControlSelect = ({ captionLabel, currencies, formState, iconPrimary, iconSecondary, selected, textPrimary, textSecondary }) => {
+const filters = [
+  {
+    id: 0,
+    title: <FormattedMessage id="all-time" />,
+    startTimeStamp: '',
+    stopTimeStamp: ''
+  },
+  {
+    id: 1,
+    title: <FormattedMessage id="year" />,
+    startTimeStamp: '',
+    stopTimeStamp: ''
+  },
+  {
+    id: 2,
+    title: <FormattedMessage id="month" />,
+    startTimeStamp: '',
+    stopTimeStamp: ''
+  },
+  {
+    id: 3,
+    title: <FormattedMessage id="week" />,
+    startTimeStamp: '',
+    stopTimeStamp: ''
+  },
+  {
+    id: 4,
+    title: <FormattedMessage id="day" />,
+    startTimeStamp: '',
+    stopTimeStamp: ''
+  },
+  {
+    id: 5,
+    title: <FormattedMessage id="hour" />,
+    startTimeStamp: '',
+    stopTimeStamp: ''
+  }
+];
+
+const FormControlSelect = ({ captionLabel, formState, iconPrimary, iconSecondary, selected, textPrimary, textSecondary }) => {
   const theme = useTheme();
   const IconPrimary = iconPrimary;
   const primaryIcon = iconPrimary ? <IconPrimary fontSize="small" sx={{ color: theme.palette.grey[700] }} /> : null;
@@ -18,21 +58,22 @@ const FormControlSelect = ({ captionLabel, currencies, formState, iconPrimary, i
   const errorState = formState === 'error';
   const val = selected || '';
 
-  const [currency, setCurrency] = useState(val);
+  // const [filter, setFilter] = useState(val);
+  const [filter, setFilter] = useState(0);
   const handleChange = (event) => {
-    if (event.target.value) setCurrency(event.target.value);
+    if (event.target.value) setFilter(event.target.value);
   };
 
   return (
-    <FormControl fullWidth error={errorState}>
-      <TextField
-        id="outlined-select-currency"
-        select
-        fullWidth
+    <FormControl error={errorState}>
+      <Select
+        id="outlined-select-filter"
+        variant="standard"
+        disableUnderline
         label={captionLabel}
-        value={currency}
+        value={filter}
         onChange={handleChange}
-        InputProps={{
+        /* InputProps={{
           startAdornment: (
             <>
               {primaryIcon && <InputAdornment position="start">{primaryIcon}</InputAdornment>}
@@ -55,21 +96,23 @@ const FormControlSelect = ({ captionLabel, currencies, formState, iconPrimary, i
               )}
             </>
           )
-        }}
+        }} */
       >
-        {currencies.map((option, index) => (
-          <MenuItem key={index} value={option.value}>
-            {option.label}
+        {filters.map((option, index) => (
+          <MenuItem key={index} value={option.id}>
+            <Typography variant="h3" color="primary">
+              {option.title}
+            </Typography>
           </MenuItem>
         ))}
-      </TextField>
+      </Select>
     </FormControl>
   );
 };
 
 FormControlSelect.propTypes = {
   captionLabel: PropTypes.string,
-  currencies: PropTypes.array,
+  filters: PropTypes.array,
   formState: PropTypes.string,
   iconPrimary: PropTypes.object,
   iconSecondary: PropTypes.object,

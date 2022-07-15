@@ -163,5 +163,11 @@
   "skip-sign-in": "Skip Sign In",
   "full-text-search": "Full Text Search?",
   "questions-pow": "Questions with Most Proof of Work",
-  "answers-pow": "Answers with Most Proof of Work"
+  "answers-pow": "Answers with Most Proof of Work",
+  "all-time": "All time",
+  "year": "Year",
+  "month": "Month",
+  "week": "Week",
+  "day": "Day",
+  "hour": "Hour"
 }
