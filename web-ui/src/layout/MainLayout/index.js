@@ -15,6 +15,9 @@ import useConfig from 'hooks/useConfig';
 import { drawerWidth } from 'store/constant';
 import { openDrawer } from 'store/slices/menu';
 import { useDispatch, useSelector } from 'store';
+
+import Script from 'next/script';
+
 // assets
 import { IconChevronRight } from '@tabler/icons';
 
@@ -87,6 +90,9 @@ const MainLayout = ({ children }) => {
   );
 
   return (
+    <>
+    <Script src="https://one.relayx.io/relayone.js" />
+
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
         {/* header */}
@@ -124,6 +130,7 @@ const MainLayout = ({ children }) => {
         </Main>
         <Customization />
       </Box>
+      </>
   );
 };
 

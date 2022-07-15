@@ -151,6 +151,7 @@ export async function loadQuestions(query: QuestionsQuery={}): Promise<Question[
     .orderBy('difficulty', 'desc')
 
   let allQuestions = await knex('questions')
+    .where('id', 'not in', boostedQuestions.map(q => q.id))
     .orderBy('id', 'desc')
     .limit(100)
     .select('*')
@@ -181,22 +182,43 @@ export async function loadQuestions(query: QuestionsQuery={}): Promise<Question[
 
 }
 
-export async function loadQuestion({ tx_id }: {tx_id: string}): Promise<Question> {
+interface LoadQuestion {
+  tx_id: string;
+  tx_index?: number;
+  start_timestamp?: number;
+  end_timestamp?: number;
+}
 
-  let [question] = await knex('onchain_events')
-    .where({
-      key: 'question',
-      tx_id
-    })
-    .select('*')
+export async function loadQuestion(query: LoadQuestion): Promise<Question> {
 
-  if (!question) {
-    return
+  const start_timestamp = query.start_timestamp || 0;
+
+  const end_timestamp = query.end_timestamp || Date.now();
+
+  log.debug('question.load.query', query)
+
+  let [question] = await knex('questions')
+    .join('boostpow_proofs', 'questions.tx_id', 'boostpow_proofs.content')
+    .where('boostpow_proofs.timestamp', '>=', start_timestamp)
+    .where('boostpow_proofs.timestamp', '<=', end_timestamp)
+    .sum('difficulty as difficulty')
+    .groupBy('boostpow_proofs.content')
+    .orderBy('difficulty', 'desc')
+    .select(['questions.*', 'difficulty'])
+
+  if (question) {
+
+    return question
+
   }
 
-  const value = JSON.parse(question.value)
+  let [unBoosted] = await knex('questions')
+      .where('tx_id', query.tx_id)
+      .select('*')
 
-  return Object.assign(question, { value })
+  unBoosted.difficulty = 0
+
+  return unBoosted
 
 }
 

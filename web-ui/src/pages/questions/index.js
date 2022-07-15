@@ -49,7 +49,7 @@ const QuestionPage = () => {
       <FormControl placeholder="Ask Bitcoin a question" />
       <Stack direction="column" justifyContent="flex-end">
         {questions.map((question) => {
-          return <Post key={question.tx_id} post={question} />;
+          return <Post key={question.id} post={question} />;
         })}
       </Stack>
     </MainCard>

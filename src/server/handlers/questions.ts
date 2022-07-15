@@ -56,7 +56,8 @@ export async function show(req, h) {
     }
 
     const answers = await loadAnswers({
-      question_tx_id: req.params.tx_id
+      question_tx_id: req.params.tx_id,
+      ...req.query
     })
 
     return {

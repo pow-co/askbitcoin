@@ -28,6 +28,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm';
 
+import { useSnackbar } from 'notistack'
+
 // project imports
 import Comment from './Comment';
 import MainCard from '../MainCard';
@@ -62,6 +64,8 @@ const FormInput = ({ bug, label, size, fullWidth = true, name, required, ...othe
     isError = true;
     errorMessage = bug[name].message;
   }
+
+
 
   return (
     <>
@@ -108,6 +112,8 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
   const router = useRouter();
   const { tx_id, content, author, difficulty } = post;
 
+  const { enqueueSnackbar } = useSnackbar();
+
   const { borderRadius } = useConfig();
   const matchesXS = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -139,6 +145,11 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
 
   const handleBoost = async (event) => {
     event.stopPropagation();
+
+    enqueueSnackbar(`BOOST THIS ${event}`)
+
+    console.log(event)
+
     console.log('Im boostiiiing');
   };
 
@@ -211,7 +222,7 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
                   <Typography align="left" variant="caption">
                     <FiberManualRecordIcon sx={{ width: '10px', height: '10px', opacity: 0.5, m: '0 5px' }} />
                     {/* {question.time} */}
-                    <Link href={`https://whatsonchain.com/tx/${tx_id}`}>tx</Link>
+                    <a target="_blank" rel="noopener" href={`https://whatsonchain.com/tx/${tx_id}`}>tx</a>
                   </Typography>
                 </Grid>
               </Grid>

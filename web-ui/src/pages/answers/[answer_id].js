@@ -41,13 +41,13 @@ const AnswerDetailPage = () => {
 
   return (
     <>
-      <h1>Question</h1>
+      <h1>Answer</h1>
       <MainCard>
-        <Post post={question} />
+        <Post answer post={answer} />
       </MainCard>
-      <h2>Answer</h2>
-      <Post answer post={answer} />
-      <FormControl placeholder="Comment this answer" />
+      <h2>Question</h2>
+      <Post post={question} />
+      <FormControl placeholder="Answer this question" />
     </>
   );
 };

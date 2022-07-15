@@ -1,4 +1,6 @@
 
+import { log } from './log'
+
 import { Question } from './questions'
 
 import { Author } from './authors'
@@ -9,7 +11,9 @@ import { knex } from './knex'
 
 export interface Answer {
 
-  question: Question;
+  question?: Question;
+
+  question_tx_id?: string;
 
   content: string;
 
@@ -56,35 +60,95 @@ export async function find(answer_txid: string): Promise<Answer> {
 
 }
 
-export async function loadAnswers({ question_tx_id }: {question_tx_id: string}): Promise<Answer[]> {
+interface LoadAnswers {
+  question_tx_id: string;
+  start_timestamp?: number;
+  end_timestamp?: number;
+}
 
-  var query = knex('onchain_events')
-    .where({
-      key: 'answer'
-    })
+interface LoadAnswer {
+  tx_id: string;
+  start_timestamp?: number;
+  end_timestamp?: number;
+}
 
-  if (question_tx_id) {
 
-    query = query.whereJsonPath('value', '$.txid', '=', question_tx_id)
+export async function loadAnswer(query: LoadAnswer): Promise<Answer> {
+
+  const start_timestamp = query.start_timestamp || 0;
+
+  const end_timestamp = query.end_timestamp || Date.now();
+
+  log.debug('answers.load.query', query)
+
+  let [answer] = await knex('answers')
+    .join('boostpow_proofs', 'answers.tx_id', 'boostpow_proofs.content')
+    .where('boostpow_proofs.timestamp', '>=', start_timestamp)
+    .where('boostpow_proofs.timestamp', '<=', end_timestamp)
+    .sum('difficulty as difficulty')
+    .groupBy('boostpow_proofs.content')
+    .orderBy('difficulty', 'desc')
+    .select(['answers.*', 'difficulty'])
+
+  console.log('__answer', answer)
+  if (answer) {
+
+    return answer
+
   }
 
-  let answers = await  query.select('*')
+  let [unBoosted] = await knex('answers')
+      .where('tx_id', query.tx_id)
+      .select('*')
 
-  return answers.map(answer => {
+  unBoosted.difficulty = 0
 
-    try {
+  console.log('__answer', unBoosted)
 
-      const value = JSON.parse(answer.value)
+  return unBoosted
 
-      return Object.assign(answer, { value })
+}
 
-    } catch(error) {
+export async function loadAnswers(query: LoadAnswers): Promise<Answer[]> {
 
-      return null
+  const start_timestamp = query.start_timestamp || 0;
 
-    }
+  const end_timestamp = query.end_timestamp || Date.now();
 
-  }).filter(answer => !!answer)
+  log.debug('answers.load.query', query)
+
+  const boostedAnswersQuery = knex('answers')
+    .join('boostpow_proofs', 'answers.tx_id', 'boostpow_proofs.content')
+    .where('boostpow_proofs.timestamp', '>=', start_timestamp)
+    .where('boostpow_proofs.timestamp', '<=', end_timestamp)
+    .sum('difficulty as difficulty')
+    .groupBy('boostpow_proofs.content')
+    .orderBy('difficulty', 'desc')
+
+  if (query.question_tx_id) {
+
+    boostedAnswersQuery.where('question_tx_id', query.question_tx_id)
+  }
+
+  const boostedAnswers = await boostedAnswersQuery.select(['answers.*', 'difficulty'])
+
+  const unboostedAnswersQuery = knex('answers')
+    .where('id', 'not in', boostedAnswers.map(a => a.id))
+    .orderBy('id', 'desc')
+    .limit(100)
+
+  if (query.question_tx_id) {
+
+    unboostedAnswersQuery.where('question_tx_id', query.question_tx_id)
+  }
+
+  let unboostedAnswers = await unboostedAnswersQuery.select('*')
+
+  unboostedAnswers = unboostedAnswers.map(answer => {
+    return {...answer, difficulty: 0}
+  })
+
+  return [...boostedAnswers, ...unboostedAnswers]
 
 }
 

@@ -104,6 +104,8 @@ export async function sync_all_onchain(app_id: string) {
           source: 'bitbus'
         }
 
+        console.log(message)
+
         onchainQueue.push(message)
 
       })
@@ -169,6 +171,8 @@ export async function sync_onchain_app(app_id: string) {
           signature: output['s8'],
           source: 'bitbus'
         }
+
+        console.log(message)
 
         onchainQueue.push(message)
 
@@ -254,6 +258,8 @@ import { knex } from './knex'
 
 export async function handleOnchainTransaction(data: OnchainTransaction) {
 
+    const { tx_id, tx_index, app_id, key, value, nonce, author, signature } = data
+
   try {
 
     let [record] = await knex('onchain_events').where({
@@ -265,13 +271,7 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
 
       log.debug('onchain.transaction.duplicate', data)
 
-      return
-
     } else {
-
-      const { tx_id, tx_index, app_id, key, value, nonce, author, signature } = data
-
-      console.log('__value', value)
 
       const insert = {
         tx_id,
@@ -287,98 +287,103 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
 
       if (signature) { insert['signature'] = signature }
 
-      console.log("insert", insert)
-
       const result = await knex('onchain_events').insert(insert)
 
       log.info('onchain.event.recorded', insert)
+    }
 
-      if (key === 'question') {
+    console.log('DATA', data)
 
-        let [question] = await knex('questions').where({ tx_id }).select('*')
+    if (key === 'question') {
 
-        if (!question) {
+      let [question] = await knex('questions').where({ tx_id }).select('*')
 
-          const insert = {
-            tx_id,
-            content: value.content,
-            author
-          }
+      if (!question) {
 
-          await knex('questions').insert(insert)
-
-          log.info('question.recorded', insert)
-
+        const insert = {
+          tx_id,
+          tx_index,
+          content: value.content,
+          author
         }
+
+        await knex('questions').insert(insert)
+
+        log.info('question.recorded', insert)
 
       }
 
-      if (key === 'answer') {
+    }
 
-        let [answer] = await knex('answers').where({ tx_id }).select('*')
+    if (key === 'answer') {
 
-        if (!answer) {
+      let [answer] = await knex('answers').where({ tx_id }).select('*')
 
-          const { content, question_id } = value
+      if (!answer) {
 
-          const insert = {
-            tx_id,
-            question_id,
-            content,
-            author
-          }
+        var { content, txid: question_tx_id } = value
 
-          await knex('answers').insert(insert)
-
-          log.info('answer.recorded', insert)
-
+        if (!question_tx_id) {
+          question_tx_id = value.question_tx_id
         }
+
+        const insert = {
+          tx_id,
+          tx_index,
+          question_tx_id,
+          content,
+          author
+        }
+
+        await knex('answers').insert(insert)
+
+        log.info('answer.recorded', insert)
 
       }
 
-      if (app_id === config.get('boostpow_onchain_app_id')) {
+    }
 
-        if (key === 'job') {
+    if (app_id === config.get('boostpow_onchain_app_id')) {
 
-        }
+      if (key === 'job') {
 
-        if (key === 'proof') {
+      }
 
-          let proof_txid = value.tx_id || tx_id
+      if (key === 'proof') {
 
-          // get proof transaction
-          // verify valid boost proof
-          // check if already in database
-          // insert into database
+        let proof_txid = value.tx_id || tx_id
 
-          let proof_tx = await getTransaction(proof_txid)
+        // get proof transaction
+        // verify valid boost proof
+        // check if already in database
+        // insert into database
 
-          console.log("__PROOF_TX", proof_tx.toString())
+        let proof_tx = await getTransaction(proof_txid)
 
-          let proof = boostpow.BoostPowJobProof.fromTransaction(proof_tx)
+        console.log("__PROOF_TX", proof_tx.toString())
 
-          console.log("__PROOF", proof)
+        let proof = boostpow.BoostPowJobProof.fromTransaction(proof_tx)
 
-          let json = Object.assign(proof.toObject(), {
-            tx_id: proof.txid,
-            tx_index: proof.vin
-          })
+        console.log("__PROOF", proof)
 
-          const [record] = await knex('boostpow_proofs').where({
-            tx_id: proof.txid,
-            tx_index: proof.vin
-          })
-          .select('*')
+        let json = Object.assign(proof.toObject(), {
+          tx_id: proof.txid,
+          tx_index: proof.vin
+        })
 
-          console.log('record', record)
+        const [record] = await knex('boostpow_proofs').where({
+          tx_id: proof.txid,
+          tx_index: proof.vin
+        })
+        .select('*')
 
-          if (!record) {
+        console.log('record', record)
 
-            const result = await knex('boostpow_proofs').insert(json)
+        if (!record) {
 
-            console.log('insert result', result)
+          const result = await knex('boostpow_proofs').insert(json)
 
-          }
+          console.log('insert result', result)
 
         }
 
