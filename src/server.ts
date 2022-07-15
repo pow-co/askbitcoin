@@ -232,6 +232,66 @@ server.route({
   }
 })
 
+server.route({
+  method: 'GET',
+  path: '/api/v1/boostpow/{tx_id}/new',
+  handler: handlers.Boostpow.build,
+  options: {
+    description: 'Create new Boost Pow job script for payment',
+    tags: ['api', 'boostpow'],
+    validate: {
+      query: Joi.object({
+        currency: Joi.string().default('USD').optional(),
+        value: Joi.number().default(0.05).optional()
+      }).label('NewBoostPowOptions'),
+      params: Joi.object({
+        tx_id: Joi.string().required()
+      })
+    },
+    response: {
+      failAction: 'log',
+      schema: Joi.object({
+        network: Joi.string().required(),
+        outputs: Joi.array().items(Joi.object({
+          script: Joi.string().required(),
+          amount: Joi.number().integer().required()
+        }).required().label('PaymentRequestOutput')).required(),
+        creationTimestamp: Joi.number().integer().required(),
+        expirationTimestamp: Joi.number().integer().required(),
+        memo: Joi.string().optional(),
+        paymentUrl: Joi.string().required(),
+        merchantData: Joi.string().optional()
+      })
+        
+    }
+  }
+})
+
+server.route({
+  method: 'POST',
+  path: '/api/v1/transactions',
+  handler: handlers.Transactions.create,
+  options: {
+    description: 'Submit new, signed transactions to the network',
+    tags: ['api', 'transactions'],
+    validate: {
+      failAction: 'log',
+      payload: Joi.object({
+        transaction: Joi.string().required()
+      }).label('SubmitTransaction')
+    },
+    response: {
+      failAction: 'log',
+      schema: Joi.object({
+        payment: Joi.string().required(),
+        memo: Joi.string().optional(),
+        error: Joi.number().optional()
+      }).label('PaymentAck')
+    }
+
+  }
+})
+
 var started = false
 
 export async function start() {
