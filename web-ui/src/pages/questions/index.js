@@ -19,10 +19,37 @@ import FormControl from 'components/ui-component/extended/Form/FormControl';
 import Avatar from 'components/ui-component/extended/Avatar';
 
 import { useSnackbar } from 'notistack';
+import { useEvents } from 'hooks/useEvents';
 
+function postQuestion(content) {
+  const json = JSON.stringify({
+    content
+  });
+
+  relayone
+    .send({
+      opReturn: ['onchain', '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', 'question', json],
+      currency: 'USD',
+      amount: 0.01,
+      to: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN'
+    })
+    .then(console.log)
+    .catch(console.error);
+}
 
 const QuestionPage = () => {
+  window.postQuestion = postQuestion;
+
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
+  function onQuestion(question) {
+    console.log('on question', question);
+    enqueueSnackbar(`new question: ${question.content}`);
+  }
+
+  const events = useEvents(`questions`, onQuestion);
+
+  window.events = events;
 
   const { user } = useAuth();
   let { data, error, refresh, loading } = useAPI('/questions');
@@ -46,7 +73,7 @@ const QuestionPage = () => {
 
   return (
     <MainCard title={<FormattedMessage id="questions-pow" />}>
-      <FormControl placeholder="Ask Bitcoin a question" />
+      <FormControl submit={postQuestion} placeholder="Ask Bitcoin a question" />
       <Stack direction="column" justifyContent="flex-end">
         {questions.map((question) => {
           return <Post key={question.id} post={question} />;

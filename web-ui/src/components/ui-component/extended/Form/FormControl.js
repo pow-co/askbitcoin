@@ -10,7 +10,17 @@ import Avatar from 'components/ui-component/extended/Avatar';
 
 // ==============================|| FORM CONTROL ||============================== //
 
-const FormControl = ({ captionLabel, formState, iconPrimary, iconSecondary, placeholder, textPrimary, textSecondary }) => {
+const FormControl = ({
+  captionLabel,
+  formState,
+  iconPrimary,
+  iconSecondary,
+  placeholder,
+  textPrimary,
+  textSecondary,
+  question,
+  submit
+}) => {
   const [input, setInput] = useState('');
   const theme = useTheme();
   const { user } = useAuth();
@@ -27,7 +37,19 @@ const FormControl = ({ captionLabel, formState, iconPrimary, iconSecondary, plac
   };
 
   const handleSubmit = () => {
-    console.log('coucou', input);
+    try {
+      if (question) {
+        console.log(question);
+        submit(question, input);
+      } else {
+        submit(input);
+      }
+
+      //Success Callback
+      setInput('');
+    } catch (error) {
+      console.log.error(error);
+    }
   };
 
   return (

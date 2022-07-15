@@ -14,34 +14,31 @@ import { useRouter } from 'next/router';
 
 import { FormattedMessage } from 'react-intl';
 
-import { useSnackbar } from 'notistack'
-
+import { useSnackbar } from 'notistack';
 
 // ==============================|| QUESTION DETAIL PAGE ||============================== //
 
-
-
-import { useEffect } from 'react'
+import { useEffect } from 'react';
 import { useEvents } from 'hooks/useEvents';
 
 function postAnswer(question_tx_id, content) {
-
   const json = JSON.stringify({
     question_tx_id,
     content
-  })
+  });
 
-  relayone.send({
-    "opReturn": ["onchain", "1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN", "answer", json],
-    "currency": "USD",
-    "amount": 0.01,
-    "to": "1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN"
-  }).then(console.log).catch(console.error)
+  relayone
+    .send({
+      opReturn: ['onchain', '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', 'answer', json],
+      currency: 'USD',
+      amount: 0.01,
+      to: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN'
+    })
+    .then(console.log)
+    .catch(console.error);
 }
 
-
 const QuestionDetailPage = () => {
-
   window.postAnswer = postAnswer;
 
   const { query } = useRouter();
@@ -49,14 +46,13 @@ const QuestionDetailPage = () => {
   const { enqueueSnackbar } = useSnackbar();
 
   function onAnswer(answer) {
-    console.log('on answer', answer)
-    enqueueSnackbar(`new answer: ${answer.content}`)
-}
+    console.log('on answer', answer);
+    enqueueSnackbar(`new answer: ${answer.content}`);
+  }
 
-  const events = useEvents(`questions.${query.question_id}.answer`, onAnswer)
+  const events = useEvents(`questions.${query.question_id}.answer`, onAnswer);
 
-  window.events = events
-
+  window.events = events;
 
   let { data, error, refresh, loading } = useAPI(`/questions/${query.question_id}`);
 
@@ -85,7 +81,7 @@ const QuestionDetailPage = () => {
         <Post post={question} />
       </MainCard>
       <h2>Answers</h2>
-      <FormControl placeholder="Add your answer" />
+      <FormControl question={question.tx_id} submit={postAnswer} placeholder="Add your answer" />
       {answers.map((answer) => {
         return <Post key={answer.tx_id} answer post={answer} />;
       })}

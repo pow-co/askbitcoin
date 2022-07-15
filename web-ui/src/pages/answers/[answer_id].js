@@ -13,11 +13,40 @@ import { useAPI } from 'hooks/useAPI';
 import { useRouter } from 'next/router';
 
 import { FormattedMessage } from 'react-intl';
+import { useSnackbar } from 'notistack';
 
 // ==============================|| QUESTION DETAIL PAGE ||============================== //
 
+import { useEvents } from 'hooks/useEvents';
+
+function postAnswer(question_tx_id, content) {
+  const json = JSON.stringify({
+    question_tx_id,
+    content
+  });
+
+  relayone
+    .send({
+      opReturn: ['onchain', '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', 'answer', json],
+      currency: 'USD',
+      amount: 0.01,
+      to: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN'
+    })
+    .then(console.log)
+    .catch(console.error);
+}
+
 const AnswerDetailPage = () => {
+  window.postAnswer = postAnswer;
+
   const { query } = useRouter();
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  function onAnswer(answer) {
+    console.log('on answer', answer);
+    enqueueSnackbar(`new answer: ${answer.content}`);
+  }
 
   let { data, error, refresh, loading } = useAPI(`/answers/${query.answer_id}`);
 
@@ -39,6 +68,10 @@ const AnswerDetailPage = () => {
 
   const { question, answer } = data;
 
+  const events = useEvents(`answers.${query.answer_id.question}`, onAnswer);
+
+  window.events = events;
+
   return (
     <>
       <h1>Answer</h1>
@@ -47,7 +80,7 @@ const AnswerDetailPage = () => {
       </MainCard>
       <h2>Question</h2>
       <Post post={question} />
-      <FormControl placeholder="Answer this question" />
+      <FormControl question={question.tx_id} submit={postAnswer} placeholder="Answer this question" />
     </>
   );
 };
