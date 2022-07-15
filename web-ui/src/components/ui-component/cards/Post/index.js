@@ -36,6 +36,10 @@ import AnimateButton from 'components/ui-component/extended/AnimateButton';
 import ImageList from 'components/ui-component/extended/ImageList';
 import Avatar from 'components/ui-component/extended/Avatar';
 
+import SimpleDialog from 'components/ui-component/SimpleDialog'
+
+import { BoostpowQrCodeDialog } from 'components/ui-component/SimpleDialog'
+
 // assets
 import ShareTwoToneIcon from '@mui/icons-material/ShareTwoTone';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
@@ -44,11 +48,17 @@ import ChatTwoToneIcon from '@mui/icons-material/ChatTwoTone';
 import ContentCopyTwoToneIcon from '@mui/icons-material/ContentCopyTwoTone';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import ThumbUpAltTwoToneIcon from '@mui/icons-material/ThumbUpAltTwoTone';
+import QrCode from '@mui/icons-material/QrCode';
 import ChatBubbleTwoToneIcon from '@mui/icons-material/ChatBubbleTwoTone';
 import useConfig from 'hooks/useConfig';
 import { useRouter } from 'next/router';
 
 const avatarImage = '/assets/images/profile/';
+
+
+
+import {QRCodeSVG} from 'qrcode.react';
+
 
 const validationSchema = yup.object().shape({
   name: yup.string().required('Comment Field is Required')
@@ -109,6 +119,9 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
   const router = useRouter();
   const { tx_id, content, author, difficulty } = post;
 
+  const [qrDialogOpen, setQrDialogOpen] = React.useState(false);
+
+
   const { enqueueSnackbar } = useSnackbar();
 
   const { borderRadius } = useConfig();
@@ -121,7 +134,10 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
   };
 
   const handleClose = () => {
-    setAnchorEl(null);
+
+    console.log('handle close')
+
+    setQrDialogOpen(false)
   };
 
   const [anchorSharedEl, setAnchorSharedEl] = React.useState(null);
@@ -199,6 +215,13 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
     event.stopPropagation();
     router.push(`/${answer ? 'answers' : 'questions'}/${tx_id}`);
   };
+
+  const selectedValue = ''
+
+  function handleClickOpen() {
+
+    console.log("handle click open")
+  }
 
   return (
     <MainCard onClick={navigate}>
@@ -283,6 +306,15 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
           }}
         >
           <ReactMarkdown remarkPlugins={[gfm]}>{content}</ReactMarkdown>
+          <br />
+
+          <BoostpowQrCodeDialog
+            tx_id={tx_id}
+            currency={'USD'}
+            value={0.05}
+            open={qrDialogOpen}
+            onClose={handleClose}
+          />
         </Grid>
 
         {/* post - photo grid */}
@@ -328,6 +360,15 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
                   startIcon={<ChatBubbleTwoToneIcon color="secondary" />}
                 >
                   {/* {data.comments ? data.comments.length : 0} comments */}0
+                </Button>
+                <Button
+                  variant="text"
+                  onClick={(e) => { setQrDialogOpen(true); return false }}
+                  color="inherit"
+                  size="small"
+                  //startIcon={<ThumbUpAltTwoToneIcon color={data && data.likes && data.likes.like ? 'primary' : 'inherit'} />}
+                  startIcon={<QrCode color={'inherit'} />}
+                >
                 </Button>
                 <Button
                   variant="text"
