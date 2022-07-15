@@ -4,13 +4,23 @@ import useAuth from 'hooks/useAuth';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import { Button, Divider, Grid, InputAdornment, InputLabel, OutlinedInput } from '@mui/material';
+import { Button, Divider, Grid, InputAdornment, InputLabel, FilledInput } from '@mui/material';
 import MUIFormControl from '@mui/material/FormControl';
 import Avatar from 'components/ui-component/extended/Avatar';
 
 // ==============================|| FORM CONTROL ||============================== //
 
-const FormControl = ({ captionLabel, formState, iconPrimary, iconSecondary, placeholder, textPrimary, textSecondary }) => {
+const FormControl = ({
+  captionLabel,
+  formState,
+  iconPrimary,
+  iconSecondary,
+  placeholder,
+  textPrimary,
+  textSecondary,
+  question,
+  submit
+}) => {
   const [input, setInput] = useState('');
   const theme = useTheme();
   const { user } = useAuth();
@@ -27,18 +37,33 @@ const FormControl = ({ captionLabel, formState, iconPrimary, iconSecondary, plac
   };
 
   const handleSubmit = () => {
-    console.log('coucou', input);
+    try {
+      if (question) {
+        console.log(question);
+        submit(question, input);
+      } else {
+        submit(input);
+      }
+
+      //Success Callback
+      setInput('');
+    } catch (error) {
+      console.log.error(error);
+    }
   };
 
   return (
     <MUIFormControl fullWidth sx={{ padding: '16px' }} error={errorState}>
-      <Grid container>
-        <Grid item xs={1} sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <Grid container spacing={2}>
+        <Grid item xs={2} md={1} sx={{ width: '100%', display: 'flex', justifyContent: 'end', alignItems: 'center' }}>
           <Avatar alt="User 1" src={user ? `https://bitpic.network/u/${user.email}` : 'https://bitpic.network/u/unknown'} />
         </Grid>
-        <Grid item xs={11}>
-          <OutlinedInput
+        <Grid item xs={10} md={11}>
+          <FilledInput
+            sx={{ borderRadius: '16px' }}
             fullWidth
+            multiline
+            disableUnderline
             value={input}
             onChange={handleChange}
             placeholder={placeholder}

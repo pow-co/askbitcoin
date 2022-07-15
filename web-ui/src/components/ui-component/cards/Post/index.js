@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import * as React from 'react';
 import Link from 'next/link';
 
-
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import {
@@ -28,7 +27,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm';
 
-import { useSnackbar } from 'notistack'
+import { useSnackbar } from 'notistack';
 
 // project imports
 import Comment from './Comment';
@@ -74,8 +73,6 @@ const FormInput = ({ bug, label, size, fullWidth = true, name, required, ...othe
     isError = true;
     errorMessage = bug[name].message;
   }
-
-
 
   return (
     <>
@@ -162,9 +159,9 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
   const handleBoost = async (event) => {
     event.stopPropagation();
 
-    enqueueSnackbar(`BOOST THIS ${event}`)
+    enqueueSnackbar(`BOOST THIS ${event}`);
 
-    console.log(event)
+    console.log(event);
 
     console.log('Im boostiiiing');
   };
@@ -243,9 +240,11 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
                 </Grid>
                 <Grid item>
                   <Typography align="left" variant="caption">
-                    <FiberManualRecordIcon sx={{ width: '10px', height: '10px', opacity: 0.5, m: '0 5px' }} />
+                    {/* <FiberManualRecordIcon sx={{ width: '10px', height: '10px', opacity: 0.5, m: '0 5px' }} /> */}
                     {/* {question.time} */}
-                    <a target="_blank" rel="noopener" href={`https://whatsonchain.com/tx/${tx_id}`}>tx</a>
+                    <a target="_blank" rel="noopener" href={`https://whatsonchain.com/tx/${tx_id}`}>
+                      tx
+                    </a>
                   </Typography>
                 </Grid>
               </Grid>
