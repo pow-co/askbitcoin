@@ -201,6 +201,7 @@ export async function loadQuestion(query: LoadQuestion): Promise<Question> {
     .join('boostpow_proofs', 'questions.tx_id', 'boostpow_proofs.content')
     .where('boostpow_proofs.timestamp', '>=', start_timestamp)
     .where('boostpow_proofs.timestamp', '<=', end_timestamp)
+    .where('questions.tx_id', query.tx_id)
     .sum('difficulty as difficulty')
     .groupBy('boostpow_proofs.content')
     .orderBy('difficulty', 'desc')
