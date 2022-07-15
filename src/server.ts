@@ -30,6 +30,59 @@ export const server = new Server({
   }
 });
 
+server.ext('onRequest', function(request, h) {
+
+  log.debug('server.request', { id: request.info.id, headers: request.headers })
+
+  if ('application/payment' === request.headers['content-type']) {
+    request.headers['content-type'] = 'application/json';
+    request.headers['x-content-type'] = 'application/payment';
+  }
+
+  if ('application/payment' === request.headers['accept']) {
+    request.headers['content-type'] = 'application/json';
+    request.headers['x-content-type'] = 'application/payment';
+  }
+
+  if ('application/bitcoinsv-payment' === request.headers['content-type']) {
+    request.headers['content-type'] = 'application/json';
+    request.headers['x-content-type'] = 'application/bitcoinsv-payment';
+  }
+
+  if ('application/dash-payment' === request.headers['content-type']) {
+    request.headers['content-type'] = 'application/json';
+    request.headers['x-content-type'] = 'application/dash-payment';
+  }
+
+  if ('application/dash-payment' === request.headers['accept']) {
+    request.headers['accept'] = 'application/json';
+    request.headers['x-accept'] = 'application/dash-payment';
+  }
+
+  if ('application/dash-paymentack' === request.headers['accept']) {
+    request.headers['accept'] = 'application/json';
+    request.headers['x-accept'] = 'application/dash-paymentack';
+  }
+
+  if ('application/bitcoinsv-paymentack' === request.headers['accept']) {
+    request.headers['content-type'] = 'application/json';
+    request.headers['x-content-type'] = 'application/bitcoinsv-payment';
+    request.headers['x-accept'] = 'application/bitcoinsv-paymentack';
+  }
+
+  if ('application/verify-payment' === request.headers['content-type']) {
+    request.headers['content-type'] = 'application/json';
+    request.headers['x-content-type'] = 'application/verify-payment';
+  }
+
+  if ('application/verify-payment' === request.headers['accept']) {
+    request.headers['content-type'] = 'application/json';
+    request.headers['x-content-type'] = 'application/verify-payment';
+  }
+
+  return h.continue;
+});
+
 if (config.get('prometheus_enabled')) {
 
   log.info('server.metrics.prometheus', { path: '/metrics' })
