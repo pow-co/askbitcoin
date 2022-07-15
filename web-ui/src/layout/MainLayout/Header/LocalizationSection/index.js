@@ -23,6 +23,8 @@ import Transitions from 'components/ui-component/extended/Transitions';
 import TranslateTwoToneIcon from '@mui/icons-material/TranslateTwoTone';
 import useConfig from 'hooks/useConfig';
 
+import { FormattedMessage } from 'react-intl';
+
 // ==============================|| LOCALIZATION ||============================== //
 
 const LocalizationSection = () => {
@@ -145,9 +147,9 @@ const LocalizationSection = () => {
                       <ListItemText
                         primary={
                           <Grid container>
-                            <Typography color="textPrimary">English</Typography>
+                            <Typography color="textPrimary">American</Typography>
                             <Typography variant="caption" color="textSecondary" sx={{ ml: '8px' }}>
-                              (UK)
+                              (<FormattedMessage id="language-en" />)
                             </Typography>
                           </Grid>
                         }
@@ -157,9 +159,21 @@ const LocalizationSection = () => {
                       <ListItemText
                         primary={
                           <Grid container>
-                            <Typography color="textPrimary">français</Typography>
+                            <Typography color="textPrimary">Français</Typography>
                             <Typography variant="caption" color="textSecondary" sx={{ ml: '8px' }}>
-                              (French)
+                              (<FormattedMessage id="language-fr" />)
+                            </Typography>
+                          </Grid>
+                        }
+                      />
+                    </ListItemButton>
+                    <ListItemButton selected={language === 'ja'} onClick={(event) => handleListItemClick(event, 'zh')}>
+                      <ListItemText
+                        primary={
+                          <Grid container>
+                            <Typography color="textPrimary">日本語</Typography>
+                            <Typography variant="caption" color="textSecondary" sx={{ ml: '8px' }}>
+                              (<FormattedMessage id="language-ja" />)
                             </Typography>
                           </Grid>
                         }
@@ -171,7 +185,7 @@ const LocalizationSection = () => {
                           <Grid container>
                             <Typography color="textPrimary">Română</Typography>
                             <Typography variant="caption" color="textSecondary" sx={{ ml: '8px' }}>
-                              (Romanian)
+                              (<FormattedMessage id="language-ro" />)
                             </Typography>
                           </Grid>
                         }
@@ -183,7 +197,43 @@ const LocalizationSection = () => {
                           <Grid container>
                             <Typography color="textPrimary">中国人</Typography>
                             <Typography variant="caption" color="textSecondary" sx={{ ml: '8px' }}>
-                              (Chinese)
+                              (<FormattedMessage id="language-zh" />)
+                            </Typography>
+                          </Grid>
+                        }
+                      />
+                    </ListItemButton>
+                    <ListItemButton selected={language === 'ar'} onClick={(event) => handleListItemClick(event, 'zh')}>
+                      <ListItemText
+                        primary={
+                          <Grid container>
+                            <Typography color="textPrimary">عربي</Typography>
+                            <Typography variant="caption" color="textSecondary" sx={{ ml: '8px' }}>
+                              (<FormattedMessage id="language-ar" />)
+                            </Typography>
+                          </Grid>
+                        }
+                      />
+                    </ListItemButton>
+                    <ListItemButton selected={language === 'la'} onClick={(event) => handleListItemClick(event, 'zh')}>
+                      <ListItemText
+                        primary={
+                          <Grid container>
+                            <Typography color="textPrimary">Latinus</Typography>
+                            <Typography variant="caption" color="textSecondary" sx={{ ml: '8px' }}>
+                              (<FormattedMessage id="language-la" />)
+                            </Typography>
+                          </Grid>
+                        }
+                      />
+                    </ListItemButton>
+                    <ListItemButton selected={language === 'ru'} onClick={(event) => handleListItemClick(event, 'zh')}>
+                      <ListItemText
+                        primary={
+                          <Grid container>
+                            <Typography color="textPrimary">Русский</Typography>
+                            <Typography variant="caption" color="textSecondary" sx={{ ml: '8px' }}>
+                              (<FormattedMessage id="language-ru" />)
                             </Typography>
                           </Grid>
                         }

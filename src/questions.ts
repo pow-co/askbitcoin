@@ -1,4 +1,6 @@
 
+import { log } from './log'
+
 import { Answer } from './answers'
 
 import { Author } from './authors'
@@ -126,29 +128,57 @@ export async function answer(wallet: Wallet, newAnswer: NewAnswer): Promise<Answ
 
 }
 
-export async function loadQuestions(): Promise<Question[]> {
+interface QuestionsQuery {
+  start_timestamp?: string;
+  end_timestamp?: string;
+}
 
-  let questions = await knex('onchain_events')
-    .where({
-      key: 'question'
-    })
+export async function loadQuestions(query: QuestionsQuery={}): Promise<Question[]> {
+
+  const start_timestamp = query.start_timestamp || 0;
+
+  const end_timestamp = query.end_timestamp || Date.now();
+
+  log.info('questions.load.query', { start_timestamp, end_timestamp })
+
+  let boostedQuestions = await knex('questions')
+    .join('boostpow_proofs', 'questions.tx_id', 'boostpow_proofs.content')
+    .where('boostpow_proofs.timestamp', '>=', start_timestamp)
+    .where('boostpow_proofs.timestamp', '<=', end_timestamp)
+    .select(['questions.*', 'difficulty'])
+    .sum('difficulty as difficulty')
+    .groupBy('boostpow_proofs.content')
+    .orderBy('difficulty', 'desc')
+
+  let allQuestions = await knex('questions')
+    .orderBy('id', 'desc')
+    .limit(100)
     .select('*')
 
-  return questions.map(question => {
 
-    try {
+  allQuestions = allQuestions.map(question => {
 
-      const value = JSON.parse(question.value)
+    if (!question.difficulty) {
 
-      return Object.assign(question, { value })
-
-    } catch(error) {
-
-      return null
+      question.difficulty = 0
 
     }
 
-  }).filter(question => !!question)
+    return question
+
+  })
+
+  const questions = [...boostedQuestions, ...allQuestions].sort((a, b) => {
+
+    var diff_a = a.difficulty || 0
+    var diff_b = b.difficulty || 0
+
+    return diff_a < diff_b ? 1 : 0
+
+  })
+
+  return questions
+
 }
 
 export async function loadQuestion({ tx_id }: {tx_id: string}): Promise<Question> {

@@ -15,6 +15,8 @@ import accountReducer from 'store/accountReducer';
 import Loader from 'components/ui-component/Loader';
 import axios from 'utils/axios';
 
+import { useSnackbar } from 'notistack'
+
 // constant
 const JWT_SECRET = JWT_API.secret;
 const JWT_EXPIRES_TIME = JWT_API.timeout;
@@ -50,6 +52,8 @@ const RelayxContext = createContext(null);
 
 export const RelayxProvider = ({ children }) => {
   const [state, dispatch] = useReducer(accountReducer, initialState);
+
+  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
     const init = async () => {
@@ -182,6 +186,8 @@ export const RelayxProvider = ({ children }) => {
     window.localStorage.removeItem('berry-next-js-config');
     window.localStorage.removeItem('relayx.origin');
     window.localStorage.removeItem('relayx.pubkey');
+
+    enqueueSnackbar('au revoir!')
 
     dispatch({ type: LOGOUT });
   };

@@ -26,6 +26,8 @@ import Snackbar from 'components/ui-component/extended/Snackbar';
 
 import { ConfigProvider } from 'contexts/ConfigContext';
 
+import { SnackbarProvider } from 'notistack';
+
 //import { FirebaseProvider as AuthProvider } from '../contexts/FirebaseContext';
 // import { Auth0Provider as AuthProvider } from '../contexts/Auth0Context';
 //import { JWTProvider as AuthProvider } from 'contexts/JWTContext';
@@ -71,12 +73,22 @@ function App({ Component, pageProps }) {
               <RTLLayout>
                 <Locales>
                   <NavigationScroll>
-                    <AuthProvider>
-                      <Layout>
-                        <Component {...pageProps} />
-                        <Snackbar />
-                      </Layout>
-                    </AuthProvider>
+                    <SnackbarProvider
+                      maxSnack={3}
+                      anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'right',
+                      }}
+                    >
+                      <AuthProvider>
+
+                        <Layout>
+                          <Component {...pageProps} />
+                          <Snackbar />
+                        </Layout>
+                      </AuthProvider>
+
+                    </SnackbarProvider>
                   </NavigationScroll>
                 </Locales>
               </RTLLayout>

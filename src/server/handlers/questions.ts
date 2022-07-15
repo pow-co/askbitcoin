@@ -19,7 +19,7 @@ export async function index(req, h) {
 
   try {
 
-    let questions = await loadQuestions()
+    let questions = await loadQuestions(req.query)
 
     return {
 

@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import * as React from 'react';
 import Link from 'next/link';
 
+
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import {
@@ -105,7 +106,7 @@ FormInput.propTypes = {
 const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAdd, answer }) => {
   const theme = useTheme();
   const router = useRouter();
-  const { tx_id, value, author } = post;
+  const { tx_id, content, author, difficulty } = post;
 
   const { borderRadius } = useConfig();
   const matchesXS = useMediaQuery(theme.breakpoints.down('md'));
@@ -210,7 +211,7 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
                   <Typography align="left" variant="caption">
                     <FiberManualRecordIcon sx={{ width: '10px', height: '10px', opacity: 0.5, m: '0 5px' }} />
                     {/* {question.time} */}
-                    tx
+                    <Link href={`https://whatsonchain.com/tx/${tx_id}`}>tx</Link>
                   </Typography>
                 </Grid>
               </Grid>
@@ -271,7 +272,7 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
             }
           }}
         >
-          <ReactMarkdown remarkPlugins={[gfm]}>{value.content}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[gfm]}>{content}</ReactMarkdown>
         </Grid>
 
         {/* post - photo grid */}
@@ -326,9 +327,9 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
                   //startIcon={<ThumbUpAltTwoToneIcon color={data && data.likes && data.likes.like ? 'primary' : 'inherit'} />}
                   startIcon={<ThumbUpAltTwoToneIcon color={'inherit'} />}
                 >
-                  {/* {data && data.likes && data.likes.value ? data.likes.value : 0} */}0
+                  {difficulty}
                   <Typography color="inherit" sx={{ fontWeight: 500, ml: 0.5, display: { xs: 'none', sm: 'block' } }}>
-                    boosts
+                    D
                   </Typography>
                 </Button>
               </Stack>

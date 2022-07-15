@@ -18,7 +18,12 @@ import Post from 'components/ui-component/cards/Post';
 import FormControl from 'components/ui-component/extended/Form/FormControl';
 import Avatar from 'components/ui-component/extended/Avatar';
 
+import { useSnackbar } from 'notistack';
+
+
 const QuestionPage = () => {
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
   const { user } = useAuth();
   let { data, error, refresh, loading } = useAPI('/questions');
 

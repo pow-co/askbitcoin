@@ -177,6 +177,13 @@ server.route({
   options: {
     description: 'List all Questions Ranked by Proof of Work',
     tags: ['api', 'questions'],
+    validate: {
+      query: Joi.object({
+        start_timestamp: Joi.number().integer().optional(),
+        end_timestamp: Joi.number().integer().optional()
+      })
+      .label('ListQuestionsQuery')
+    },
     response: {
       failAction: 'log',
       schema: Joi.object({
