@@ -160,12 +160,22 @@ export async function sync_onchain_app(app_id: string) {
 
       outputs.map(output => {
 
+        console.log('_json1', output)
+
+        var value = output['s5']
+
+        if (typeof value === 'string') {
+
+          value = JSON.parse(value)
+
+        }
+
         let message: OnchainTransaction = {
           tx_id: json['tx']['h'],
           tx_index: output['i'],
           app_id: output['s3'],
           key: output['s4'],
-          value: JSON.parse(output['s5']),
+          value,
           nonce: output['s6'],
           author: output['s7'],
           signature: output['s8'],
@@ -256,9 +266,87 @@ export interface OnchainTransaction {
 
 import { knex } from './knex'
 
+async function handleQuestion(data: OnchainTransaction) {
+
+  if (typeof data.value === 'string') {
+
+    data.value = JSON.parse(data.value)
+
+  }
+
+  var { value, tx_id, tx_index, author } = data
+
+  let [question] = await knex('questions').where({ tx_id }).select('*')
+
+  if (!question) {
+
+    const insert = {
+      tx_id,
+      tx_index,
+      content: value.content,
+      author
+    }
+
+    log.info('question.insert', insert)
+
+    let record = await knex('questions').insert(insert)
+
+    log.info('question.recorded', { insert, record })
+
+  }
+
+}
+
+async function handleAnswer(data: OnchainTransaction) {
+
+  var { value, tx_id, tx_index, author } = data
+
+  let [answer] = await knex('answers').where({ tx_id }).select('*')
+
+  if (!answer) {
+
+    var { content, txid: question_tx_id } = value
+
+    if (!question_tx_id) {
+      question_tx_id = value.question_tx_id
+    }
+
+    const insert = {
+      tx_id,
+      tx_index,
+      question_tx_id,
+      content,
+      author
+    }
+
+    await knex('answers').insert(insert)
+
+    log.info('answer.recorded', insert)
+
+  }
+
+
+}
+
 export async function handleOnchainTransaction(data: OnchainTransaction) {
 
-    const { tx_id, tx_index, app_id, key, value, nonce, author, signature } = data
+  var { tx_id, tx_index, app_id, key, value, nonce, author, signature } = data
+
+  try {
+
+    if (typeof value === 'string') {
+
+      value = JSON.parse(value)
+
+    }
+
+  } catch(error) {
+
+    log.debug('handleOnchainTransaction.error', error)
+
+    return
+
+  }
 
   try {
 
@@ -290,26 +378,18 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
       const result = await knex('onchain_events').insert(insert)
 
       log.info('onchain.event.recorded', insert)
-    }
 
-    console.log('DATA', data)
+    }
 
     if (key === 'question') {
 
-      let [question] = await knex('questions').where({ tx_id }).select('*')
+      try {
 
-      if (!question) {
+        return handleQuestion(data)
 
-        const insert = {
-          tx_id,
-          tx_index,
-          content: value.content,
-          author
-        }
+      } catch(error) {
 
-        await knex('questions').insert(insert)
-
-        log.info('question.recorded', insert)
+        log.error('handleQuestion', error)
 
       }
 
@@ -317,27 +397,13 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
 
     if (key === 'answer') {
 
-      let [answer] = await knex('answers').where({ tx_id }).select('*')
+      try {
 
-      if (!answer) {
+        return handleAnswer(data)
 
-        var { content, txid: question_tx_id } = value
+      } catch(error) {
 
-        if (!question_tx_id) {
-          question_tx_id = value.question_tx_id
-        }
-
-        const insert = {
-          tx_id,
-          tx_index,
-          question_tx_id,
-          content,
-          author
-        }
-
-        await knex('answers').insert(insert)
-
-        log.info('answer.recorded', insert)
+        log.error('handleAnswer', error)
 
       }
 
@@ -353,18 +419,9 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
 
         let proof_txid = value.tx_id || tx_id
 
-        // get proof transaction
-        // verify valid boost proof
-        // check if already in database
-        // insert into database
-
         let proof_tx = await getTransaction(proof_txid)
 
-        console.log("__PROOF_TX", proof_tx.toString())
-
         let proof = boostpow.BoostPowJobProof.fromTransaction(proof_tx)
-
-        console.log("__PROOF", proof)
 
         let json = Object.assign(proof.toObject(), {
           tx_id: proof.txid,
@@ -377,13 +434,9 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
         })
         .select('*')
 
-        console.log('record', record)
-
         if (!record) {
 
           const result = await knex('boostpow_proofs').insert(json)
-
-          console.log('insert result', result)
 
         }
 
