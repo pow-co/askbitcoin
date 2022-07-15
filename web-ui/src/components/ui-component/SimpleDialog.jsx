@@ -105,7 +105,7 @@ export function BoostpowQrCodeDialog(props) {
       </BootstrapDialogTitle>
 
       <DialogContent dividers>
-        <QRCodeSVG value={`pay:?r=https://e6fc-185-253-160-13.ngrok.io/api/v1/boostpow/${tx_id}/new?value=${value}&currency=${currency}`} />,
+        <QRCodeSVG value={`pay:?r=https://askbitcoin.ai/api/v1/boostpow/${tx_id}/new?value=${value}&currency=${currency}`} />,
 
         </DialogContent>
 
