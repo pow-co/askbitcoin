@@ -33,7 +33,7 @@ import { SnackbarProvider } from 'notistack';
 //import { JWTProvider as AuthProvider } from 'contexts/JWTContext';
 // import { AWSCognitoProvider as AuthProvider } from 'contexts/AWSCognitoContext';
 import { RelayxProvider as AuthProvider } from '../contexts/RelayxContext';
-
+//import { TwetchProvider as AuthProvider } from '../contexts/TwetchContext';
 
 const Noop = ({ children }) => <> {children} </>;
 
@@ -77,17 +77,15 @@ function App({ Component, pageProps }) {
                       maxSnack={3}
                       anchorOrigin={{
                         vertical: 'bottom',
-                        horizontal: 'right',
+                        horizontal: 'right'
                       }}
                     >
                       <AuthProvider>
-
                         <Layout>
                           <Component {...pageProps} />
                           <Snackbar />
                         </Layout>
                       </AuthProvider>
-
                     </SnackbarProvider>
                   </NavigationScroll>
                 </Locales>
