@@ -59,12 +59,12 @@ const AuthLogin = ({ loginProp, ...others }) => {
 
   const router = useRouter();
 
-  const { login } = useAuth();
+  const { relayxSignIn, twetchSignIn, handcashSignIn } = useAuth();
 
   const relayHandler = async () => {
     setIsSubmitting(true);
     try {
-      let result = await login();
+      let result = await relayxSignIn();
 
       console.log('relay.auth.result', result);
       setIsSubmitting(false);
@@ -80,7 +80,7 @@ const AuthLogin = ({ loginProp, ...others }) => {
   const twetchHandler = async () => {
     setIsSubmitting(true);
     try {
-      let result = await login();
+      let result = await twetchSignIn();
 
       console.log('twetch.auth.result', result);
       setIsSubmitting(false);
@@ -94,9 +94,11 @@ const AuthLogin = ({ loginProp, ...others }) => {
   };
 
   const handcashHandler = async () => {
+    //TODO
+    return
     setIsSubmitting(true);
     try {
-      let result = await login();
+      let result = await handcashSignIn();
 
       console.log('handcash.auth.result', result);
       setIsSubmitting(false);
@@ -148,7 +150,7 @@ const AuthLogin = ({ loginProp, ...others }) => {
             <Button
               disableElevation
               fullWidth
-              onClick={relayHandler}
+              onClick={twetchHandler}
               size="large"
               variant="outlined"
               sx={{
@@ -169,7 +171,7 @@ const AuthLogin = ({ loginProp, ...others }) => {
             <Button
               disableElevation
               fullWidth
-              onClick={relayHandler}
+              onClick={handcashHandler}
               size="large"
               variant="outlined"
               sx={{

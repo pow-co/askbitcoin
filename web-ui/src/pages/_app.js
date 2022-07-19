@@ -32,7 +32,7 @@ import { SnackbarProvider } from 'notistack';
 // import { Auth0Provider as AuthProvider } from '../contexts/Auth0Context';
 //import { JWTProvider as AuthProvider } from 'contexts/JWTContext';
 // import { AWSCognitoProvider as AuthProvider } from 'contexts/AWSCognitoContext';
-import { RelayxProvider as AuthProvider } from '../contexts/RelayxContext';
+import { WalletProvider as AuthProvider } from '../contexts/WalletContext';
 //import { TwetchProvider as AuthProvider } from '../contexts/TwetchContext';
 
 const Noop = ({ children }) => <> {children} </>;

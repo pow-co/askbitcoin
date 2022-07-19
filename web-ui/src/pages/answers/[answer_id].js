@@ -22,7 +22,7 @@ import useAuth from 'hooks/useAuth';
 
 const AnswerDetailPage = () => {
   window.postAnswer = postAnswer;
-  const { user, isLoggedIn } = useAuth()
+  const { user, wallet, isLoggedIn } = useAuth()
 
   const { query } = useRouter();
 
@@ -43,17 +43,42 @@ const AnswerDetailPage = () => {
         variant:'error'
       })
       return
-    }
-  
-    relayone
-      .send({
-        opReturn: ['onchain', '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', 'answer', json],
-        currency: 'USD',
-        amount: 0.01,
-        to: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN'
+    } 
+
+    try {
+      switch (wallet){
+        case "relayx":
+          relayone
+            .send({
+              opReturn: ['onchain', '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', 'answer', json],
+              currency: 'USD',
+              amount: 0.01,
+              to: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN'
+            })
+            .then(console.log)
+            .catch(console.error);
+          break;
+        case "twetch":
+          //TODO
+          break;
+        case "handcash":
+          //TODO
+          break;
+        default:
+          console.error("No wallet selected")
+          return
+      }
+    } catch (error) {
+      enqueueSnackbar(`Error Posting Answer: ${error.message}`, {
+        anchorOrigin: {
+          vertical:'top',
+          horizontal:'center'
+        },
+        variant:'error'
       })
-      .then(console.log)
-      .catch(console.error);
+    }
+
+    
   }
 
   function onAnswer(answer) {

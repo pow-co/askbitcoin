@@ -122,8 +122,8 @@ export const TwetchProvider = ({ children }) => {
     setSession(null);
     window.localStorage.removeItem('twetch.pubkey');
     window.localStorage.removeItem('twetch.paymail');
-    window.localStorage.removeItem('berry-cart');
-    window.localStorage.removeItem('berry-next-js-config');
+    //window.localStorage.removeItem('berry-cart');
+    //window.localStorage.removeItem('berry-next-js-config');
 
     enqueueSnackbar('au revoir!');
 

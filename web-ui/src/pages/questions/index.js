@@ -28,7 +28,7 @@ import axios from 'utils/axios'
 
 const QuestionPage = () => {
   window.postQuestion = postQuestion;
-  const { user, isLoggedIn } = useAuth();
+  const { user, wallet, isLoggedIn } = useAuth();
 
   const router = useRouter();
 
@@ -49,50 +49,62 @@ const QuestionPage = () => {
 
     try {
 
-    console.log('postQuestion', content)
+        console.log('postQuestion', content)
 
-    enqueueSnackbar(`Posting Question: ${content}`, {
-      anchorOrigin: {
-        vertical: 'top',
-        horizontal: 'center'
-      },
-      variant: 'info'
-    })
-    
-    let result = await relayone.send({
-        opReturn: ['onchain', '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', 'question', JSON.stringify({
-          content
-        })],
-        currency: 'USD',
-        amount: 0.01,
-        to: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN'
-      })
-
-    let {
-      amount,
-      currency,
-      identity,
-      paymail,
-      rawTx,
-      satoshis,
-      txid
-    } = result
-
-    enqueueSnackbar(`Question Posted by ${paymail}`, {
-      anchorOrigin: {
-        vertical: 'top',
-        horizontal: 'center'
-      },
-      variant: 'success'
-    })
-
-        let { data: postTransactionResponse } = await axios.post('/api/v1/transactions', {
-          transaction: rawTx
+        enqueueSnackbar(`Posting Question: ${content}`, {
+          anchorOrigin: {
+            vertical: 'top',
+            horizontal: 'center'
+          },
+          variant: 'info'
         })
 
-        console.log('postTransactionResponse', postTransactionResponse);
-
-        router.push(`/questions/${txid}`)
+        switch (wallet){
+          case "relayx":
+            let result = await relayone.send({
+              opReturn: ['onchain', '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', 'question', JSON.stringify({
+                content
+              })],
+              currency: 'USD',
+              amount: 0.01,
+              to: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN'
+            })
+            let {
+              amount,
+              currency,
+              identity,
+              paymail,
+              rawTx,
+              satoshis,
+              txid
+            } = result
+        
+            enqueueSnackbar(`Question Posted by ${paymail}`, {
+              anchorOrigin: {
+                vertical: 'top',
+                horizontal: 'center'
+              },
+              variant: 'success'
+            })
+        
+            let { data: postTransactionResponse } = await axios.post('/api/v1/transactions', {
+              transaction: rawTx
+            })
+    
+            console.log('postTransactionResponse', postTransactionResponse);
+    
+            router.push(`/questions/${txid}`)
+            break;
+          case "twetch":
+            //TODO
+            break;
+          case "handcash":
+            //TODO
+            break;
+          default:
+            console.error("No wallet selected")
+            return
+        }
       } catch(error) {
         enqueueSnackbar(`Error Posting Question: ${error.message}`, {
           anchorOrigin: {
@@ -102,7 +114,6 @@ const QuestionPage = () => {
           variant: 'error'
         })
       }
-
   }
 
   function onQuestion(question) {
