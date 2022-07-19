@@ -28,12 +28,24 @@ import axios from 'utils/axios'
 
 const QuestionPage = () => {
   window.postQuestion = postQuestion;
+  const { user, isLoggedIn } = useAuth();
 
   const router = useRouter();
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   async function postQuestion(content) {
+
+    if(!isLoggedIn){
+      enqueueSnackbar('Please, Log In', {
+        anchorOrigin: {
+          vertical: 'top',
+          horizontal:'center'
+        },
+        variant:'error'
+      })
+      return
+    }
 
     try {
 
@@ -46,7 +58,7 @@ const QuestionPage = () => {
       },
       variant: 'info'
     })
-  
+    
     let result = await relayone.send({
         opReturn: ['onchain', '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', 'question', JSON.stringify({
           content
@@ -102,7 +114,6 @@ const QuestionPage = () => {
 
   window.events = events;
 
-  const { user } = useAuth();
   let { data, error, refresh, loading } = useAPI('/questions');
 
   console.log({ data, error, refresh, loading });

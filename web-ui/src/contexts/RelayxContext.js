@@ -175,15 +175,16 @@ export const RelayxProvider = ({ children }) => {
     window.localStorage.setItem('users', JSON.stringify(users));
   };
 
-  const logout = () => {
+  const logout =  () => {
     setSession(null);
+    
     window.localStorage.removeItem('relayx.token');
     window.localStorage.removeItem('relayx.auth');
     window.localStorage.removeItem('relayx.paymail');
     window.localStorage.removeItem('relayx.domain');
     window.localStorage.removeItem('relayx.issued_at');
-    window.localStorage.removeItem('berry-cart');
-    window.localStorage.removeItem('berry-next-js-config');
+    //window.localStorage.removeItem('berry-cart');
+    //window.localStorage.removeItem('berry-next-js-config');
     window.localStorage.removeItem('relayx.origin');
     window.localStorage.removeItem('relayx.pubkey');
 

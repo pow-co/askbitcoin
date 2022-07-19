@@ -10,6 +10,7 @@ import FormControl from 'components/ui-component/extended/Form/FormControl';
 import FormControlSelect from 'components/ui-component/extended/Form/FormControlSelect';
 
 import { useAPI } from 'hooks/useAPI';
+import useAuth  from "hooks/useAuth"
 
 import { useRouter } from 'next/router';
 
@@ -22,29 +23,43 @@ import { useSnackbar } from 'notistack';
 import { useEffect } from 'react';
 import { useEvents } from 'hooks/useEvents';
 
-function postAnswer(question_tx_id, content) {
-  const json = JSON.stringify({
-    question_tx_id,
-    content
-  });
 
-  relayone
-    .send({
-      opReturn: ['onchain', '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', 'answer', json],
-      currency: 'USD',
-      amount: 0.01,
-      to: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN'
-    })
-    .then(console.log)
-    .catch(console.error);
-}
 
 const QuestionDetailPage = () => {
   window.postAnswer = postAnswer;
+  const { user, isLoggedIn } = useAuth()
 
   const { query } = useRouter();
 
   const { enqueueSnackbar } = useSnackbar();
+
+  function postAnswer(question_tx_id, content) {
+    const json = JSON.stringify({
+      question_tx_id,
+      content
+    });
+
+    if(!isLoggedIn){
+      enqueueSnackbar('Please, Log In', {
+        anchorOrigin: {
+          vertical: 'top',
+          horizontal:'center'
+        },
+        variant:'error'
+      })
+      return
+    }
+  
+    relayone
+      .send({
+        opReturn: ['onchain', '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', 'answer', json],
+        currency: 'USD',
+        amount: 0.01,
+        to: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN'
+      })
+      .then(console.log)
+      .catch(console.error);
+  }
 
   function onAnswer(answer) {
     console.log('on answer', answer);
