@@ -1,3 +1,4 @@
+import { useState } from 'react';
 // material-ui
 import { Typography, Grid } from '@mui/material';
 
@@ -10,7 +11,7 @@ import FormControl from 'components/ui-component/extended/Form/FormControl';
 import FormControlSelect from 'components/ui-component/extended/Form/FormControlSelect';
 
 import { useAPI } from 'hooks/useAPI';
-import useAuth  from "hooks/useAuth"
+import useAuth from 'hooks/useAuth';
 
 import { useRouter } from 'next/router';
 
@@ -23,11 +24,10 @@ import { useSnackbar } from 'notistack';
 import { useEffect } from 'react';
 import { useEvents } from 'hooks/useEvents';
 
-
-
 const QuestionDetailPage = () => {
+  const [queryParams, setQueryParams] = useState('');
   window.postAnswer = postAnswer;
-  const { user, isLoggedIn } = useAuth()
+  const { user, isLoggedIn } = useAuth();
 
   const { query } = useRouter();
 
@@ -39,20 +39,20 @@ const QuestionDetailPage = () => {
       content
     });
 
-    if(!isLoggedIn){
+    if (!isLoggedIn) {
       enqueueSnackbar('Please, Log In', {
         anchorOrigin: {
           vertical: 'top',
-          horizontal:'center'
+          horizontal: 'center'
         },
-        variant:'error'
-      })
-      return
+        variant: 'error'
+      });
+      return;
     }
 
     try {
-      switch (wallet){
-        case "relayx":
+      switch (wallet) {
+        case 'relayx':
           relayone
             .send({
               opReturn: ['onchain', '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', 'answer', json],
@@ -63,24 +63,24 @@ const QuestionDetailPage = () => {
             .then(console.log)
             .catch(console.error);
           break;
-        case "twetch":
+        case 'twetch':
           //TODO
           break;
-        case "handcash":
+        case 'handcash':
           //TODO
           break;
         default:
-          console.error("No wallet selected")
-          return
+          console.error('No wallet selected');
+          return;
       }
     } catch (error) {
       enqueueSnackbar(`Error Posting Answer: ${error.message}`, {
         anchorOrigin: {
-          vertical:'top',
-          horizontal:'center'
+          vertical: 'top',
+          horizontal: 'center'
         },
-        variant:'error'
-      })
+        variant: 'error'
+      });
     }
   }
 
@@ -93,17 +93,19 @@ const QuestionDetailPage = () => {
 
   window.events = events;
 
-  let { data, error, refresh, loading } = useAPI(`/questions/${query.question_id}`);
+  let { data, error, refresh, loading } = useAPI(`/questions/${query.question_id}`, queryParams);
 
   console.log({ data, error, refresh, loading });
 
-  if (error) {
+  if (!loading && (error || data === undefined)) {
     console.log('ERROR', error);
-    return <>
-      <h3>Error</h3>
-      <h4>Question may be still moving through the network</h4>
-      <h4>Please wait a few moments</h4>
-    </>
+    return (
+      <>
+        <h3>Error</h3>
+        <h4>Question may be still moving through the network</h4>
+        <h4>Please wait a few moments</h4>
+      </>
+    );
   }
 
   if (loading && !data) {
@@ -114,6 +116,10 @@ const QuestionDetailPage = () => {
     );
   }
   console.log({ data });
+
+  const onChangeFilter = (filter) => {
+    setQueryParams(filter.query);
+  };
 
   const { question, answers } = data;
 
@@ -128,7 +134,7 @@ const QuestionDetailPage = () => {
           </Typography>
         </Grid>
         <Grid item xs={6}>
-          <FormControlSelect />
+          <FormControlSelect handleFilter={onChangeFilter} />
         </Grid>
       </Grid>
       {answers.map((answer) => {
