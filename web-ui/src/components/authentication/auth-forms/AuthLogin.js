@@ -40,6 +40,8 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 const Relayx = '/assets/images/icons/relayx.svg';
+const Twetch = '/assets/images/icons/twetch.svg';
+const HandCash = '/assets/images/icons/handcash.png';
 
 import Script from 'next/script';
 
@@ -57,14 +59,48 @@ const AuthLogin = ({ loginProp, ...others }) => {
 
   const router = useRouter();
 
-  const { login } = useAuth();
+  const { relayxSignIn, twetchSignIn, handcashSignIn } = useAuth();
 
   const relayHandler = async () => {
     setIsSubmitting(true);
     try {
-      let result = await login();
+      let result = await relayxSignIn();
 
       console.log('relay.auth.result', result);
+      setIsSubmitting(false);
+
+      if (result.paymail) {
+        router.push('/questions');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const twetchHandler = async () => {
+    setIsSubmitting(true);
+    try {
+      let result = await twetchSignIn();
+
+      console.log('twetch.auth.result', result);
+      setIsSubmitting(false);
+
+      if (result.paymail) {
+        router.push('/questions');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handcashHandler = async () => {
+    //TODO
+    return
+    setIsSubmitting(true);
+    try {
+      let result = await handcashSignIn();
+
+      console.log('handcash.auth.result', result);
       setIsSubmitting(false);
 
       if (result.paymail) {
@@ -106,6 +142,48 @@ const AuthLogin = ({ loginProp, ...others }) => {
                 <Image src={Relayx} alt="Ask Bitcoin Dashboard" layout="intrinsic" width="16px" height="16px" />
               </Box>
               <FormattedMessage id="connect-relayx" />
+            </Button>
+          </AnimateButton>
+        </Grid>
+        <Grid item xs={12}>
+          <AnimateButton>
+            <Button
+              disableElevation
+              fullWidth
+              onClick={twetchHandler}
+              size="large"
+              variant="outlined"
+              sx={{
+                color: 'grey.700',
+                backgroundColor: theme.palette.mode === 'dark' ? theme.palette.dark.main : theme.palette.grey[50],
+                borderColor: theme.palette.mode === 'dark' ? theme.palette.dark.light + 20 : theme.palette.grey[100]
+              }}
+            >
+              <Box sx={{ mr: { xs: 1, sm: 2 }, width: 20, height: 20, marginRight: matchDownSM ? 8 : 16 }}>
+                <Image src={Twetch} alt="Ask Bitcoin Dashboard" layout="intrinsic" width="16px" height="16px" />
+              </Box>
+              <FormattedMessage id="connect-twetch" />
+            </Button>
+          </AnimateButton>
+        </Grid>
+        <Grid item xs={12}>
+          <AnimateButton>
+            <Button
+              disableElevation
+              fullWidth
+              onClick={handcashHandler}
+              size="large"
+              variant="outlined"
+              sx={{
+                color: 'grey.700',
+                backgroundColor: theme.palette.mode === 'dark' ? theme.palette.dark.main : theme.palette.grey[50],
+                borderColor: theme.palette.mode === 'dark' ? theme.palette.dark.light + 20 : theme.palette.grey[100]
+              }}
+            >
+              <Box sx={{ mr: { xs: 1, sm: 2 }, width: 20, height: 20, marginRight: matchDownSM ? 8 : 16 }}>
+                <Image src={HandCash} alt="Ask Bitcoin Dashboard" layout="intrinsic" width="16px" height="16px" />
+              </Box>
+              <FormattedMessage id="connect-handcash" />
             </Button>
           </AnimateButton>
         </Grid>

@@ -8,46 +8,8 @@ import { FormattedMessage } from 'react-intl';
 
 // ==============================|| FORM CONTROL SELECT ||============================== //
 
-const filters = [
-  {
-    id: 0,
-    title: <FormattedMessage id="all-time" />,
-    startTimeStamp: '',
-    stopTimeStamp: ''
-  },
-  {
-    id: 1,
-    title: <FormattedMessage id="year" />,
-    startTimeStamp: '',
-    stopTimeStamp: ''
-  },
-  {
-    id: 2,
-    title: <FormattedMessage id="month" />,
-    startTimeStamp: '',
-    stopTimeStamp: ''
-  },
-  {
-    id: 3,
-    title: <FormattedMessage id="week" />,
-    startTimeStamp: '',
-    stopTimeStamp: ''
-  },
-  {
-    id: 4,
-    title: <FormattedMessage id="day" />,
-    startTimeStamp: '',
-    stopTimeStamp: ''
-  },
-  {
-    id: 5,
-    title: <FormattedMessage id="hour" />,
-    startTimeStamp: '',
-    stopTimeStamp: ''
-  }
-];
-
-const FormControlSelect = ({ captionLabel, formState, iconPrimary, iconSecondary, selected, textPrimary, textSecondary }) => {
+const FormControlSelect = ({ captionLabel, handleFilter, formState, iconPrimary, iconSecondary, selected, textPrimary, textSecondary }) => {
+  const [now, setNow] = useState(new Date());
   const theme = useTheme();
   const IconPrimary = iconPrimary;
   const primaryIcon = iconPrimary ? <IconPrimary fontSize="small" sx={{ color: theme.palette.grey[700] }} /> : null;
@@ -55,13 +17,60 @@ const FormControlSelect = ({ captionLabel, formState, iconPrimary, iconSecondary
   const IconSecondary = iconSecondary;
   const secondaryIcon = iconSecondary ? <IconSecondary fontSize="small" sx={{ color: theme.palette.grey[700] }} /> : null;
 
+  var yearToNow = now;
+  yearToNow.setFullYear(yearToNow.getFullYear() - 1);
+  var monthToNow = now;
+  monthToNow.setMonth(monthToNow.getMonth() - 1);
+  var weekToNow = now;
+  weekToNow.setDate(weekToNow.getDay() - 7);
+  var dayToNow = now;
+  dayToNow.setDate(weekToNow.getDay() - 1);
+  var hourToNow = now;
+  hourToNow.setHours(hourToNow.getHours() - 1);
+
+  const filters = [
+    {
+      id: 0,
+      title: <FormattedMessage id="all-time" />,
+      query: ''
+    },
+    {
+      id: 1,
+      title: <FormattedMessage id="year" />,
+      query: `?start_timestamp=0${yearToNow.getTime()}`
+    },
+    {
+      id: 2,
+      title: <FormattedMessage id="month" />,
+      query: `?start_timestamp=0${monthToNow.getTime()}`
+    },
+    {
+      id: 3,
+      title: <FormattedMessage id="week" />,
+      query: `?start_timestamp=0${weekToNow.getTime()}`
+    },
+    {
+      id: 4,
+      title: <FormattedMessage id="day" />,
+      query: `?start_timestamp=0${dayToNow.getTime()}`
+    },
+    {
+      id: 5,
+      title: <FormattedMessage id="hour" />,
+      query: `?start_timestamp=0${hourToNow.getTime()}`
+    }
+  ];
+
   const errorState = formState === 'error';
   const val = selected || '';
 
   // const [filter, setFilter] = useState(val);
   const [filter, setFilter] = useState(0);
   const handleChange = (event) => {
-    if (event.target.value) setFilter(event.target.value);
+    event.preventDefault();
+    setNow(Date.now());
+    handleFilter(filters[event.target.value]);
+    setFilter(event.target.value);
   };
 
   return (

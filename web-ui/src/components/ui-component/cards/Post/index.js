@@ -15,6 +15,7 @@ import {
   Menu,
   MenuItem,
   Stack,
+  SvgIcon,
   TextField,
   Typography,
   useMediaQuery
@@ -36,11 +37,12 @@ import AnimateButton from 'components/ui-component/extended/AnimateButton';
 import ImageList from 'components/ui-component/extended/ImageList';
 import Avatar from 'components/ui-component/extended/Avatar';
 
-import SimpleDialog from 'components/ui-component/SimpleDialog'
+import SimpleDialog from 'components/ui-component/SimpleDialog';
 
-import { BoostpowQrCodeDialog } from 'components/ui-component/SimpleDialog'
+import { BoostpowQrCodeDialog } from 'components/ui-component/SimpleDialog';
 
 // assets
+import BoostButton from 'components/boostpow';
 import ShareTwoToneIcon from '@mui/icons-material/ShareTwoTone';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import PeopleAltTwoToneIcon from '@mui/icons-material/PeopleAltTwoTone';
@@ -57,8 +59,7 @@ const avatarImage = '/assets/images/profile/';
 
 import axios from 'utils/axios';
 
-import {QRCodeSVG} from 'qrcode.react';
-
+import { QRCodeSVG } from 'qrcode.react';
 
 const validationSchema = yup.object().shape({
   name: yup.string().required('Comment Field is Required')
@@ -121,7 +122,6 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
 
   const [qrDialogOpen, setQrDialogOpen] = React.useState(false);
 
-
   const { enqueueSnackbar } = useSnackbar();
 
   const { borderRadius } = useConfig();
@@ -134,9 +134,7 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
   };
 
   const handleClose = (event) => {
-
-
-    setQrDialogOpen(false)
+    setQrDialogOpen(false);
   };
 
   const [anchorSharedEl, setAnchorSharedEl] = React.useState(null);
@@ -153,84 +151,6 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
   const handleChangeComment = (event) => {
     event.stopPropagation();
     //setOpenComment((prev) => !prev);
-  };
-
-  const handleBoost = async (event) => {
-
-    event.preventDefault();
-
-    const value = 0.05
-    const currency = 'USD'
-
-    enqueueSnackbar(`Getting Boostpow Details for ${value} ${currency} of Proof of Work`, {
-      anchorOrigin: {
-        vertical: 'top',
-        horizontal: 'center'
-      }
-    })
-
-    let { data } = await axios.get(`https://askbitcoin.ai/api/v1/boostpow/${tx_id}/new?value=${value}&currency=${currency}`)
-
-    console.log('boostpow.payment_request', data)
-
-    enqueueSnackbar(`Posting Boostpow Order: ${content}`, {
-      anchorOrigin: {
-        vertical: 'top',
-        horizontal: 'center'
-      },
-      variant: 'info'
-    })
-
-    try {
-
-      const send = {
-        opReturn: ['onchain', '18pPQigu7j69ioDcUG9dACE1iAN9nCfowr', 'job', JSON.stringify({
-          index: 0
-        })],
-        amount: data.outputs[0].amount / 100000000,
-        to: data.outputs[0].script,
-        currency: 'BSV'
-      }
-
-      console.log('relayx.send.params', send)
-
-      let result = await relayone.send(send)
-
-      console.log('relayx.send.result', result)
-
-      enqueueSnackbar(`Boostpow Order Posted`, {
-        anchorOrigin: {
-          vertical: 'top',
-          horizontal: 'center'
-        },
-        variant: 'success'
-      })
-
-      enqueueSnackbar(`boostpow.job ${result.txid}`, {
-        anchorOrigin: {
-          vertical: 'bottom',
-          horizontal: 'center'
-        },
-        persist: true
-      })
-  
-      console.log('relay.quote', result)
-
-    } catch(error) {
-
-      console.error('relayx', error)
-
-      enqueueSnackbar(`Error Posting Boostpow Order: ${error.message}`, {
-        anchorOrigin: {
-          vertical: 'top',
-          horizontal: 'center'
-        },
-        variant: 'error'
-      })
-    }
-
-
-
   };
 
   /* 
@@ -283,11 +203,10 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
     router.push(`/${answer ? 'answers' : 'questions'}/${tx_id}`);
   };
 
-  const selectedValue = ''
+  const selectedValue = '';
 
   function handleClickOpen() {
-
-    console.log("handle click open")
+    console.log('handle click open');
   }
 
   return (
@@ -375,13 +294,7 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
           <ReactMarkdown remarkPlugins={[gfm]}>{content}</ReactMarkdown>
           <br />
 
-          <BoostpowQrCodeDialog
-            tx_id={tx_id}
-            currency={'USD'}
-            value={0.05}
-            open={qrDialogOpen}
-            onClose={handleClose}
-          />
+          <BoostpowQrCodeDialog tx_id={tx_id} currency={'USD'} value={0.05} open={qrDialogOpen} onClose={handleClose} />
         </Grid>
 
         {/* post - photo grid */}
@@ -409,39 +322,38 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
           )} */}
 
         {/* post - comment, likes and replay history */}
-        <Grid item xs={12}>
-          <Grid
-            container
-            alignItems="center"
-            justifyContent="space-between"
-            spacing={2}
-            sx={{ mt: 0, color: theme.palette.mode === 'dark' ? 'grey.700' : 'grey.800' }}
-          >
-            <Grid item>
-              <Stack direction="row" spacing={2}>
-                <Button
-                  onClick={handleChangeComment}
-                  size="small"
-                  variant="text"
-                  color="inherit"
-                  startIcon={<ChatBubbleTwoToneIcon color="secondary" />}
-                >
-                  {/* {data.comments ? data.comments.length : 0} comments */}0
-                </Button>
-                <Button
-                  variant="text"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    setQrDialogOpen(true);
-                    return false;
-                  }}
-                  color="inherit"
-                  size="small"
-                  //startIcon={<ThumbUpAltTwoToneIcon color={data && data.likes && data.likes.like ? 'primary' : 'inherit'} />}
-                  startIcon={<QrCode color={'inherit'} />}
-                >
-                </Button>
-                <Button
+        <Grid
+          item
+          xs={12}
+          container
+          alignItems="center"
+          justifyContent="space-arround"
+          fullWidth
+          sx={{ mt: 0, height: 69, color: theme.palette.mode === 'dark' ? 'grey.700' : 'grey.800' }}
+        >
+          <Grid xs={4} item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
+            <Button onClick={handleChangeComment} variant="text" color="inherit" startIcon={<ChatBubbleTwoToneIcon color="secondary" />}>
+              {/* {data.comments ? data.comments.length : 0} comments */}0
+            </Button>
+          </Grid>
+          <Grid xs={4} justifyContent="center" item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
+            <Button
+              variant="text"
+              onClick={(event) => {
+                event.stopPropagation();
+                setQrDialogOpen(true);
+                return false;
+              }}
+              color="inherit"
+              size="small"
+              //startIcon={<ThumbUpAltTwoToneIcon color={data && data.likes && data.likes.like ? 'primary' : 'inherit'} />}
+              startIcon={<QrCode color={'inherit'} />}
+            ></Button>
+          </Grid>
+          <Grid xs={4} justifyContent="center" item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
+            <BoostButton txid={tx_id} content={content} difficulty={difficulty} />
+          </Grid>
+          {/* <Button
                   variant="text"
                   onClick={handleBoost}
                   color="inherit"
@@ -453,10 +365,8 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
                   <Typography color="inherit" sx={{ fontWeight: 500, ml: 0.5, display: { xs: 'none', sm: 'block' } }}>
                     D
                   </Typography>
-                </Button>
-              </Stack>
-            </Grid>
-            {/* <Grid item>
+                </Button> */}
+          {/* <Grid item>
                 <IconButton onClick={handleSharedClick} size="large">
                   <ShareTwoToneIcon sx={{ width: '1rem', height: '1rem' }} />
                 </IconButton>
@@ -496,7 +406,6 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
                   </MenuItem>
                 </Menu>
               </Grid> */}
-          </Grid>
         </Grid>
         {/* add new comment */}
         {/* <Collapse in={openComment} sx={{ width: '100%' }}>

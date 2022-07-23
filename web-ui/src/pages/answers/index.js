@@ -1,3 +1,4 @@
+import { useState } from 'react';
 // material-ui
 import { Typography, Grid, CardContent, Stack, Rating } from '@mui/material';
 
@@ -17,11 +18,12 @@ import Post from 'components/ui-component/cards/Post';
 import FormControlSelect from 'components/ui-component/extended/Form/FormControlSelect';
 
 const AnswersPage = () => {
-  let { data, error, refresh, loading } = useAPI('/answers');
+  const [queryParams, setQueryParams] = useState('');
+  let { data, error, refresh, loading } = useAPI('/answers', queryParams);
 
   console.log({ data, error, refresh, loading });
 
-  if (error) {
+  if (!loading && (error || data === undefined)) {
     console.log('ERROR', error);
     return <p>Error</p>;
   }
@@ -36,6 +38,10 @@ const AnswersPage = () => {
 
   const { answers } = data;
 
+  const onChangeFilter = (filter) => {
+    setQueryParams(filter.query);
+  };
+
   console.log({ answers });
 
   return (
@@ -47,7 +53,7 @@ const AnswersPage = () => {
           </Typography>
         </Grid>
         <Grid item xs={6}>
-          <FormControlSelect />
+          <FormControlSelect handleFilter={onChangeFilter} />
         </Grid>
       </Grid>
       <Stack direction="column" justifyContent="flex-end">

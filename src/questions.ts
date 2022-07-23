@@ -139,6 +139,7 @@ export async function loadQuestions(query: QuestionsQuery={}): Promise<Question[
 
   const end_timestamp = query.end_timestamp || Date.now();
 
+
   log.info('questions.load.query', { start_timestamp, end_timestamp })
 
   let boostedQuestions = await knex('questions')
