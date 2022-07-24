@@ -35,7 +35,7 @@ const initialState = {
   isLoggedIn: false,
   isInitialized: false,
   user: null,
-  wallet: null
+  wallet: ''
 };
 
 const setSession = (serviceToken) => {

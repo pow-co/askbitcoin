@@ -6,7 +6,8 @@ import { LOGIN, LOGOUT, REGISTER } from './actions';
 const initialState = {
   isLoggedIn: false,
   isInitialized: false,
-  user: null
+  user: null,
+  wallet: ''
 };
 
 const accountReducer = (state = initialState, action) => {
@@ -19,12 +20,13 @@ const accountReducer = (state = initialState, action) => {
       };
     }
     case LOGIN: {
-      const { user } = action.payload;
+      const { user, wallet } = action.payload;
       return {
         ...state,
         isLoggedIn: true,
         isInitialized: true,
-        user
+        user,
+        wallet
       };
     }
     case LOGOUT: {
@@ -32,7 +34,8 @@ const accountReducer = (state = initialState, action) => {
         ...state,
         isInitialized: true,
         isLoggedIn: false,
-        user: null
+        user: null,
+        wallet: ''
       };
     }
     default: {
