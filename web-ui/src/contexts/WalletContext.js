@@ -138,7 +138,6 @@ export const WalletProvider = ({ children }) => {
           //TODO
           break;
         default:
-          console.error('No wallet selected');
           dispatch({
             type: LOGOUT
           });
@@ -239,7 +238,7 @@ export const WalletProvider = ({ children }) => {
 
   const logout = () => {
     setSession(null);
-    window.localStorage.removeItem('auth');
+    window.localStorage.removeItem('auth.type');
     window.localStorage.removeItem('twetch.pubkey');
     window.localStorage.removeItem('twetch.paymail');
 
