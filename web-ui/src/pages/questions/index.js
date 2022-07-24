@@ -1,6 +1,6 @@
 import { useState } from 'react';
 // material-ui
-import { Typography, Grid, CardContent, Stack, Rating } from '@mui/material';
+import { Typography, Grid, Button, CardContent, Stack, Rating } from '@mui/material';
 
 // project imports
 import MainCard from 'components/ui-component/cards/MainCard';
@@ -73,22 +73,28 @@ const QuestionPage = () => {
             to: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN'
           });
           let { amount, currency, identity, paymail, rawTx, satoshis, txid } = result;
+          console.log(result);
 
-          enqueueSnackbar(`Question Posted by ${paymail}`, {
+          enqueueSnackbar(`Question successfully posted}`, {
             anchorOrigin: {
               vertical: 'top',
               horizontal: 'center'
             },
-            variant: 'success'
+            variant: 'success',
+            action: () => (
+              <Button variant="text" href={`https://whatsonchain.com/tx/${txid}`}>
+                View
+              </Button>
+            )
           });
 
-          let { data: postTransactionResponse } = await axios.post('/api/v1/transactions', {
+          let { data: postTransactionResponse } = await axios.post('https://askbitcoin.ai/api/v1/transactions', {
             transaction: rawTx
           });
 
           console.log('postTransactionResponse', postTransactionResponse);
 
-          router.push(`/questions/${txid}`);
+          //router.push(`/questions/${txid}`);
           break;
         case 'twetch':
           //TODO

@@ -1,5 +1,5 @@
 // material-ui
-import { Typography } from '@mui/material';
+import { Typography, Button } from '@mui/material';
 
 import Link from 'next/link';
 
@@ -22,63 +22,82 @@ import useAuth from 'hooks/useAuth';
 
 const AnswerDetailPage = () => {
   window.postAnswer = postAnswer;
-  const { user, wallet, isLoggedIn } = useAuth()
+  const { user, wallet, isLoggedIn } = useAuth();
 
-  const { query } = useRouter();
+  const router = useRouter();
+  const query = router.query;
 
   const { enqueueSnackbar } = useSnackbar();
 
-  function postAnswer(question_tx_id, content) {
+  async function postAnswer(question_tx_id, content) {
     const json = JSON.stringify({
       question_tx_id,
       content
     });
 
-    if(!isLoggedIn){
+    if (!isLoggedIn) {
       enqueueSnackbar('Please, Log In', {
         anchorOrigin: {
           vertical: 'top',
-          horizontal:'center'
+          horizontal: 'center'
         },
-        variant:'error'
-      })
-      return
-    } 
+        variant: 'error'
+      });
+      return;
+    }
 
     try {
-      switch (wallet){
-        case "relayx":
-          relayone
-            .send({
-              opReturn: ['onchain', '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', 'answer', json],
-              currency: 'USD',
-              amount: 0.01,
-              to: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN'
-            })
-            .then(console.log)
-            .catch(console.error);
+      switch (wallet) {
+        case 'relayx':
+          let result = await relayone.send({
+            opReturn: ['onchain', '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', 'answer', json],
+            currency: 'USD',
+            amount: 0.01,
+            to: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN'
+          });
+          let { amount, currency, identity, paymail, rawTx, satoshis, txid } = result;
+          console.log(result);
+
+          enqueueSnackbar(`Answer Posted by ${paymail}`, {
+            anchorOrigin: {
+              vertical: 'top',
+              horizontal: 'center'
+            },
+            variant: 'success',
+            action: () => (
+              <Button variant="text" href={`https://whatsonchain.com/tx/${txid}`}>
+                View
+              </Button>
+            )
+          });
+
+          /* let { data: postTransactionResponse } = await axios.post('https://askbitcoin.ai/api/v1/transactions', {
+            transaction: rawTx
+          });
+
+          console.log('postTransactionResponse', postTransactionResponse); */
+
+          //router.push(`/answers/${txid}`);
           break;
-        case "twetch":
+        case 'twetch':
           //TODO
           break;
-        case "handcash":
+        case 'handcash':
           //TODO
           break;
         default:
-          console.error("No wallet selected")
-          return
+          console.error('No wallet selected');
+          return;
       }
     } catch (error) {
       enqueueSnackbar(`Error Posting Answer: ${error.message}`, {
         anchorOrigin: {
-          vertical:'top',
-          horizontal:'center'
+          vertical: 'top',
+          horizontal: 'center'
         },
-        variant:'error'
-      })
+        variant: 'error'
+      });
     }
-
-    
   }
 
   function onAnswer(answer) {
