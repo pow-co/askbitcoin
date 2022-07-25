@@ -115,7 +115,6 @@ const BoostButton = ({ txid, content, difficulty }) => {
           <path
             className="pulse"
             d="M32.5 65C50.4493 65 65 50.4493 65 32.5C65 14.5507 50.4493 0 32.5 0C14.5507 0 0 14.5507 0 32.5C0 50.4493 14.5507 65 32.5 65Z"
-            class="pulse"
           ></path>
           <path
             className="pulse"

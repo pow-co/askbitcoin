@@ -151,33 +151,24 @@ const QuestionPage = () => {
   const { questions } = data;
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12} lg={8}>
-        <MainCard>
-          <FormControl submit={postQuestion} placeholder="Ask Bitcoin a question" />
-          <Grid container sx={{ pb: '16px' }} spacing={1}>
-            <Grid item xs={6}>
-              <Typography align="right" variant="h2">
-                <FormattedMessage id="questions-pow" />
-              </Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <FormControlSelect handleFilter={onChangeFilter} />
-            </Grid>
-          </Grid>
-          <Stack direction="column" justifyContent="flex-end">
-            {questions.map((question) => {
-              return <Post key={question.id} post={question} />;
-            })}
-          </Stack>
-        </MainCard>
+    <MainCard>
+      <FormControl submit={postQuestion} placeholder="Ask Bitcoin a question" />
+      <Grid container sx={{ pb: '16px' }} spacing={1}>
+        <Grid item xs={6}>
+          <Typography align="right" variant="h2">
+            <FormattedMessage id="questions-pow" />
+          </Typography>
+        </Grid>
+        <Grid item xs={6}>
+          <FormControlSelect handleFilter={onChangeFilter} />
+        </Grid>
       </Grid>
-      <Grid item xs={0} lg={4}>
-        <MainCard>
-          <div style={{ height: '100vh' }} />
-        </MainCard>
-      </Grid>
-    </Grid>
+      <Stack direction="column" justifyContent="flex-end">
+        {questions.map((question) => {
+          return <Post key={question.id} post={question} />;
+        })}
+      </Stack>
+    </MainCard>
   );
 };
 

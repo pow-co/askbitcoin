@@ -37,27 +37,27 @@ const FormControlSelect = ({ captionLabel, handleFilter, formState, iconPrimary,
     {
       id: 1,
       title: <FormattedMessage id="year" />,
-      query: `?start_timestamp=0${yearToNow.getTime()}`
+      query: `?start_timestamp=${yearToNow.getTime()}`
     },
     {
       id: 2,
       title: <FormattedMessage id="month" />,
-      query: `?start_timestamp=0${monthToNow.getTime()}`
+      query: `?start_timestamp=${monthToNow.getTime()}`
     },
     {
       id: 3,
       title: <FormattedMessage id="week" />,
-      query: `?start_timestamp=0${weekToNow.getTime()}`
+      query: `?start_timestamp=${weekToNow.getTime()}`
     },
     {
       id: 4,
       title: <FormattedMessage id="day" />,
-      query: `?start_timestamp=0${dayToNow.getTime()}`
+      query: `?start_timestamp=${dayToNow.getTime()}`
     },
     {
       id: 5,
       title: <FormattedMessage id="hour" />,
-      query: `?start_timestamp=0${hourToNow.getTime()}`
+      query: `?start_timestamp=${hourToNow.getTime()}`
     }
   ];
 
