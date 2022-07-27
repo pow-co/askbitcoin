@@ -135,6 +135,7 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
 
   const handleClose = (event) => {
     setQrDialogOpen(false);
+    setAnchorEl(false);
   };
 
   const [anchorSharedEl, setAnchorSharedEl] = React.useState(null);
@@ -273,8 +274,17 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
                   horizontal: 'right'
                 }}
               >
-                <MenuItem onClick={handleClose}>Edit</MenuItem>
-                <MenuItem onClick={handleClose}>Delete</MenuItem>
+                <MenuItem
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setQrDialogOpen(true);
+                    return false;
+                  }}
+                >
+                  View QR Code
+                </MenuItem>
+                {/* <MenuItem onClick={handleClose}>Edit</MenuItem>
+                <MenuItem onClick={handleClose}>Delete</MenuItem> */}
               </Menu>
             </Grid>
           </Grid>
@@ -331,12 +341,13 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
           fullWidth
           sx={{ mt: 0, height: 69, color: theme.palette.mode === 'dark' ? 'grey.700' : 'grey.800' }}
         >
-          <Grid xs={4} item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
+          <Grid xs={3} md={4} item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}></Grid>
+          <Grid xs={2} md={4} item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
             <Button onClick={handleChangeComment} variant="text" color="inherit" startIcon={<ChatBubbleTwoToneIcon color="secondary" />}>
               {/* {data.comments ? data.comments.length : 0} comments */}0
             </Button>
           </Grid>
-          <Grid xs={4} justifyContent="center" item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
+          {/* <Grid xs={4} justifyContent="center" item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
             <Button
               variant="text"
               onClick={(event) => {
@@ -349,8 +360,8 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
               //startIcon={<ThumbUpAltTwoToneIcon color={data && data.likes && data.likes.like ? 'primary' : 'inherit'} />}
               startIcon={<QrCode color={'inherit'} />}
             ></Button>
-          </Grid>
-          <Grid xs={4} justifyContent="center" item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
+          </Grid> */}
+          <Grid xs={6} md={4} justifyContent="center" item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
             <BoostButton txid={tx_id} content={content} difficulty={difficulty} />
           </Grid>
           {/* <Button
