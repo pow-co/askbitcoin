@@ -119,18 +119,12 @@ const QuestionDetailPage = () => {
 
   console.log({ data, error, refresh, loading });
 
-  if (!loading && (error || data === undefined)) {
+  if (error) {
     console.log('ERROR', error);
-    return (
-      <>
-        <h3>Error</h3>
-        <h4>Question may be still moving through the network</h4>
-        <h4>Please wait a few moments</h4>
-      </>
-    );
+    return <p>Error</p>;
   }
 
-  if (loading && !data) {
+  if (loading || data === undefined || !data) {
     return (
       <p>
         <FormattedMessage id="loading" />
