@@ -22,8 +22,8 @@ export function fetcher(params) {
 }
 
 export function useAPI(path, queryParams) {
-  console.log(queryParams);
-  let { data, error, mutate: refresh, isValidating: loading } = useSWR(`${BASE}${path}${queryParams}`, fetcher);
+  let params = queryParams || '';
+  let { data, error, mutate: refresh, isValidating: loading } = useSWR(`${BASE}${path}${params}`, fetcher);
 
   return { data, error, refresh, loading };
 }
