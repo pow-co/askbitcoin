@@ -2,6 +2,8 @@ require("dotenv").config()
 
 import * as boostpow from 'boostpow'
 
+import * as whatsonchain from "./whatsonchain"
+
 import { Crawler } from './rabbi/planaria'
 
 import { getTransaction } from './powco'
@@ -263,6 +265,7 @@ export interface OnchainTransaction {
 }
 
 import { knex } from './knex'
+import { error } from 'winston'
 
 async function handleQuestion(data: OnchainTransaction) {
 
@@ -275,12 +278,47 @@ async function handleQuestion(data: OnchainTransaction) {
   var { value, tx_id, tx_index, author } = data
 
   let [question] = await knex('questions').where({ tx_id }).select('*')
+  let timestamp, answer_count = null 
+
+    let answers = await knex("answers").where({ question_tx_id: tx_id }).select('*')
+    answer_count = answers.length
+  try {
+
+    let woc_tx = await whatsonchain.getTransaction(tx_id)
+
+    //console.log({ woc_tx })
+
+    if (woc_tx && woc_tx.time) {
+
+      timestamp = woc_tx.time
+      console.log(timestamp)
+
+    }
+
+  } catch(error) {
+
+    log.error('whatsonchain.get_transaction', error)
+
+  }
+
+  if (question && question.created_at !== timestamp){
+    let record = await knex('questions').where({ tx_id: tx_id}).update({ created_at: timestamp})
+    log.info('question.updated', { timestamp, record })
+  }
+
+
+  if (question && question.answer_count!== answer_count ){
+    let record = await knex('questions').where({ tx_id: tx_id}).update({ answer_count: answer_count})
+    log.info('question.updated', { answer_count, record })
+    
+  }
 
   if (!question) {
 
     const insert = {
       tx_id,
       tx_index,
+      created_at: timestamp,
       content: value.content,
       author
     }
@@ -300,8 +338,36 @@ async function handleAnswer(data: OnchainTransaction) {
   var { value, tx_id, tx_index, author } = data
 
   let [answer] = await knex('answers').where({ tx_id }).select('*')
+  
+  let timestamp = null
+
+  try {
+
+    let woc_tx = await whatsonchain.getTransaction(tx_id)
+
+    //console.log({ woc_tx })
+
+    if (woc_tx && woc_tx.time) {
+
+      timestamp = woc_tx.time
+
+    }
+
+  } catch(error) {
+
+    log.error('whatsonchain.get_transaction', error)
+
+  }
+
+  if (answer && answer.createdAt === null){
+
+    let record = await knex('answers').where({ tx_id: tx_id}).update({ created_at: timestamp})
+    log.info('answer.updated', { timestamp, record })
+
+  }
 
   if (!answer) {
+
 
     var { content, txid: question_tx_id } = value
 
@@ -312,6 +378,7 @@ async function handleAnswer(data: OnchainTransaction) {
     const insert = {
       tx_id,
       tx_index,
+      created_at: timestamp,
       question_tx_id,
       content,
       author
@@ -366,6 +433,8 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
         key,
         value,
       }
+
+      
 
       if (nonce) { insert['nonce'] = nonce }
 

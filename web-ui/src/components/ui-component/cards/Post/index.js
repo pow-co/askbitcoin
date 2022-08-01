@@ -118,7 +118,7 @@ FormInput.propTypes = {
 const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAdd, answer }) => {
   const theme = useTheme();
   const router = useRouter();
-  const { tx_id, content, author, difficulty } = post;
+  const { tx_id, content, author, difficulty, answer_count, created_at } = post;
 
   const [qrDialogOpen, setQrDialogOpen] = React.useState(false);
 
@@ -230,7 +230,7 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
                     {/* <FiberManualRecordIcon sx={{ width: '10px', height: '10px', opacity: 0.5, m: '0 5px' }} /> */}
                     {/* {question.time} */}
                     <a target="_blank" rel="noopener" href={`https://whatsonchain.com/tx/${tx_id}`}>
-                      tx
+                      {new Date(created_at).toString('')}
                     </a>
                   </Typography>
                 </Grid>
@@ -344,7 +344,8 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
           <Grid xs={3} md={4} item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}></Grid>
           <Grid xs={2} md={4} item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
             <Button onClick={handleChangeComment} variant="text" color="inherit" startIcon={<ChatBubbleTwoToneIcon color="secondary" />}>
-              {/* {data.comments ? data.comments.length : 0} comments */}0
+              {/* {data.comments ? data.comments.length : 0} comments */}
+              {answer_count}
             </Button>
           </Grid>
           {/* <Grid xs={4} justifyContent="center" item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
