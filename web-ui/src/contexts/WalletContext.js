@@ -15,7 +15,7 @@ import accountReducer from 'store/accountReducer';
 import Loader from 'components/ui-component/Loader';
 import axios from 'utils/axios';
 
-import { useSnackbar } from 'notistack'
+import { useSnackbar } from 'notistack';
 
 // constant
 const JWT_SECRET = JWT_API.secret;
@@ -35,7 +35,7 @@ const initialState = {
   isLoggedIn: false,
   isInitialized: false,
   user: null,
-  wallet:null
+  wallet: ''
 };
 
 const setSession = (serviceToken) => {
@@ -58,100 +58,89 @@ export const WalletProvider = ({ children }) => {
 
   useEffect(() => {
     const init = async () => {
-      try {
+      switch (localStorage.getItem('auth.type')) {
+        case 'relayx':
+          let relayAuth = window.localStorage.getItem('relayx.auth');
+          let paymail = window.localStorage.getItem('relayx.paymail');
+          let name = window.localStorage.getItem('relayx.paymail');
+          let pubkey = window.localStorage.getItem('relayx.pubkey');
+          console.log('RELAY AUTH', relayAuth);
 
-        switch (state.wallet) {
-          case "relayx":
-            let relayAuth = window.localStorage.getItem('relayx.auth');
-            let paymail = window.localStorage.getItem('relayx.paymail');
-            let name = window.localStorage.getItem('relayx.paymail');
-            let pubkey = window.localStorage.getItem('relayx.pubkey');
-            console.log('RELAY AUTH', relayAuth);
+          if (relayAuth) {
+            console.log('DISPATCH', {
+              type: LOGIN,
+              payload: {
+                wallet: 'relayx',
+                isLoggedIn: true,
+                user: {
+                  email: paymail,
+                  id: pubkey,
+                  name: paymail
+                }
+              }
+            });
 
-            if (relayAuth) {
-              console.log('DISPATCH', {
-                type: LOGIN,
-                payload: {
-                  wallet:"relayx",
-                  isLoggedIn: true,
-                  user: {
-                    email: paymail,
-                    id: pubkey,
-                    name: paymail
-                  }
+            dispatch({
+              type: LOGIN,
+              payload: {
+                wallet: 'relayx',
+                isLoggedIn: true,
+                user: {
+                  email: paymail,
+                  id: pubkey,
+                  name: paymail
                 }
-              });
-
-              dispatch({
-                type: LOGIN,
-                payload: {
-                  wallet:"relayx",
-                  isLoggedIn: true,
-                  user: {
-                    email: paymail,
-                    id: pubkey,
-                    name: paymail
-                  }
-                }
-              });
-            } else {
-              dispatch({
-                type: LOGOUT
-              });
-            }
-            break;
-          case "twetch":
-            //const twetchAuth = window.localStorage.getItem('twetch.auth');
-            paymail = window.localStorage.getItem("twetch.paymail")
-            name = window.localStorage.getItem('twetch.paymail');
-            pubkey = window.localStorage.getItem('twetch.pubkey');
-            console.log('TWETCH AUTH', { paymail, pubkey });
-            if (paymail && pubkey) {
-              console.log('DISPATCH', {
-                type: LOGIN,
-                payload: {
-                  isLoggedIn: true,
-                  user: {
-                    email: paymail,
-                    id: pubkey,
-                    name: paymail
-                  }
-                }
-              });
-    
-              dispatch({
-                type: LOGIN,
-                payload: {
-                  isLoggedIn: true,
-                  user: {
-                    email: paymail,
-                    id: pubkey,
-                    name: paymail
-                  }
-                }
-              });
-            } else {
-              dispatch({
-                type: LOGOUT
-              });
-            }
-            break;
-          case "handcash":
-            //TODO
-            break;
-          default:
-            console.error("No wallet selected");
+              }
+            });
+          } else {
             dispatch({
               type: LOGOUT
             });
-        }
+          }
+          break;
+        case 'twetch':
+          //const twetchAuth = window.localStorage.getItem('twetch.auth');
+          paymail = window.localStorage.getItem('twetch.paymail');
+          name = window.localStorage.getItem('twetch.paymail');
+          pubkey = window.localStorage.getItem('twetch.pubkey');
+          console.log('TWETCH AUTH', { paymail, pubkey });
+          if (paymail && pubkey) {
+            console.log('DISPATCH', {
+              type: LOGIN,
+              payload: {
+                isLoggedIn: true,
+                user: {
+                  email: paymail,
+                  id: pubkey,
+                  name: paymail
+                }
+              }
+            });
 
-        
-      } catch (err) {
-        console.error(err);
-        dispatch({
-          type: LOGOUT
-        });
+            dispatch({
+              type: LOGIN,
+              payload: {
+                isLoggedIn: true,
+                user: {
+                  email: paymail,
+                  id: pubkey,
+                  name: paymail
+                }
+              }
+            });
+          } else {
+            dispatch({
+              type: LOGOUT
+            });
+          }
+          break;
+        case 'handcash':
+          //TODO
+          break;
+        default:
+          dispatch({
+            type: LOGOUT
+          });
       }
     };
 
@@ -162,7 +151,7 @@ export const WalletProvider = ({ children }) => {
     const token = await relayone.authBeta();
 
     const json = JSON.parse(atob(token.split('.')[0]));
-
+    localStorage.setItem('auth.type', 'relayx');
     localStorage.setItem('relayx.token', token);
     localStorage.setItem('relayx.auth', JSON.stringify(json));
     localStorage.setItem('relayx.paymail', json.paymail);
@@ -178,7 +167,7 @@ export const WalletProvider = ({ children }) => {
     dispatch({
       type: LOGIN,
       payload: {
-        wallet:"relayx",
+        wallet: 'relayx',
         isLoggedIn: true,
         user
       }
@@ -201,6 +190,7 @@ export const WalletProvider = ({ children }) => {
     const Twetch = getProvider();
     const { paymail, publicKey } = await Twetch.connect();
 
+    localStorage.setItem('auth.type', 'twetch');
     localStorage.setItem('twetch.paymail', paymail);
     localStorage.setItem('twetch.pubkey', publicKey);
 
@@ -212,7 +202,7 @@ export const WalletProvider = ({ children }) => {
     dispatch({
       type: LOGIN,
       payload: {
-        wallet:"twetch",
+        wallet: 'twetch',
         isLoggedIn: true,
         user
       }
@@ -225,6 +215,7 @@ export const WalletProvider = ({ children }) => {
     /* const Twetch = getProvider();
     const { paymail, publicKey } = await Twetch.connect();
 
+    localStorage.setItem("auth.type","handcash");
     localStorage.setItem('twetch.paymail', paymail);
     localStorage.setItem('twetch.pubkey', publicKey);
 
@@ -236,7 +227,7 @@ export const WalletProvider = ({ children }) => {
     dispatch({
       type: LOGIN,
       payload: {
-        wallet:"handcash",
+        wallet: 'handcash',
         isLoggedIn: true,
         user
       }
@@ -245,13 +236,14 @@ export const WalletProvider = ({ children }) => {
     return json;
   };
 
-  const logout =  () => {
+  const logout = () => {
     setSession(null);
+    window.localStorage.removeItem('auth.type');
     window.localStorage.removeItem('twetch.pubkey');
     window.localStorage.removeItem('twetch.paymail');
 
     //TODO Handcash
-    
+
     window.localStorage.removeItem('relayx.auth');
     window.localStorage.removeItem('relayx.origin');
     window.localStorage.removeItem('relayx.token');
@@ -262,7 +254,7 @@ export const WalletProvider = ({ children }) => {
     //window.localStorage.removeItem('berry-cart');
     //window.localStorage.removeItem('berry-next-js-config');
 
-    enqueueSnackbar('au revoir!')
+    enqueueSnackbar('au revoir!');
 
     dispatch({ type: LOGOUT });
   };

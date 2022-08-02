@@ -23,12 +23,12 @@ const AnswersPage = () => {
 
   console.log({ data, error, refresh, loading });
 
-  if (!loading && (error || data === undefined)) {
+  if (error) {
     console.log('ERROR', error);
     return <p>Error</p>;
   }
 
-  if (loading && !data) {
+  if (loading || data === undefined || !data) {
     return (
       <p>
         <FormattedMessage id="loading" />

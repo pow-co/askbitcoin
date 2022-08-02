@@ -118,7 +118,7 @@ FormInput.propTypes = {
 const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAdd, answer }) => {
   const theme = useTheme();
   const router = useRouter();
-  const { tx_id, content, author, difficulty } = post;
+  const { tx_id, content, author, difficulty, answer_count, created_at } = post;
 
   const [qrDialogOpen, setQrDialogOpen] = React.useState(false);
 
@@ -135,6 +135,7 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
 
   const handleClose = (event) => {
     setQrDialogOpen(false);
+    setAnchorEl(false);
   };
 
   const [anchorSharedEl, setAnchorSharedEl] = React.useState(null);
@@ -229,7 +230,7 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
                     {/* <FiberManualRecordIcon sx={{ width: '10px', height: '10px', opacity: 0.5, m: '0 5px' }} /> */}
                     {/* {question.time} */}
                     <a target="_blank" rel="noopener" href={`https://whatsonchain.com/tx/${tx_id}`}>
-                      tx
+                      {new Date(created_at).toString('')}
                     </a>
                   </Typography>
                 </Grid>
@@ -273,8 +274,17 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
                   horizontal: 'right'
                 }}
               >
-                <MenuItem onClick={handleClose}>Edit</MenuItem>
-                <MenuItem onClick={handleClose}>Delete</MenuItem>
+                <MenuItem
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setQrDialogOpen(true);
+                    return false;
+                  }}
+                >
+                  View QR Code
+                </MenuItem>
+                {/* <MenuItem onClick={handleClose}>Edit</MenuItem>
+                <MenuItem onClick={handleClose}>Delete</MenuItem> */}
               </Menu>
             </Grid>
           </Grid>
@@ -331,12 +341,14 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
           fullWidth
           sx={{ mt: 0, height: 69, color: theme.palette.mode === 'dark' ? 'grey.700' : 'grey.800' }}
         >
-          <Grid xs={4} item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
+          <Grid xs={3} md={4} item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}></Grid>
+          <Grid xs={2} md={4} item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
             <Button onClick={handleChangeComment} variant="text" color="inherit" startIcon={<ChatBubbleTwoToneIcon color="secondary" />}>
-              {/* {data.comments ? data.comments.length : 0} comments */}0
+              {/* {data.comments ? data.comments.length : 0} comments */}
+              {answer_count}
             </Button>
           </Grid>
-          <Grid xs={4} justifyContent="center" item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
+          {/* <Grid xs={4} justifyContent="center" item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
             <Button
               variant="text"
               onClick={(event) => {
@@ -349,8 +361,8 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
               //startIcon={<ThumbUpAltTwoToneIcon color={data && data.likes && data.likes.like ? 'primary' : 'inherit'} />}
               startIcon={<QrCode color={'inherit'} />}
             ></Button>
-          </Grid>
-          <Grid xs={4} justifyContent="center" item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
+          </Grid> */}
+          <Grid xs={6} md={4} justifyContent="center" item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
             <BoostButton txid={tx_id} content={content} difficulty={difficulty} />
           </Grid>
           {/* <Button

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 // material-ui
-import { Typography, Grid } from '@mui/material';
+import { Typography, Grid, Button } from '@mui/material';
 
 import Link from 'next/link';
 
@@ -27,13 +27,14 @@ import { useEvents } from 'hooks/useEvents';
 const QuestionDetailPage = () => {
   const [queryParams, setQueryParams] = useState('');
   window.postAnswer = postAnswer;
-  const { user, isLoggedIn } = useAuth();
+  const { user, wallet, isLoggedIn } = useAuth();
 
-  const { query } = useRouter();
+  const router = useRouter();
+  const query = router.query;
 
   const { enqueueSnackbar } = useSnackbar();
 
-  function postAnswer(question_tx_id, content) {
+  async function postAnswer(question_tx_id, content) {
     const json = JSON.stringify({
       question_tx_id,
       content
@@ -53,15 +54,36 @@ const QuestionDetailPage = () => {
     try {
       switch (wallet) {
         case 'relayx':
-          relayone
-            .send({
-              opReturn: ['onchain', '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', 'answer', json],
-              currency: 'USD',
-              amount: 0.01,
-              to: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN'
-            })
-            .then(console.log)
-            .catch(console.error);
+          let result = await relayone.send({
+            opReturn: ['onchain', '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', 'answer', json],
+            currency: 'USD',
+            amount: 0.01,
+            to: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN'
+          });
+          let { amount, currency, identity, paymail, rawTx, satoshis, txid } = result;
+          console.log(result);
+
+          enqueueSnackbar(`Answer Posted by ${paymail}`, {
+            anchorOrigin: {
+              vertical: 'top',
+              horizontal: 'center'
+            },
+            variant: 'success',
+            action: () => (
+              <Button variant="text" href={`https://whatsonchain.com/tx/${txid}`}>
+                View
+              </Button>
+            )
+          });
+
+          /* let { data: postTransactionResponse } = await axios.post('https://askbitcoin.ai/api/v1/transactions', {
+            transaction: rawTx
+          });
+
+          console.log('postTransactionResponse', postTransactionResponse); */
+
+          //router.push(`/answers/${txid}`);
+
           break;
         case 'twetch':
           //TODO
@@ -97,18 +119,12 @@ const QuestionDetailPage = () => {
 
   console.log({ data, error, refresh, loading });
 
-  if (!loading && (error || data === undefined)) {
+  if (error) {
     console.log('ERROR', error);
-    return (
-      <>
-        <h3>Error</h3>
-        <h4>Question may be still moving through the network</h4>
-        <h4>Please wait a few moments</h4>
-      </>
-    );
+    return <p>Error</p>;
   }
 
-  if (loading && !data) {
+  if (loading || data === undefined || !data) {
     return (
       <p>
         <FormattedMessage id="loading" />

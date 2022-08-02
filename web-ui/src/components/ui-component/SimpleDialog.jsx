@@ -101,7 +101,7 @@ export function BoostpowQrCodeDialog(props) {
   }));
 
   return (
-    <BootstrapDialog aria-labelledby="customized-dialog-title" open={open}>
+    <BootstrapDialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
 
       <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
       Scan to Boost

@@ -4,7 +4,7 @@ import * as http from 'superagent'
 interface WhatsonchainTransaction {
   txid: string;
   hash: string;
-  time: number;
+  time: Date;
   blocktime: number;
   blockhash: string;
   vin: any[];
