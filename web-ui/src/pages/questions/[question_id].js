@@ -82,7 +82,7 @@ const QuestionDetailPage = () => {
 
           console.log('postTransactionResponse', postTransactionResponse); */
 
-          //router.push(`/answers/${txid}`);
+          router.push(`/answers/${txid}`);
 
           break;
         case 'twetch':

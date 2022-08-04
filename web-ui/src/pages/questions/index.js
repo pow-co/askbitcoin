@@ -88,13 +88,13 @@ const QuestionPage = () => {
             )
           });
 
-          let { data: postTransactionResponse } = await axios.post('https://askbitcoin.ai/api/v1/transactions', {
+          /* let { data: postTransactionResponse } = await axios.post('http://localhost:5200/api/v1/transactions', {
             transaction: rawTx
-          });
+          }); 
 
-          console.log('postTransactionResponse', postTransactionResponse);
+          console.log('postTransactionResponse', postTransactionResponse); */
 
-          //router.push(`/questions/${txid}`);
+          router.push(`/questions/${txid}`);
           break;
         case 'twetch':
           //TODO

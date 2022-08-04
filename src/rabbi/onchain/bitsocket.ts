@@ -17,6 +17,7 @@ interface OnchainTransaction {
   app_id: string;
   key: string;
   value: string;
+  timestamp:Date;
   nonce?: string;
   author?: string;
   signature?: string;
@@ -106,6 +107,7 @@ export function bitsocket(app_id: string): EventEmitter {
           tx_index: output['i'],
           app_id: output['s3'],
           key: output['s4'],
+          timestamp:output['timestamp'],
           value: JSON.parse(output['s5']),
           nonce: output['s6'],
           author: output['s7'],
