@@ -33,7 +33,11 @@ interface Query {
 
 export async function list(query: Query = {}): Promise<Answer[]> {
 
-  return []
+  let result = await knex('onchain_events').where({
+    key: 'answers'
+  }).select('*')
+
+  return result
 
 }
 

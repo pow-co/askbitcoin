@@ -16,6 +16,8 @@ import config from './config'
 
 import { run } from './run'
 
+const moment = require("moment")
+
 export const onchainQueue = require('fastq').promise(handleOnchainTransaction, 1)
 
 export async function sync_boost_orders() {
@@ -291,7 +293,6 @@ async function handleQuestion(data: OnchainTransaction) {
     if (woc_tx && woc_tx.time) {
 
       timestamp = woc_tx.time
-      console.log(timestamp)
 
     }
 
@@ -345,8 +346,6 @@ async function handleAnswer(data: OnchainTransaction) {
 
     let woc_tx = await whatsonchain.getTransaction(tx_id)
 
-    //console.log({ woc_tx })
-
     if (woc_tx && woc_tx.time) {
 
       timestamp = woc_tx.time
@@ -359,7 +358,7 @@ async function handleAnswer(data: OnchainTransaction) {
 
   }
 
-  if (answer && answer.createdAt === null){
+  if (answer && answer.createdAt !== timestamp){
 
     let record = await knex('answers').where({ tx_id: tx_id}).update({ created_at: timestamp})
     log.info('answer.updated', { timestamp, record })

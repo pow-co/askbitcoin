@@ -2,6 +2,8 @@ import PropTypes from 'prop-types';
 import * as React from 'react';
 import Link from 'next/link';
 
+import moment from 'moment';
+
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import {
@@ -120,6 +122,8 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
   const router = useRouter();
   const { tx_id, content, author, difficulty, answer_count, created_at } = post;
 
+  const timestamp = moment.unix(created_at).fromNow();
+
   const [qrDialogOpen, setQrDialogOpen] = React.useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
@@ -230,7 +234,7 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
                     {/* <FiberManualRecordIcon sx={{ width: '10px', height: '10px', opacity: 0.5, m: '0 5px' }} /> */}
                     {/* {question.time} */}
                     <a target="_blank" rel="noopener" href={`https://whatsonchain.com/tx/${tx_id}`}>
-                      {new Date(created_at).toString('')}
+                      {timestamp}
                     </a>
                   </Typography>
                 </Grid>
