@@ -279,7 +279,7 @@ async function handleQuestion(data: OnchainTransaction) {
   let [question] = await knex('questions').where({ tx_id }).select('*')
   let answer_count:number = 0 
 
-  let timestamp = null;
+  let created_at = null;
   try {
 
     let woc_tx = await whatsonchain.getTransaction(tx_id)
@@ -288,7 +288,7 @@ async function handleQuestion(data: OnchainTransaction) {
 
     if (woc_tx && woc_tx.time) {
 
-      timestamp = woc_tx.time       
+      created_at = woc_tx.time       
     }
 
   } catch(error) {
@@ -302,15 +302,15 @@ async function handleQuestion(data: OnchainTransaction) {
 
   if (!question) {
 
-    if (!timestamp) {
-      timestamp = moment().unix()
+    if (!created_at) {
+      created_at = moment().unix()
     }
 
     const insert = {
       tx_id,
       tx_index,
       answer_count: 0,
-      timestamp,
+      created_at,
       content: value.content,
       author
     }
@@ -321,9 +321,9 @@ async function handleQuestion(data: OnchainTransaction) {
 
     log.info('question.recorded', { insert, record })
 
-  } else if (question.timestamp !== timestamp) {
-    let record = await knex('questions').where({ tx_id: tx_id}).update({ timestamp: timestamp})
-    log.info('question.updated', { timestamp, record })
+  } else if (question.created_at !== created_at) {
+    let record = await knex('questions').where({ tx_id: tx_id}).update({ created_at: created_at})
+    log.info('question.updated', { created_at, record })
 
   }
 
@@ -343,14 +343,14 @@ async function handleAnswer(data: OnchainTransaction) {
 
   let [answer] = await knex('answers').where({ tx_id }).select('*')
 
-  let timestamp = null;
+  let created_at = null;
   try {
 
     let woc_tx = await whatsonchain.getTransaction(tx_id)
     
     if (woc_tx && woc_tx.time) {
       
-      timestamp = woc_tx.time       
+      created_at = woc_tx.time       
     } 
 
   } catch(error) {
@@ -369,14 +369,14 @@ async function handleAnswer(data: OnchainTransaction) {
       question_tx_id = value.question_tx_id
     } 
 
-    if (!timestamp) {
-      timestamp = moment().unix()
+    if (!created_at) {
+      created_at = moment().unix()
     }
 
     const insert = {
       tx_id,
       tx_index,
-      timestamp,
+      created_at,
       question_tx_id,
       content,
       author
@@ -388,9 +388,9 @@ async function handleAnswer(data: OnchainTransaction) {
 
     await knex('questions').where({ tx_id: question_tx_id}).increment('answer_count',1)
 
-  } else if(answer.timestamp !== timestamp){
-    let record = await knex('answers').where({ tx_id: tx_id}).update({ timestamp: timestamp})
-    log.info('answer.updated', { timestamp, record })
+  } else if(answer.created_at !== created_at){
+    let record = await knex('answers').where({ tx_id: tx_id}).update({ created_at: created_at})
+    log.info('answer.updated', { created_at, record })
   }
 
 }

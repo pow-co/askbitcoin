@@ -120,9 +120,9 @@ FormInput.propTypes = {
 const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAdd, answer }) => {
   const theme = useTheme();
   const router = useRouter();
-  const { tx_id, content, author, timestamp, difficulty, answer_count } = post;
+  const { tx_id, content, author, created_at, difficulty, answer_count } = post;
 
-  const created_at = moment.unix(timestamp).fromNow();
+  const timestamp = moment.unix(created_at).fromNow();
 
   const [qrDialogOpen, setQrDialogOpen] = React.useState(false);
 
@@ -234,7 +234,7 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
                     {/* <FiberManualRecordIcon sx={{ width: '10px', height: '10px', opacity: 0.5, m: '0 5px' }} /> */}
                     {/* {question.time} */}
                     <a target="_blank" rel="noopener" href={`https://whatsonchain.com/tx/${tx_id}`}>
-                      {created_at}
+                      {timestamp}
                     </a>
                   </Typography>
                 </Grid>

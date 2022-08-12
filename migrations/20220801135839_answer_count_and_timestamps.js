@@ -4,13 +4,13 @@
  */
 exports.up = async function (knex) {
   await knex.schema.table("questions", (table) => {
-    table.time("timestamp");
+    table.time("created_at");
 
     table.integer("answer_count");
   });
 
   await knex.schema.table("answers", (table) => {
-    table.time("timestamp");
+    table.time("created_at");
 
     //table.integer('answer_count')
   });
@@ -28,7 +28,7 @@ exports.down = async function (knex) {
   });
 
   await knex.schema.table("answers", (table) => {
-    table.dropColumn("timestamp");
+    table.dropColumn("created_at");
 
     //table.integer('answer_count')
   });
