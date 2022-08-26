@@ -3,6 +3,8 @@ import { Box, IconButton, SvgIcon, Typography } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import axios from 'axios';
 
+import { Script } from 'bsv'
+
 const BoostButton = ({ txid, content, difficulty }) => {
   const { enqueueSnackbar } = useSnackbar();
 
@@ -18,7 +20,11 @@ const BoostButton = ({ txid, content, difficulty }) => {
       }
     });
 
-    let { data } = await axios.get(`https://askbitcoin.ai/api/v1/boostpow/${txid}/new?value=${value}&currency=${currency}`);
+    const url = `https://askbitcoin.ai/api/v1/boostpow/${txid}/new?value=${value}&currency=${currency}`
+
+    console.log("boostpow.job.build", { url });
+
+    let { data } = await axios.get(url);
 
     console.log('boostpow.payment_request', data);
 
@@ -30,6 +36,10 @@ const BoostButton = ({ txid, content, difficulty }) => {
       variant: 'info'
     });
 
+    const script = new Script(data.outputs[0].script)
+
+    const amount = data.outputs[0].amount / 100000000
+
     try {
       const send = {
         opReturn: [
@@ -40,16 +50,45 @@ const BoostButton = ({ txid, content, difficulty }) => {
             index: 0
           })
         ],
-        amount: data.outputs[0].amount / 100000000,
-        to: data.outputs[0].script,
+        amount,
+        to: script.toASM(),
         currency: 'BSV'
       };
 
       console.log('relayx.send.params', send);
 
-      let result = await relayone.send(send);
+      const result = await relayone.send(send);
 
       console.log('relayx.send.result', result);
+
+      console.log('RESULT', result)
+
+      const { txid } = result
+
+      console.log('TXID', txid)
+
+      // Post the new boostpow job transaction to the indexer API at pow.co
+      axios.post(`https://pow.co/api/v1/boost/jobs/${txid}`).then(({ data }) => {
+
+        console.log(`pow.co/api/v1/jobs/${result.txid}.result`, data)
+
+      }).catch(error => {
+
+        console.error(`pow.co/api/v1/jobs/${result.txid}`, error)
+      })
+
+      axios.post(`https://pow.co/api/v1/boost/jobs`, {
+
+        transaction: result.rawTx
+
+      }).then(({ data }) => {
+
+        console.log(`post.pow.co/api/v1/jobs.result`, data)
+
+      }).catch(error => {
+
+        console.error(`post.pow.co/api/v1/jobs`, error)
+      })
 
       enqueueSnackbar(`Boostpow Order Posted`, {
         anchorOrigin: {

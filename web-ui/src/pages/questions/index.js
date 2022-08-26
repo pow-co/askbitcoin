@@ -88,13 +88,77 @@ const QuestionPage = () => {
             )
           });
 
-          let { data: postTransactionResponse } = await axios.post('https://askbitcoin.ai/api/v1/transactions', {
-            transaction: rawTx
-          });
+          (async () => {
+            try {
 
-          console.log('postTransactionResponse', postTransactionResponse);
+              let { data: postTransactionResponse } = await axios.post('https://askbitcoin.ai/api/v1/transactions', {
+                transaction: rawTx
+              });
+    
+              console.log('postTransactionResponse', postTransactionResponse);
+    
+            } catch(error) {
 
-          //router.push(`/questions/${txid}`);
+              console.error('postTransactionResponse', error)
+
+            }
+          })();
+
+          (async () => {
+
+            try {
+
+              let { data: postTransactionResponse } = await axios.post('http://localhost:5200 /api/v1/questions', {
+                transaction: rawTx
+              });
+    
+              console.log('api.questsions.post.response', postTransactionResponse);
+
+              router.push(`/questions/${txid}`);
+    
+            } catch(error) {
+
+              console.error('api.questsions.post.response', error)
+
+            }
+          })();
+
+
+          (async () => {
+
+            try {
+
+              let { data: postTransactionResponse } = await axios.post('https://pow.co/api/v1/transactions', {
+                transaction: rawTx
+              });
+    
+              console.log('powco_post_transaction_response', postTransactionResponse);
+    
+            } catch(error) {
+
+              console.error('powco_post_transaction_response', error)
+
+            }
+          })();
+
+
+          (async () => {
+
+            try {
+
+              let { data: postTransactionResponse } = await axios.post('https://pow.co/api/v1/jobs', {
+                transaction: rawTx
+              });
+    
+              console.log('powco_post_transaction_response', postTransactionResponse);
+    
+            } catch(error) {
+
+              console.error('powco_post_transaction_response', error)
+
+            }
+          })();
+
           break;
         case 'twetch':
           //TODO
@@ -136,7 +200,7 @@ const QuestionPage = () => {
     return <p>Error</p>;
   }
 
-  if (loading || data === undefined || !data) {
+  if (loading && !data) {
     return (
       <p>
         <FormattedMessage id="loading" />
