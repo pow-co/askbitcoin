@@ -117,21 +117,19 @@ const QuestionDetailPage = () => {
 
   let { data, error, refresh, loading } = useAPI(`/questions/${query.question_id}`, queryParams);
 
-  console.log({ data, error, refresh, loading });
-
   if (error) {
-    console.log('ERROR', error);
+    console.error('ERROR', error);
     return <p>Error</p>;
   }
 
-  if (loading || data === undefined || !data) {
+  if (!data) {
+
     return (
       <p>
         <FormattedMessage id="loading" />
       </p>
     );
   }
-  console.log({ data });
 
   const onChangeFilter = (filter) => {
     setQueryParams(filter.query);
