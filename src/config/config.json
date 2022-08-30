@@ -1,0 +1,17 @@
+{
+  "development": {
+    "dialect": "sqlite",
+    "storage": ".rabbi/onchain.sqlite",
+    "logging": false
+  },
+  "test": {
+    "use_env_variable": "TEST_DATABASE_URL",
+    "dialect": "postgresql",
+    "logging": false
+  },
+  "production": {
+    "use_env_variable": "DATABASE_URL",
+    "dialect": "postgresql",
+    "logging": false
+  }
+}

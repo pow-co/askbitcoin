@@ -17,6 +17,8 @@ export async function getTransaction(txid: string): Promise<WhatsonchainTransact
 
   let {body} = await http.get(url)
 
+  body.time = new Date(parseInt(body.time) * 1000)
+
   return body
 
 }

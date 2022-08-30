@@ -7,7 +7,7 @@ import { log } from '../../log'
 
 import { loadQuestion } from '../../questions'
 
-import { loadAnswers, loadAnswer } from '../../answers'
+import { loadAnswers, loadAnswer, recentAnswers } from '../../answers'
 
 export async function create(req, h) {
 
@@ -32,6 +32,27 @@ export async function index(req, h) {
   } catch(error) {
 
     console.log(error)
+
+    return badRequest(error)
+
+  }
+
+}
+
+
+export async function recent(req, h) {
+
+  try {
+
+    let answers = await recentAnswers(req.query)
+
+    return {
+
+      answers
+
+    }
+
+  } catch(error) {
 
     return badRequest(error)
 

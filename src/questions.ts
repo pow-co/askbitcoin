@@ -1,27 +1,32 @@
 
 import { log } from './log'
 
-import { Answer } from './answers'
+import { Answer, parseAnswersFromTxHex } from './answers'
 
 import { Author } from './authors'
 
 import { Transaction } from './transactions'
 
-import config from './config'
-
 import { Wallet } from './rabbi/onchain'
 
 import { knex } from './knex'
 
+import { run } from './run'
+
 type QuestionsStore = {
   [key: string]: Question
 }
+
+import * as models from './models'
+import { bsv } from 'boostpow'
 
 class QuestionNotFound extends Error {
   message = 'question not found'
   name = 'QuestionNotFound'
   code = 404
 }
+
+const txo = require('txo')
 
 export const questions: QuestionsStore = {}
 
@@ -30,6 +35,12 @@ export interface Question {
   content: string;
 
   transaction: Transaction;
+
+  tx_id: string;
+
+  tx_index: number;
+
+  id?: number;
 
   answers?: Answer[];
 
@@ -79,9 +90,6 @@ export async function loadSeeds() {
     index: 0,
     eventsource: true
   }]
-
-
-
 }
 
 interface AskQuestionOptions {
@@ -92,14 +100,11 @@ export async function ask(wallet: Wallet, content: string, options: AskQuestionO
 
   let transaction = await wallet.publish('question', { content })
 
-  return {
-    content,
-    answers: [],
-    transaction: {
-      txid: transaction.hash,
-      hex: transaction.serialize()
-    }
-  }
+  const txhex = transaction.serialize()
+
+  const [question] = await parseQuestionsFromTxHex(txhex)
+
+  return question
 
 }
 
@@ -117,20 +122,32 @@ export async function answer(wallet: Wallet, newAnswer: NewAnswer): Promise<Answ
     content: newAnswer.content
   })
 
-  return {
-    question: newAnswer.question,
-    content: newAnswer.content,
-    transaction: {
-      txid: transaction.hash,
-      hex: transaction.serialize()
-    }
-  }
+  const hex = transaction.serialize()
+
+  const [answer] = await parseAnswersFromTxHex(hex)
+
+  return answer
 
 }
 
 interface QuestionsQuery {
   start_timestamp?: string;
   end_timestamp?: string;
+}
+
+interface RecentQuestionsQuery {
+  limit?: number;
+}
+
+export async function recentQuestions(query: RecentQuestionsQuery={}): Promise<models.Question[]> {
+
+  let questions = await knex('questions')
+    .select(['*'])
+    .orderBy('created_at', 'desc')
+    .limit(query.limit || 100)
+
+  return questions
+
 }
 
 export async function loadQuestions(query: QuestionsQuery={}): Promise<Question[]> {
@@ -190,7 +207,7 @@ interface LoadQuestion {
   end_timestamp?: number;
 }
 
-export async function loadQuestion(query: LoadQuestion): Promise<Question> {
+export async function loadQuestion(query: LoadQuestion): Promise<Question | null> {
 
   const start_timestamp = query.start_timestamp || 0;
 
@@ -218,9 +235,152 @@ export async function loadQuestion(query: LoadQuestion): Promise<Question> {
       .where('tx_id', query.tx_id)
       .select('*')
 
-  unBoosted.difficulty = 0
+  if (unBoosted) {
+    unBoosted.difficulty = 0
+  }
 
   return unBoosted
 
 }
 
+interface ImportQuestionResult {
+  
+  question: Question,
+
+  isNew: boolean
+
+}
+
+export async function parseQuestionsByTxid(txid: string): Promise<Question[]> {
+
+  const hex = await run.blockchain.fetch(txid)
+
+  return parseQuestionsFromTxHex(hex)
+
+}
+
+
+import { findOne, findOrCreate } from './orm'
+
+export async function importQuestionsByTxid(txid: string): Promise<ImportQuestionResult[]> {
+
+  const hex = await run.blockchain.fetch(txid)
+
+  const questions: Question[] = await parseQuestionsFromTxHex(hex)
+
+  return Promise.all(questions.map(async (question) => {
+
+    const {record, isNew} = await findOrCreate<Question>('questions', {
+      where: {
+        tx_id: txid,
+        tx_index: question.tx_index
+      },
+      defaults: {
+        tx_id: question.tx_id,
+        tx_index: question.tx_index,
+        content: question.content
+      }
+    })
+
+    if (isNew) {
+
+      question = await findOne<Question>('questions', { where: { id: record }})
+
+    }
+
+    return {question: record, isNew }
+
+  }))
+
+}
+
+export async function importQuestionsByTxHex(hex: string): Promise<ImportQuestionResult[]> {
+
+  const questions: Question[] = await parseQuestionsFromTxHex(hex)
+
+  return Promise.all(questions.map(async (question) => {
+
+    const {record, isNew} = await findOrCreate<Question>('questions', {
+      where: {
+        tx_id: question.tx_id,
+        tx_index: question.tx_index
+      },
+      defaults: {
+        tx_id: question.tx_id,
+        tx_index: question.tx_index,
+        content: question.content
+      }
+    })
+
+    if (isNew) {
+
+      question = await findOne<Question>('questions', { where: { id: record }})
+
+    }
+
+    return {question: record, isNew }
+
+  }))
+}
+
+
+export async function parseQuestionsFromTxHex(txhex: string): Promise<Question[]> {
+
+  try {
+
+    const _txo = await txo.fromTx(txhex)
+
+    if (!_txo) { return null }
+
+    const txid = _txo['tx']['h']
+
+    const questions = _txo['out'].map(out => {
+
+      try {
+
+        if (out['s2'] === 'onchain' &&
+            out['s3'] === '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN' &&
+            out['s4'] === 'question' &&
+            out['s5']) {
+
+          const { content } = JSON.parse(out['s5'])
+  
+          if (content) {
+  
+            const question: Question = {
+              content,
+              tx_index: out['i'],
+              tx_id: txid,
+              transaction: {
+                txid,
+                hex: txhex
+              }
+            }
+  
+            return question
+  
+          }
+  
+        }
+
+      } catch(error) {
+
+        log.error('importQuestionsFromTransaction.error', error)
+
+      }
+
+      return false
+
+    }).filter(question => !!question)
+    
+    return questions;
+
+  } catch(error) {
+
+    log.error('importQuestionsFromTransaction.error', error)
+
+    return [];
+
+  }
+
+}

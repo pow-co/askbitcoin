@@ -9,17 +9,30 @@ import { Transaction } from './transactions'
 
 import { knex } from './knex'
 
+import * as txo from 'txo'
+
+import { run } from './run'
+
+import { findOne, findOrCreate } from './orm'
+
+
 export interface Answer {
 
   question?: Question;
 
   question_tx_id?: string;
 
+  tx_id: string;
+
+  tx_index: number;
+
   content: string;
 
   transaction: Transaction;
 
   author?: Author;
+
+  id?: number;
 
 }
 
@@ -29,35 +42,6 @@ interface Query {
   end_timestamp?: Date;
   author_paymail?: string;
   author_public_key?: string;
-}
-
-export async function list(query: Query = {}): Promise<Answer[]> {
-
-  return []
-
-}
-
-export async function find(answer_txid: string): Promise<Answer> {
-
-  return {
-    question: {
-      content: '',
-      transaction: {
-        hex: '',
-        txid: ''
-      }
-    },
-    content: '',
-    transaction: {
-      hex: '',
-      txid: ''
-    },
-    author: {
-      paymail: '',
-      public_key: ''
-    }
-  }
-
 }
 
 interface LoadAnswers {
@@ -90,7 +74,6 @@ export async function loadAnswer(query: LoadAnswer): Promise<Answer> {
     .orderBy('difficulty', 'desc')
     .select(['answers.*', 'difficulty'])
 
-  console.log('__answer', answer)
   if (answer) {
 
     return answer
@@ -102,8 +85,6 @@ export async function loadAnswer(query: LoadAnswer): Promise<Answer> {
       .select('*')
 
   unBoosted.difficulty = 0
-
-  console.log('__answer', unBoosted)
 
   return unBoosted
 
@@ -152,3 +133,167 @@ export async function loadAnswers(query: LoadAnswers): Promise<Answer[]> {
 
 }
 
+interface RecentAnswersQuery {
+  limit?: number;
+}
+
+export async function recentAnswers(query: RecentAnswersQuery={}): Promise<Answer> {
+
+  let answers = await knex('answers')
+    .select(['*'])
+    .orderBy('created_at', 'desc')
+    .limit(query.limit || 100)
+
+  return answers
+
+}
+
+export async function parseAnswersFromTxHex(txhex: string): Promise<Question[]> {
+
+  try {
+
+    const _txo = await txo.fromTx(txhex)
+
+    if (!_txo) { return null }
+
+    const txid = _txo['tx']['h']
+
+    const answers = _txo['out'].map(out => {
+
+      try {
+
+        if (out['s2'] === 'onchain' &&
+            out['s3'] === '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN' &&
+            out['s4'] === 'answer' &&
+            out['s5']) {
+
+          const { content, question_tx_id } = JSON.parse(out['s5'])
+  
+          if (content && question_tx_id) {
+  
+            const answer: Answer = {
+              content,
+              question_tx_id,
+              tx_index: out['i'],
+              tx_id: txid,
+              transaction: {
+                txid,
+                hex: txhex
+              }
+            }
+  
+            return answer
+  
+          }
+  
+        }
+
+      } catch(error) {
+
+        log.error('parseAnswersFromTransaction.error', error)
+
+      }
+
+      return false
+
+    }).filter(answer => !!answer)
+    
+    return answers;
+
+  } catch(error) {
+
+    log.error('parseAnswersFromTransaction.error', error)
+
+    return [];
+
+  }
+
+}
+
+export async function parseAnswersByTxid(txid: string): Promise<Answer[]> {
+
+  const hex = await run.blockchain.fetch(txid)
+
+  return parseAnswersFromTxHex(hex)
+
+}
+
+interface ImportAnswerResult {
+  
+  answer: Answer,
+
+  isNew: boolean
+
+}
+
+export async function importAnswersByTxid(txid: string): Promise<ImportAnswerResult[]> {
+
+  var isNew: boolean = true
+
+  // look up the question in the database by txid
+
+  const record = await findOne<Answer>('answers', { where: {
+
+    tx_id: txid
+
+  }})
+
+  if (record) {
+
+    isNew = false
+
+    const answer: Answer = {
+
+      id: record.id,
+
+      tx_id: record.tx_id,
+
+      tx_index: record.tx_index,
+
+      content: record.content,
+
+      transaction: { txid }
+
+    }
+
+    return [{
+
+      answer,
+
+      isNew
+
+    }]
+
+  }
+
+  const hex = await run.blockchain.fetch(txid)
+
+  const answers: Answer[] = await parseAnswersFromTxHex(hex)
+
+  return Promise.all(answers.map(async (answer) => {
+
+    const {record, isNew} = await findOrCreate<Answer>('answers', {
+      where: {
+        tx_id: txid,
+        tx_index: answer.tx_index,
+        question_tx_id: answer.question_tx_id
+      },
+      defaults: {
+        tx_id: answer.tx_id,
+        tx_index: answer.tx_index,
+        question_tx_id: answer.question_tx_id,
+        content: answer.content
+      }
+    })
+
+    if (isNew) {
+
+      answer = await findOne<Answer>('answers', { where: { id: record }})
+
+    }
+
+    return {answer: record, isNew }
+
+  }))
+
+}
