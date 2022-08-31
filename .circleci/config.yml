@@ -16,6 +16,9 @@ jobs:
           name: Install Dependencies
           command: npm install
       - run:
+          name: Install Migrator
+          command: npm install -g sequelize
+      - run:
           name: Install Dependencies
           command: npm run db:migrate -- --url=postgres://postgres:letmein@localhost:5432/database
       - run:
