@@ -2,6 +2,7 @@
   "development": {
     "dialect": "sqlite",
     "storage": ".rabbi/onchain.sqlite",
+    "use_env_variable": "DEV_DATABASE_URL",
     "logging": false
   },
   "test": {

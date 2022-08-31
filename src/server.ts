@@ -9,11 +9,14 @@ import { log } from './log'
 
 import { join } from 'path'
 
+import { plugin as websockets } from './socket.io/plugin'
+
 const Joi = require('joi')
 
 const Pack = require('../package');
 
 import { load } from './server/handlers'
+import { connectClient } from './socket.io/client'
 
 const handlers = load(join(__dirname, './server/handlers'))
 
@@ -426,6 +429,10 @@ export async function start() {
     ]);
 
     log.info('server.api.documentation.swagger', swaggerOptions)
+
+    await server.register(websockets)
+
+    await connectClient(`ws://${config.get('host')}:${config.get('port')}`)
 
     if (config.get('webui_enabled')) {
 

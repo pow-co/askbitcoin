@@ -14,6 +14,8 @@ import config from './config'
 
 import { models, Question } from './models'
 
+import events from './events'
+
 //import { leveldb } from './rabbi/onchain'
 
 import { run } from './run'
@@ -392,6 +394,8 @@ async function handleAnswer(data: OnchainTransaction) {
     await knex('answers').insert(insert)
 
     log.info('answer.recorded', insert)
+
+    events.emit('answer.created', insert)
 
   }
 

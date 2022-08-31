@@ -57,6 +57,8 @@
       "rabbi": "^1.19.4",
       "run-sdk": "^0.6.38",
       "sequelize": "^6.21.4",
+      "socket.io": "^4.5.1",
+      "socket.io-client": "^4.5.1",
       "split2": "^4.1.0",
       "sqlite3": "^5.0.8",
       "superagent": "^8.0.0",
