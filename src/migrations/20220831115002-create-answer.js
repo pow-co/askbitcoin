@@ -1,29 +1,32 @@
 'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('events', {
+    await queryInterface.createTable('answers', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      namespace: {
+      question_tx_id: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      type: {
+      tx_id: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      payload: {
-        type: Sequelize.JSON,
+      tx_index: {
+        type: Sequelize.INTEGER,
         allowNull: false
       },
-      error: {
-        type: Sequelize.BOOLEAN,
-        allowNull: true,
-        defaultValue: false
+      timestamp: {
+        type: Sequelize.DATE,
+        allowNull: false
+      },
+      content: {
+        type: Sequelize.TEXT,
+        allowNull: false
       },
       createdAt: {
         allowNull: false,
@@ -36,6 +39,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('events');
+    await queryInterface.dropTable('answers');
   }
 };

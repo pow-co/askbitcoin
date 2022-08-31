@@ -268,13 +268,19 @@ export async function importAnswersByTxid(txid: string): Promise<ImportAnswerRes
 
   const hex = await run.blockchain.fetch(txid)
 
+  return importAnswersByTxHex(hex)
+
+}
+
+export async function importAnswersByTxHex(hex: string): Promise<ImportAnswerResult[]> {
+
   const answers: Answer[] = await parseAnswersFromTxHex(hex)
 
   return Promise.all(answers.map(async (answer) => {
 
     const {record, isNew} = await findOrCreate<Answer>('answers', {
       where: {
-        tx_id: txid,
+        tx_id: answer.tx_id,
         tx_index: answer.tx_index,
         question_tx_id: answer.question_tx_id
       },
@@ -282,18 +288,12 @@ export async function importAnswersByTxid(txid: string): Promise<ImportAnswerRes
         tx_id: answer.tx_id,
         tx_index: answer.tx_index,
         question_tx_id: answer.question_tx_id,
-        content: answer.content
+        content: answer.content,
+        timestamp: new Date()
       }
     })
-
-    if (isNew) {
-
-      answer = await findOne<Answer>('answers', { where: { id: record }})
-
-    }
 
     return {answer: record, isNew }
 
   }))
-
 }

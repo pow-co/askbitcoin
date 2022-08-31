@@ -35,6 +35,7 @@ export function init(sequelize) {
   }, {
     sequelize,
     modelName: 'Event',
+    tableName: 'events'
   });
 
   return Event;

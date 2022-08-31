@@ -11,19 +11,22 @@ export async function findOrCreate<T>(table: string, { where, defaults}: { where
 
     var result = await knex(table).where(where).limit(1)
   
-    const [record] = result
+    var [record] = result
   
     if (record) {
   
       return { record, isNew: false }
   
     }
+
+    const insert = Object.assign(defaults, {
+        createdAt: new Date(),
+        updatedAt: new Date()
+    })
   
-    const [id] = await knex(table).insert(defaults)
+    const [newRecord] = await knex(table).insert(insert, ['*'])
   
-    result = await knex(table).where({ id }).limit(1)
-  
-    return { record: result[0], isNew: true }
+    return { record: newRecord, isNew: true }
     
   }
   

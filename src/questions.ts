@@ -46,6 +46,8 @@ export interface Question {
 
   author?: Author;
 
+  timestamp?: Date;
+
 }
 
 interface Query {
@@ -266,31 +268,7 @@ export async function importQuestionsByTxid(txid: string): Promise<ImportQuestio
 
   const hex = await run.blockchain.fetch(txid)
 
-  const questions: Question[] = await parseQuestionsFromTxHex(hex)
-
-  return Promise.all(questions.map(async (question) => {
-
-    const {record, isNew} = await findOrCreate<Question>('questions', {
-      where: {
-        tx_id: txid,
-        tx_index: question.tx_index
-      },
-      defaults: {
-        tx_id: question.tx_id,
-        tx_index: question.tx_index,
-        content: question.content
-      }
-    })
-
-    if (isNew) {
-
-      question = await findOne<Question>('questions', { where: { id: record }})
-
-    }
-
-    return {question: record, isNew }
-
-  }))
+  return importQuestionsByTxHex(hex)
 
 }
 
@@ -308,15 +286,10 @@ export async function importQuestionsByTxHex(hex: string): Promise<ImportQuestio
       defaults: {
         tx_id: question.tx_id,
         tx_index: question.tx_index,
-        content: question.content
+        content: question.content,
+        timestamp: question.timestamp || new Date()
       }
     })
-
-    if (isNew) {
-
-      question = await findOne<Question>('questions', { where: { id: record }})
-
-    }
 
     return {question: record, isNew }
 
