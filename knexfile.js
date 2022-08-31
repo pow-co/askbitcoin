@@ -9,9 +9,25 @@ module.exports = {
     client: 'sqlite3',
     connection: {
       //filename: ':memory:'
-      filename: "./.rabbi/onchain.sqlite"
+      filename: `${process.cwd()}/.rabbi/onchain.sqlite`
     },
     useNullAsDefault: true
+  },
+
+  test: {
+    client: 'postgresql',
+    connection: {
+      database: 'database',
+      user:     'postgres',
+      password: 'letmein'
+    },
+    pool: {
+      min: 2,
+      max: 10
+    },
+    migrations: {
+      tableName: 'knex_migrations'
+    }
   },
 
   staging: {
@@ -32,11 +48,7 @@ module.exports = {
 
   production: {
     client: 'postgresql',
-    connection: {
-      database: 'my_db',
-      user:     'username',
-      password: 'password'
-    },
+    connection: process.env.DATABASE_URL,
     pool: {
       min: 2,
       max: 10

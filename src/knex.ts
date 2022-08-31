@@ -1,15 +1,9 @@
 
 import * as configs from '../knexfile'
 
-//const config = configs[process.env.NODE_ENV]
+const env = process.env.NODE_ENV || 'development'
 
-//export const knex = require('knex')(config)
+const config = configs[env]
 
-export const knex = require('knex')({
-  client: 'sqlite3', // or 'better-sqlite3'
-  connection: {
-    filename: `${process.cwd()}/.rabbi/onchain.sqlite`
-  },
-  useNullAsDefault: true
-});
+export const knex = require('knex')(config)
 
