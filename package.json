@@ -12,7 +12,8 @@
       "postbuild": "shebang-trim dist/bin/cli.js && chmod +x dist/bin/cli.js",
       "ci": "circleci local execute --job build",
       "commit": "npx cz",
-      "build_web_ui": "cd web-ui && npm run build"
+      "build_web_ui": "cd web-ui && npm run build",
+      "db:migrate": "sequelize db:migrate"
    },
    "bin": {
       "askbitcoin": "./dist/bin/cli.js"
