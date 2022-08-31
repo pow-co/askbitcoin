@@ -9,11 +9,14 @@ import { log } from './log'
 
 import { join } from 'path'
 
+import { plugin as websockets } from './socket.io/plugin'
+
 const Joi = require('joi')
 
 const Pack = require('../package');
 
 import { load } from './server/handlers'
+import { connectClient } from './socket.io/client'
 
 const handlers = load(join(__dirname, './server/handlers'))
 
@@ -225,6 +228,28 @@ server.route({
 
 server.route({
   method: 'GET',
+  path: '/api/v1/recent/answers',
+  handler: handlers.Answers.recent,
+  options: {
+    description: 'List most recently posted Answers by timestamp',
+    tags: ['api', 'answers'],
+    validate: {
+      query: Joi.object({
+        limit: Joi.number().integer().optional()
+      })
+      .label('RecentAnswersQuery')
+    },
+    response: {
+      failAction: 'log',
+      schema: Joi.object({
+        questions: Answers.label('Answers').required()
+      }).label('RecentAnswers')
+    }
+  }
+})
+
+server.route({
+  method: 'GET',
   path: '/api/v1/questions',
   handler: handlers.Questions.index,
   options: {
@@ -246,6 +271,27 @@ server.route({
   }
 })
 
+server.route({
+  method: 'GET',
+  path: '/api/v1/recent/questions',
+  handler: handlers.Questions.recent,
+  options: {
+    description: 'List most recently posted Questions by timestamp',
+    tags: ['api', 'questions'],
+    validate: {
+      query: Joi.object({
+        limit: Joi.number().integer().optional()
+      })
+      .label('RecentQuestionsQuery')
+    },
+    response: {
+      failAction: 'log',
+      schema: Joi.object({
+        questions: Questions.label('Questions').required()
+      }).label('RecentQuestions')
+    }
+  }
+})
 
 server.route({
   method: 'GET',
@@ -383,6 +429,10 @@ export async function start() {
     ]);
 
     log.info('server.api.documentation.swagger', swaggerOptions)
+
+    await server.register(websockets)
+
+    await connectClient(`ws://${config.get('host')}:${config.get('port')}`)
 
     if (config.get('webui_enabled')) {
 
