@@ -12,7 +12,7 @@ import { log } from './log'
 
 import config from './config'
 
-import { models, Question } from './models'
+import { models, Question, Answer } from './models'
 
 import events from './events'
 
@@ -260,34 +260,26 @@ export interface OnchainTransaction {
   author?: string;
   signature?: string;
   source?: string;
+  timestamp?: Date;
 }
 
 import { knex } from './knex'
 import { error } from 'winston'
 
-async function handleQuestion(data: OnchainTransaction): Promise<Question | null> {
+async function handleAnswer(data: OnchainTransaction) {
 
-  if (typeof data.value === 'string') {
+  var { value, tx_id, tx_index, author, timestamp } = data
 
-    data.value = JSON.parse(data.value)
-
-  }
-
-  var { value, tx_id, tx_index, author } = data
-
-  const question = await Question.findOne({
+  var record = await models.Answer.findOne({
     where: {
-      tx_id, tx_index
+      tx_id,
+      tx_index
     }
   })
 
-  if (question) {
+  if (record) { return record }
 
-    return question
-
-  }
-
-  var timestamp: Date;
+  var answer;
 
   try {
 
@@ -305,100 +297,113 @@ async function handleQuestion(data: OnchainTransaction): Promise<Question | null
 
   }
 
-  if (!question) {
+  try {
 
-    const defaults = {
-      tx_id,
-      tx_index,
-      timestamp: timestamp,
-      content: value.content
+    if (!value.question_tx_id || !value.content) {
+
+      return
+
     }
 
-    try {
-
-      let [record, isNew] = await Question.findOrCreate({
-        where: {
-          tx_id,
-          tx_index
-        },
-        defaults
-      })
-
-      if (isNew) {
-
-        log.info('question.recorded', JSON.parse(JSON.stringify(record)))
-
+    const [_answer, isNew] = await models.Answer.findOrCreate({
+      where: {
+        tx_id,
+        tx_index
+      },
+  
+      defaults: {
+        tx_id,
+        tx_index,
+        content: value.content,
+        question_tx_id: value.question_tx_id,
+        timestamp: timestamp || new Date()
       }
+    })
 
-      return record
+    if (isNew) {
 
-    } catch(error) {
+      log.info('answer.recorded', _answer.toJSON())
 
-      log.error('question.insert', error)
-
+      events.emit('answer.created', _answer.toJSON())
     }
+  
+  } catch(error) {
+
+    console.error('ANSWER FOC ERROR', error)
 
   }
 
 }
 
-async function handleAnswer(data: OnchainTransaction) {
+async function handleQuestion(data: OnchainTransaction) {
 
-  var { value, tx_id, tx_index, author } = data
+  var { value, tx_id, tx_index, timestamp } = data
 
-  let [answer] = await knex('answers').where({ tx_id }).select('*')
-  
-  let timestamp = null
+  console.log('HANDLE QUESTION', data)
+
+  var record = await models.Question.findOne({
+    where: {
+      tx_id,
+      tx_index
+    }
+  })
+
+  if (record) { return record }
+
+  if (!timestamp) {
+
+    try {
+
+      let woc_tx = await whatsonchain.getTransaction(tx_id)
+
+      if (woc_tx && woc_tx.time) {
+
+        timestamp = woc_tx.time
+
+      }
+
+    } catch(error) {
+
+      log.error('whatsonchain.get_transaction', error)
+
+    }
+
+  }
 
   try {
 
-    let woc_tx = await whatsonchain.getTransaction(tx_id)
+    if (!value.content) {
 
-    if (woc_tx && woc_tx.time) {
-
-      timestamp = woc_tx.time
+      return
 
     }
 
+    const [_answer, isNew] = await models.Question.findOrCreate({
+      where: {
+        tx_id,
+        tx_index
+      },
+  
+      defaults: {
+        tx_id,
+        tx_index,
+        content: value.content,
+        timestamp: timestamp || new Date()
+      }
+    })
+
+    if (isNew) {
+
+      log.info('question.recorded', _answer.toJSON())
+
+      events.emit('question.created', _answer.toJSON())
+    }
+  
   } catch(error) {
 
-    log.error('whatsonchain.get_transaction', error)
+    console.error('QUESTION FOC ERROR', error)
 
   }
-
-  if (answer && answer.createdAt === null){
-
-    let record = await knex('answers').where({ tx_id: tx_id}).update({ created_at: timestamp})
-    log.info('answer.updated', { timestamp, record })
-
-  }
-
-  if (!answer) {
-
-
-    var { content, txid: question_tx_id } = value
-
-    if (!question_tx_id) {
-      question_tx_id = value.question_tx_id
-    }
-
-    const insert = {
-      tx_id,
-      tx_index,
-      created_at: timestamp,
-      question_tx_id,
-      content,
-      author
-    }
-
-    await knex('answers').insert(insert)
-
-    log.info('answer.recorded', insert)
-
-    events.emit('answer.created', insert)
-
-  }
-
 
 }
 
@@ -479,7 +484,7 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
 
       } catch(error) {
 
-        log.error('handleAnswer', error)
+        log.error('__HANDLE_ANSWER_ERROR!!!', error)
 
       }
 
@@ -521,7 +526,7 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
     }
   } catch(error) {
 
-  log.error('handleOnchainTransaction', error)
+  log.error('handleOnchainTransaction', {error, data })
 
 }
 

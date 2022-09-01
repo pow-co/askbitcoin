@@ -32,7 +32,7 @@ export const models = require('require-all')({
   },
   map: function(name: string): string {
 
-    return name.split('_').map(capitalizeFirstLetter).join('')
+    return name.split('_').map(capitalizeFirstLetter).join('').replace('.ts', '')
 
   },
   resolve: function({ init }: { init: Function }): Model {
@@ -52,6 +52,8 @@ Object.keys(db).forEach(modelName => {
 });
 
 export { Question } from './question'
+export { Answer } from './answer'
+
 export { Event } from './event'
 
 export default db
