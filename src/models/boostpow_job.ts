@@ -1,6 +1,9 @@
+
 import { Model, DataTypes } from 'sequelize';
 
-export class Question extends Model {
+import { getTimestamp } from '../whatsonchain'
+
+export class BoostpowJob extends Model {
   content: string;
   /**
    * Helper method for defining associations.
@@ -14,7 +17,7 @@ export class Question extends Model {
 
 export function init(sequelize) {
 
-  Question.init({
+  BoostpowJob.init({
     tx_id: {
       type: DataTypes.STRING,
       allowNull: false
@@ -23,24 +26,40 @@ export function init(sequelize) {
       type:  DataTypes.INTEGER,
       allowNull: false
     },
-    tx_hex: {
-      type: DataTypes.TEXT,
-      allowNull: true
+    diff: {
+      type: DataTypes.DECIMAL,
+      allowNull: false
     },
     content: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       allowNull: false
     },
     timestamp: {
       type: DataTypes.DATE,
       allowNull: false
-    }
+    },
+    category: {
+      type: DataTypes.STRING
+    },
+    tag: {
+      type: DataTypes.STRING
+    },
+    additionalData: {
+      type: DataTypes.TEXT
+    },
+    userNonce: {
+      type: DataTypes.STRING
+    },
+    useGeneralPurposeBits: {
+      type: DataTypes.BOOLEAN
+    },
   }, {
     sequelize,
-    modelName: 'Question',
-    tableName: 'questions'
+    modelName: 'BoostpowJob',
+    tableName: 'boostpow_jobs'
   });
 
-  return Question;
+  return BoostpowJob;
 
 };
+

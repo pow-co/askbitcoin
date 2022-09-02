@@ -7,7 +7,9 @@ import { log } from '../log'
 
 export async function connectClient(url: string): Promise<Socket> {
 
-  let socket = io(url)
+  let socket = io(url, {
+    transports: ['websocket']
+  })
 
   socket.on('connect', () => {
 

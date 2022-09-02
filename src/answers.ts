@@ -15,6 +15,10 @@ import { run } from './run'
 
 import { findOne, findOrCreate } from './orm'
 
+import * as models from './models'
+
+import * as sequelize from 'sequelize'
+
 
 export interface Answer {
 
@@ -90,46 +94,28 @@ export async function loadAnswer(query: LoadAnswer): Promise<Answer> {
 
 }
 
-export async function loadAnswers(query: LoadAnswers): Promise<Answer[]> {
+export async function loadAnswers(query: LoadAnswers): Promise<models.Answer[]> {
 
   const start_timestamp = query.start_timestamp || 0;
 
   const end_timestamp = query.end_timestamp || Date.now();
 
-  log.debug('answers.load.query', query)
-
-  const boostedAnswersQuery = knex('answers')
-    .join('boostpow_proofs', 'answers.tx_id', 'boostpow_proofs.content')
-    .where('boostpow_proofs.timestamp', '>=', start_timestamp)
-    .where('boostpow_proofs.timestamp', '<=', end_timestamp)
-    .sum('difficulty as difficulty')
-    .groupBy('boostpow_proofs.content')
-    .orderBy('difficulty', 'desc')
-
-  if (query.question_tx_id) {
-
-    boostedAnswersQuery.where('question_tx_id', query.question_tx_id)
-  }
-
-  const boostedAnswers = await boostedAnswersQuery.select(['answers.*', 'difficulty'])
-
-  const unboostedAnswersQuery = knex('answers')
-    .where('id', 'not in', boostedAnswers.map(a => a.id))
-    .orderBy('id', 'desc')
-    .limit(100)
-
-  if (query.question_tx_id) {
-
-    unboostedAnswersQuery.where('question_tx_id', query.question_tx_id)
-  }
-
-  let unboostedAnswers = await unboostedAnswersQuery.select('*')
-
-  unboostedAnswers = unboostedAnswers.map(answer => {
-    return {...answer, difficulty: 0}
+  log.info('answers.load.query', { start_timestamp, end_timestamp })
+  
+  const proofs = await models.BoostpowProof.findAll({
+    attributes: [
+      'content',
+      [sequelize.fn('sum', sequelize.col('difficulty')), 'difficulty']
+    ],
+    group: ['content']
   })
 
-  return [...boostedAnswers, ...unboostedAnswers]
+  const answers = await models.Answer.findAll({
+    order: [['id', 'desc']],
+    limit: 100
+  })
+
+  return answers
 
 }
 

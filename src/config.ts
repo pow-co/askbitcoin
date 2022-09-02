@@ -51,8 +51,6 @@ process.on('SIGHUP', () => {
 
 })
 
-import { join } from 'path'
-
 nconf.defaults({
   askbitcoin_onchain_app_id: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', // askbitcoin.ai
   onchain_app_id: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', // askbitcoin.ai

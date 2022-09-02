@@ -12,15 +12,15 @@ import { log } from './log'
 
 import config from './config'
 
-import { models, Question } from './models'
+import { models, Question, Answer } from './models'
 
 import events from './events'
 
-//import { leveldb } from './rabbi/onchain'
-
 import { run } from './run'
 
-export const onchainQueue = require('fastq').promise(handleOnchainTransaction, 1)
+import * as uuid from 'uuid'
+
+export const onchainQueue = require('fastq').promise(handleOnchainTransaction, 3)
 
 export async function sync_boost_orders() {
 
@@ -199,20 +199,24 @@ export async function sync_boostpow_onchain() {
 
   const block_height_start = 738000
 
+  const jobsQuery =  {
+    q: {
+      find: {
+        "out.s0": "onchain",
+       /* "out.s1": config.get('boostpow_onchain_app_id'),
+        "out.s2": "job",*/
+        "blk.i": {
+          "$gt": block_height_start
+        }
+      },
+    }
+  }
+
+  log.info('planaria.boostpow.jobs.query', jobsQuery)
+
   const boostpow_jobs_crawler = new Crawler({
 
-    query: {
-      q: {
-        find: {
-          "out.s0": "onchain",
-          "out.s1": config.get('powco_onchain_app_id'),
-          "out.s2": "boostpow.job",
-          "blk.i": {
-            "$gt": block_height_start
-          }
-        },
-      }
-    },
+    query: jobsQuery,
 
     onTransaction: (json) => {
 
@@ -220,6 +224,8 @@ export async function sync_boostpow_onchain() {
 
     }
   })
+
+  boostpow_jobs_crawler.start();
 
   const proofs_start_height = 738000
 
@@ -229,8 +235,8 @@ export async function sync_boostpow_onchain() {
       q: {
         find: {
           "out.s0": "onchain",
-          "out.s1": config.get('powco_onchain_app_id'),
-          "out.s2": "boostpow.proof",
+          "out.s1": config.get('boostpow_onchain_app_id'),
+          "out.s2": "proof",
           "blk.i": {
             "$gt": proofs_start_height
           }
@@ -260,34 +266,28 @@ export interface OnchainTransaction {
   author?: string;
   signature?: string;
   source?: string;
+  timestamp?: Date;
 }
 
 import { knex } from './knex'
 import { error } from 'winston'
 
-async function handleQuestion(data: OnchainTransaction): Promise<Question | null> {
+async function handleAnswer(data: OnchainTransaction) {
 
-  if (typeof data.value === 'string') {
+  var { value, tx_id, tx_index, author, timestamp } = data
 
-    data.value = JSON.parse(data.value)
-
-  }
-
-  var { value, tx_id, tx_index, author } = data
-
-  const question = await Question.findOne({
+  var record = await models.Answer.findOne({
     where: {
-      tx_id, tx_index
+      tx_id,
+      tx_index
     }
   })
 
-  if (question) {
+  log.info('answer.record', { record, tx_id, tx_index })
 
-    return question
+  if (record) { return record }
 
-  }
-
-  var timestamp: Date;
+  var answer;
 
   try {
 
@@ -305,100 +305,113 @@ async function handleQuestion(data: OnchainTransaction): Promise<Question | null
 
   }
 
-  if (!question) {
+  try {
 
-    const defaults = {
-      tx_id,
-      tx_index,
-      timestamp: timestamp,
-      content: value.content
+    if (!value.question_tx_id || !value.content) {
+
+      return
+
     }
 
-    try {
-
-      let [record, isNew] = await Question.findOrCreate({
-        where: {
-          tx_id,
-          tx_index
-        },
-        defaults
-      })
-
-      if (isNew) {
-
-        log.info('question.recorded', JSON.parse(JSON.stringify(record)))
-
+    const [_answer, isNew] = await models.Answer.findOrCreate({
+      where: {
+        tx_id,
+        tx_index
+      },
+  
+      defaults: {
+        tx_id,
+        tx_index,
+        content: value.content,
+        question_tx_id: value.question_tx_id,
+        timestamp: timestamp || new Date()
       }
+    })
 
-      return record
+    if (isNew) {
 
-    } catch(error) {
+      log.info('answer.recorded', _answer.toJSON())
 
-      log.error('question.insert', error)
-
+      events.emit('answer.created', _answer.toJSON())
     }
+  
+  } catch(error) {
+
+    console.error('ANSWER FOC ERROR', error)
 
   }
 
 }
 
-async function handleAnswer(data: OnchainTransaction) {
+async function handleQuestion(data: OnchainTransaction) {
 
-  var { value, tx_id, tx_index, author } = data
+  var { value, tx_id, tx_index, timestamp } = data
 
-  let [answer] = await knex('answers').where({ tx_id }).select('*')
-  
-  let timestamp = null
+  var record = await models.Question.findOne({
+    where: {
+      tx_id,
+      tx_index
+    }
+  })
+
+  log.info('question.record', { record, tx_id, tx_index })
+
+  if (record) { return record }
+
+  if (!timestamp) {
+
+    try {
+
+      let woc_tx = await whatsonchain.getTransaction(tx_id)
+
+      if (woc_tx && woc_tx.time) {
+
+        timestamp = woc_tx.time
+
+      }
+
+    } catch(error) {
+
+      log.error('whatsonchain.get_transaction', error)
+
+    }
+
+  }
 
   try {
 
-    let woc_tx = await whatsonchain.getTransaction(tx_id)
+    if (!value.content) {
 
-    if (woc_tx && woc_tx.time) {
-
-      timestamp = woc_tx.time
+      return
 
     }
 
+    const [_answer, isNew] = await models.Question.findOrCreate({
+      where: {
+        tx_id,
+        tx_index
+      },
+  
+      defaults: {
+        tx_id,
+        tx_index,
+        content: value.content,
+        timestamp: timestamp || new Date()
+      }
+    })
+
+    if (isNew) {
+
+      log.info('question.recorded', _answer.toJSON())
+
+      events.emit('question.created', _answer.toJSON())
+    }
+  
   } catch(error) {
 
-    log.error('whatsonchain.get_transaction', error)
+    console.error('QUESTION FOC ERROR', error)
 
   }
-
-  if (answer && answer.createdAt === null){
-
-    let record = await knex('answers').where({ tx_id: tx_id}).update({ created_at: timestamp})
-    log.info('answer.updated', { timestamp, record })
-
-  }
-
-  if (!answer) {
-
-
-    var { content, txid: question_tx_id } = value
-
-    if (!question_tx_id) {
-      question_tx_id = value.question_tx_id
-    }
-
-    const insert = {
-      tx_id,
-      tx_index,
-      created_at: timestamp,
-      question_tx_id,
-      content,
-      author
-    }
-
-    await knex('answers').insert(insert)
-
-    log.info('answer.recorded', insert)
-
-    events.emit('answer.created', insert)
-
-  }
-
 
 }
 
@@ -479,7 +492,7 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
 
       } catch(error) {
 
-        log.error('handleAnswer', error)
+        log.error('__HANDLE_ANSWER_ERROR!!!', error)
 
       }
 
@@ -489,30 +502,160 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
 
       if (key === 'job') {
 
+        try {
+
+          let job_tx_id = value.tx_id || tx_id
+
+          const exists = await models.BoostpowJob.findOne({
+            where: {
+              tx_id: job_tx_id,
+              tx_index: value.index
+            }
+          })
+
+          if (exists) {
+            
+            log.debug('boostpow.sync.onchain.job.exists', exists)
+
+            return
+
+          }
+
+          let job_tx = await run.blockchain.fetch(job_tx_id)
+
+          let job = boostpow.BoostPowJob.fromTransaction(job_tx)
+
+          if (!job) {
+
+            log.debug('boostpow.job.notfound', { tx_hex: job_tx })
+
+            return
+
+          }
+
+          const timestamp = await whatsonchain.getTimestamp(job_tx_id)
+
+          const defaults = Object.assign(job.toObject(), {
+            tx_id: job.txid,
+            tx_index: job.vout,
+            timestamp
+          })
+
+          const [record, isNew] = await models.BoostpowJob.findOrCreate({
+            where: {
+              tx_id: job.txid,
+              tx_index: job.vout
+            },
+            defaults
+          })
+
+          if (isNew) {
+
+            events.emit('boostpow.job.created', record)
+          }
+
+          log.info('boostpow.job', record)
+
+          events.emit('boostpow.job', record)
+
+        } catch(error) {
+
+          log.error('planaria.sync_boost_onchain.boostpow.job.error', {error, data})
+
+        }
+
       }
 
       if (key === 'proof') {
 
-        let proof_txid = value.tx_id || tx_id
+        try {
 
-        let proof_tx = await getTransaction(proof_txid)
+          let proof_tx_id = value.tx_id || tx_id
 
-        let proof = boostpow.BoostPowJobProof.fromTransaction(proof_tx)
+          if (!proof_tx_id || value.tx_index === undefined) {
 
-        let json = Object.assign(proof.toObject(), {
-          tx_id: proof.txid,
-          tx_index: proof.vin
-        })
+            return
 
-        const [record] = await knex('boostpow_proofs').where({
-          tx_id: proof.txid,
-          tx_index: proof.vin
-        })
-        .select('*')
+          }
 
-        if (!record) {
+          const exists = await models.BoostpowProof.findOne({
+            where: {
+              tx_id: proof_tx_id,
+              tx_index: value.tx_index
+            }
+          })
 
-          const result = await knex('boostpow_proofs').insert(json)
+          if (exists) {
+
+            log.debug('boostpow.sync.onchain.proof.exists', exists)
+
+            return
+
+          }
+
+          const uid = uuid.v4()
+
+          log.info('run.blockchain.fetch.start', { uid, timestamp: new Date() })
+
+          let proof_tx = await run.blockchain.fetch(proof_tx_id)
+
+          log.info('run.blockchain.fetch.stop', { uid, timestamp: new Date() })
+
+          let proof = boostpow.BoostPowJobProof.fromRawTransaction(proof_tx)
+
+          if (!proof) {
+
+            log.info('boostpow.sync.onchain.proof.notfound', { proof_tx, data })
+
+            return
+          }
+
+          const timestamp = await whatsonchain.getTimestamp(proof_tx_id)
+
+          const jobRecord = await models.BoostpowJob.findOne({
+            where: {
+              tx_id: proof.spentTxid,
+              tx_index: proof.spentVout
+            }
+          })
+
+          const job_tx = await run.blockchain.fetch(proof.spentTxid)
+
+          const job: boostpow.Job = boostpow.Job.fromRawTransaction(job_tx)
+
+          const defaults = Object.assign(proof.toObject(), {
+            tx_id: proof.txid,
+            tx_index: proof.vin,
+            timestamp,
+            content_tx_id: job.toObject().content,
+            difficulty: job.difficulty,
+            job_tx_id: job.txid,
+            job_tx_index: job.vout          
+          })
+
+          const [record, isNew] = await models.BoostpowProof.findOrCreate({
+            where: {
+              tx_id: proof.txid,
+              tx_index: proof.vin
+            },
+            defaults
+          })
+
+          if (isNew) {
+
+            events.emit('boostpow.proof.created', record)
+
+          }
+
+          log.info('boostpow.proof', record)
+
+          events.emit('boostpow.proof', record)
+
+        } catch(error) {
+
+          log.error(error, data)
+
+          log.error('planaria.sync_boost_onchain.boostpow.proof.error', error)
 
         }
 
@@ -521,7 +664,7 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
     }
   } catch(error) {
 
-  log.error('handleOnchainTransaction', error)
+  log.error('handleOnchainTransaction', {error, data })
 
 }
 

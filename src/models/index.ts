@@ -1,6 +1,7 @@
 'use strict';
 
 import { Model, Sequelize } from 'sequelize'
+import { spliceStr } from 'sequelize/types/utils';
 
 const env = process.env.NODE_ENV || 'development';
 
@@ -32,7 +33,7 @@ export const models = require('require-all')({
   },
   map: function(name: string): string {
 
-    return name.split('_').map(capitalizeFirstLetter).join('')
+    return name.split('_').map(capitalizeFirstLetter).join('').replace('.ts', '')
 
   },
   resolve: function({ init }: { init: Function }): Model {
@@ -52,6 +53,10 @@ Object.keys(db).forEach(modelName => {
 });
 
 export { Question } from './question'
+export { Answer } from './answer'
+export { BoostpowProof } from './boostpow_proof'
+export { BoostpowJob } from './boostpow_job'
+
 export { Event } from './event'
 
 export default db

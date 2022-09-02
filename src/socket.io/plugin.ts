@@ -11,6 +11,8 @@ import { Actor } from 'rabbi'
 import { connectClient } from './client'
 
 import events from '../events'
+import config from '../config'
+import { sync_ask_bitcoin } from '../planaria'
 
 export const plugin = (() => {
 
@@ -49,73 +51,77 @@ export const plugin = (() => {
 
       })
 
-      Actor.create({
+      if (config.get('amqp_enabled')) {
 
-        exchange: 'powco',
+        Actor.create({
 
-        routingkey: 'askbitcoin.question.created',
-
-        queue: 'askbitcoin_question_created_broadcast_websockets',
-
-      })
-      .start(async (channel, msg, json) => {
-
-        io.emit('askbitcoin.question.created', json)
-
-        channel.ack(msg);
-
-      });
-
-      Actor.create({
-
-        exchange: 'powco',
-
-        routingkey: 'askbitcoin.answer.created',
-
-        queue: 'askbitcoin_answer_created_broadcast_websockets',
-
-      })
-      .start(async (channel, msg, json) => {
-
-        io.emit('askbitcoin.answer.created', json)
-
-        channel.ack(msg);
-
-      });
-
-      Actor.create({
-
-        exchange: 'powco',
-
-        routingkey: 'boostpow.job.created',
-
-        queue: 'askbitcoin_boostpow_job_created_broadcast_websockets',
-
-      })
-      .start(async (channel, msg, json) => {
-
-        io.emit('boostpow.job.created', json)
-
-        channel.ack(msg);
-
-      });
-
-      Actor.create({
-
-        exchange: 'powco',
-
-        routingkey: 'boostpow.proof.created',
-
-        queue: 'askbitcoin_boostpow_proof_created_broadcast_websockets',
-
-      })
-      .start(async (channel, msg, json) => {
-
-        io.emit('boostpow.proof.created', json)
-
-        channel.ack(msg);
-
-      });
+          exchange: 'powco',
+  
+          routingkey: 'askbitcoin.question.created',
+  
+          queue: 'askbitcoin_question_created_broadcast_websockets',
+  
+        })
+        .start(async (channel, msg, json) => {
+  
+          io.emit('askbitcoin.question.created', json)
+  
+          channel.ack(msg);
+  
+        });
+  
+        Actor.create({
+  
+          exchange: 'powco',
+  
+          routingkey: 'askbitcoin.answer.created',
+  
+          queue: 'askbitcoin_answer_created_broadcast_websockets',
+  
+        })
+        .start(async (channel, msg, json) => {
+  
+          io.emit('askbitcoin.answer.created', json)
+  
+          channel.ack(msg);
+  
+        });
+  
+        Actor.create({
+  
+          exchange: 'powco',
+  
+          routingkey: 'boostpow.job.created',
+  
+          queue: 'askbitcoin_boostpow_job_created_broadcast_websockets',
+  
+        })
+        .start(async (channel, msg, json) => {
+  
+          io.emit('boostpow.job.created', json)
+  
+          channel.ack(msg);
+  
+        });
+  
+        Actor.create({
+  
+          exchange: 'powco',
+  
+          routingkey: 'boostpow.proof.created',
+  
+          queue: 'askbitcoin_boostpow_proof_created_broadcast_websockets',
+  
+        })
+        .start(async (channel, msg, json) => {
+  
+          io.emit('boostpow.proof.created', json)
+  
+          channel.ack(msg);
+  
+        });
+  
+      }
 
       events.on('answer.created', json => io.emit('askbitcoin.answer.created', json))
       
@@ -164,7 +170,8 @@ if (require.main === module) {
 
     }, 2500)
 
-    await connectClient(`ws://${host}:${port}`)
+    //await connectClient(`ws://${host}:${port}`)
+    await connectClient(`wss://askbitcoin.ai`)
 
   })()
 

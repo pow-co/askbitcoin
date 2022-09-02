@@ -1,6 +1,6 @@
 import { Model, DataTypes } from 'sequelize';
 
-export class Question extends Model {
+export class Answer extends Model {
   content: string;
   /**
    * Helper method for defining associations.
@@ -14,7 +14,11 @@ export class Question extends Model {
 
 export function init(sequelize) {
 
-  Question.init({
+  Answer.init({
+    question_tx_id: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     tx_id: {
       type: DataTypes.STRING,
       allowNull: false
@@ -22,10 +26,6 @@ export function init(sequelize) {
     tx_index: {
       type:  DataTypes.INTEGER,
       allowNull: false
-    },
-    tx_hex: {
-      type: DataTypes.TEXT,
-      allowNull: true
     },
     content: {
       type: DataTypes.TEXT,
@@ -37,10 +37,10 @@ export function init(sequelize) {
     }
   }, {
     sequelize,
-    modelName: 'Question',
-    tableName: 'questions'
+    modelName: 'Answer',
+    tableName: 'answers'
   });
 
-  return Question;
+  return Answer;
 
 };

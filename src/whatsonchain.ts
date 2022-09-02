@@ -23,3 +23,12 @@ export async function getTransaction(txid: string): Promise<WhatsonchainTransact
 
 }
 
+export async function getTimestamp(txid: string): Promise<Date> {
+
+  let url =`https://api.whatsonchain.com/v1/bsv/main/tx/hash/${txid}`
+
+  let {body} = await http.get(url)
+
+  return new Date(parseInt(body.time) * 1000)
+
+}

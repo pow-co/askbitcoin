@@ -13,6 +13,8 @@ import { knex } from './knex'
 
 import { run } from './run'
 
+import * as sequelize from 'sequelize'
+
 type QuestionsStore = {
   [key: string]: Question
 }
@@ -152,50 +154,25 @@ export async function recentQuestions(query: RecentQuestionsQuery={}): Promise<m
 
 }
 
-export async function loadQuestions(query: QuestionsQuery={}): Promise<Question[]> {
+export async function loadQuestions(query: QuestionsQuery={}): Promise<models.Question[]> {
 
   const start_timestamp = query.start_timestamp || 0;
 
   const end_timestamp = query.end_timestamp || Date.now();
 
-
   log.info('questions.load.query', { start_timestamp, end_timestamp })
-
-  let boostedQuestions = await knex('questions')
-    .join('boostpow_proofs', 'questions.tx_id', 'boostpow_proofs.content')
-    .where('boostpow_proofs.timestamp', '>=', start_timestamp)
-    .where('boostpow_proofs.timestamp', '<=', end_timestamp)
-    .select(['questions.*', 'difficulty'])
-    .sum('difficulty as difficulty')
-    .groupBy('boostpow_proofs.content')
-    .orderBy('difficulty', 'desc')
-
-  let allQuestions = await knex('questions')
-    .where('id', 'not in', boostedQuestions.map(q => q.id))
-    .orderBy('id', 'desc')
-    .limit(100)
-    .select('*')
-
-
-  allQuestions = allQuestions.map(question => {
-
-    if (!question.difficulty) {
-
-      question.difficulty = 0
-
-    }
-
-    return question
-
+  
+  const proofs = await models.BoostpowProof.findAll({
+    attributes: [
+      'content_tx_id',
+      [sequelize.fn('sum', sequelize.col('difficulty')), 'difficulty']
+    ],
+    group: ['content_tx_id']
   })
 
-  const questions = [...boostedQuestions, ...allQuestions].sort((a, b) => {
-
-    var diff_a = a.difficulty || 0
-    var diff_b = b.difficulty || 0
-
-    return diff_a < diff_b ? 1 : 0
-
+  const questions = await models.Question.findAll({
+    order: [['id', 'desc']],
+    limit: 100
   })
 
   return questions

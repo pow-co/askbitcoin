@@ -96,6 +96,24 @@ program
   })
 
 
+import { sync_boost_onchain } from '../planaria'
+
+program
+  .command('boostpow_stream')
+  .action(async () => {
+
+    try {
+
+      sync_boost_onchain()
+
+    } catch(error) {
+
+      console.error(error)
+
+    }
+
+  })
+
 program
   .command('ask_question <question> [broadcast]')
   .action(async (question, broadcast=true) => {
@@ -150,7 +168,7 @@ program
 
     let question: AskBitcoin.Question = await AskBitcoin.questions.find(txid)
     
-    let answers: AskBitcoin.Answer[] = await AskBitcoin.answers.list({ question })
+    //let answers: AskBitcoin.Answer[] = await AskBitcoin.answers.list({ question })
 
     process.exit(0)
 
@@ -179,6 +197,8 @@ program
     let answer: AskBitcoin.Answer = await AskBitcoin.questions.answer(wallet, {
       question: {
         content: '',
+        tx_id,
+        tx_index: 0,
         transaction: {
           txid: tx_id
         }

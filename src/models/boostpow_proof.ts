@@ -1,6 +1,7 @@
+
 import { Model, DataTypes } from 'sequelize';
 
-export class Question extends Model {
+export class BoostpowProof extends Model {
   content: string;
   /**
    * Helper method for defining associations.
@@ -14,7 +15,7 @@ export class Question extends Model {
 
 export function init(sequelize) {
 
-  Question.init({
+  BoostpowProof.init({
     tx_id: {
       type: DataTypes.STRING,
       allowNull: false
@@ -23,12 +24,20 @@ export function init(sequelize) {
       type:  DataTypes.INTEGER,
       allowNull: false
     },
-    tx_hex: {
-      type: DataTypes.TEXT,
-      allowNull: true
+    job_tx_id: {
+      type: DataTypes.STRING,
+      allowNull: false
     },
-    content: {
-      type: DataTypes.TEXT,
+    job_tx_index: {
+      type:  DataTypes.INTEGER,
+      allowNull: false
+    },
+    difficulty: {
+      type: DataTypes.DECIMAL,
+      allowNull: false
+    },
+    content_tx_id: {
+      type: DataTypes.STRING,
       allowNull: false
     },
     timestamp: {
@@ -37,10 +46,10 @@ export function init(sequelize) {
     }
   }, {
     sequelize,
-    modelName: 'Question',
-    tableName: 'questions'
+    modelName: 'BoostpowProof',
+    tableName: 'boostpow_proofs'
   });
 
-  return Question;
+  return BoostpowProof;
 
 };
