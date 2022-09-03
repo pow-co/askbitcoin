@@ -15,6 +15,8 @@ describe('Importing Questions', () => {
 
     const [{question, isNew}] = await importQuestionsByTxid(txid)
 
+    console.log('QISNEW', { question, isNew })
+
     expect(question.content).to.be.equal(expectedContent)
 
     expect(isNew).to.be.equal(true)

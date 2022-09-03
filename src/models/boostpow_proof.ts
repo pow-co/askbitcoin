@@ -6,6 +6,7 @@ import events from '../events'
 import { getChannel } from 'rabbi'
 
 export class BoostpowProof extends Model {
+  id: number;
   content: string;
   /**
    * Helper method for defining associations.

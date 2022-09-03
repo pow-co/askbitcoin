@@ -5,6 +5,7 @@ import events from '../events'
 import { getChannel } from 'rabbi'
 
 export class Answer extends Model {
+  id: number;
   content: string;
   /**
    * Helper method for defining associations.

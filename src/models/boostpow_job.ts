@@ -6,6 +6,7 @@ import events from '../events'
 import { getChannel } from 'rabbi'
 
 export class BoostpowJob extends Model {
+  id: number;
   content: string;
   diff: DecimalDataType;
   timestamp: Date;
