@@ -67,6 +67,19 @@ db.BoostpowJob.hasOne(BoostpowProof, {
   as: 'proof'
 });
 
+
+db.BoostpowJob.hasOne(Question, {
+  foreignKey: 'content',
+  sourceKey: 'tx_id',
+  as: 'question'
+});
+
+db.BoostpowJob.hasOne(Answer, {
+  foreignKey: 'content',
+  sourceKey: 'tx_id',
+  as: 'answer'
+});
+
 db.Question.hasMany(Answer, {
   foreignKey: 'question_tx_id',
   sourceKey: 'tx_id',

@@ -53,6 +53,10 @@ export function init(sequelize) {
     useGeneralPurposeBits: {
       type: DataTypes.BOOLEAN
     },
+    proof_tx_id: {
+      type: DataTypes.STRING,
+      allowNull: true
+    }
   }, {
     sequelize,
     modelName: 'BoostpowJob',

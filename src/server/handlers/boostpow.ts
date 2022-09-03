@@ -117,8 +117,7 @@ export async function jobs(req, h) {
 
     include: [{
       model: models.BoostpowProof,
-      as: 'proof',
-      required: true
+      as: 'proof'
     }]
 
   }
@@ -176,7 +175,7 @@ export async function proofs(req, h) {
     order,
 
     limit
-    
+
   }
 
   log.info('models.BoostpowProof.findAll', findAll)
