@@ -6,6 +6,13 @@ import { badRequest, notFound } from 'boom'
 import { loadQuestion, loadQuestions, recentQuestions, importQuestionsByTxHex } from '../../questions'
 
 import { loadAnswers } from '../../answers'
+import { models, sequelize } from '../../models'
+
+import { Op } from 'sequelize'
+
+import { log } from '../../log'
+
+import * as moment from 'moment'
 
 export async function create(req, h) {
 
@@ -33,17 +40,102 @@ export async function build(req, h) {
 
 export async function index(req, h) {
 
+  const where = {}
+
+  const query = {
+    timestamp: {}
+  }
+
+  if (req.query.start_timestamp) {
+
+    where['timestamp'] = {
+      [Op.gte]: req.query.start_timestamp
+    }
+
+    query['timestamp']['>='] = req.query.start_timestamp
+
+  }
+
+  if (req.query.end_timestamp) {
+
+    where['timestamp'] = {
+      [Op.lte]: req.query.end_timestamp
+    }
+
+    query['timestamp']['<='] = req.query.end_timestamp
+
+  }
+
   try {
 
-    let questions = await loadQuestions(req.query)
+    const proofs = await models.BoostpowProof.findAll({
+
+      where,
+
+      attributes: [
+        'content_tx_id',
+        [sequelize.fn('sum', sequelize.col("difficulty")), "difficulty"],
+        [sequelize.fn('count', 1), "count"],
+      ],
+
+      group: 'content_tx_id',
+
+      order: [['difficulty', 'desc']]
+
+    })
+
+    const questions = await models.Question.findAll({
+      where: {
+        tx_id: {
+          [Op.in]: proofs.map(proof => proof.content_tx_id)
+        }
+      },
+
+      include: [{
+        model: models.Answer,
+        as: 'answers',
+        include: [{
+          model: models.BoostpowProof,
+          as: 'boostpow_proofs'
+        }]
+      }]
+    })
+
+    const questionsMap = questions.reduce((map, question) => {
+      map[question.tx_id] = question;
+      return map;
+    }, {})
+
+    const result = proofs.map(proof => {
+
+      const question = questionsMap[proof.content_tx_id]
+
+      if (!question) {
+        return null
+      }
+
+      const json = question.toJSON()
+
+      json.timestamp = moment(json.timestamp).unix()
+
+      return Object.assign(json, { difficulty: parseFloat(proof.difficulty), count: parseInt(proof.count) })
+      
+    })
+    .filter(item => !!item) // only proofs with associated questions
 
     return {
 
-      questions
+      query,
+
+      questions: result
 
     }
 
   } catch(error) {
+
+    log.error('http.api.handlers.questions.index.error', error)
+
+    console.error('http.api.handlers.questions.index.error', error)
 
     return badRequest(error)
 
@@ -53,9 +145,28 @@ export async function index(req, h) {
 
 export async function recent(req, h) {
 
+  const limit = req.query.limit || 100
+
+  const offset = req.query.offset || 0
+
   try {
 
-    let questions = await recentQuestions(req.query)
+    const questions = await models.Question.findAll({
+      order: [['timestamp', 'desc']],
+      limit,
+      offset,
+      include: [{
+        model: models.Answer,
+        as: 'answers',
+        include: [{
+          model: models.BoostpowProof,
+          as: 'boostpow_proofs'
+        }]
+      }, {
+        model: models.BoostpowProof,
+        as: 'boostpow_proofs'
+      }]
+    })
 
     return {
 
@@ -83,7 +194,33 @@ export async function show(req, h) {
 
   try {
 
-    const question = await loadQuestion({ tx_id: req.params.tx_id })
+    // get question
+    // get proofs
+    // get answers
+
+    const question = await models.Question.findOne({
+
+      where: { tx_id: req.params.tx_id },
+
+      include: [{
+        model: models.BoostpowProof,
+        as: 'boostpow_proofs'
+      }, {
+        model: models.BoostpowJob,
+        as: 'boostpow_jobs',
+        where: {
+          proof_tx_id: null
+        }
+      },{
+        model: models.Answer,
+        as: 'answers',
+        /*include: [{
+          model: models.BoostpowProof,
+          as: 'boostpow_proofs'
+        }]*/
+      }]
+
+    })
 
     if (!question) {
 
@@ -91,27 +228,30 @@ export async function show(req, h) {
 
     }
 
-    const answers = await loadAnswers({
-      question_tx_id: req.params.tx_id,
-      ...req.query
-    })
+    const { answers, boostpow_jobs, boostpow_proofs } = question
+
+    question.answers = undefined
+    question.boostpow_jobs = undefined
+    question.boostpow_proofs = undefined
 
     return {
 
       question,
 
-      answers
+      answers,
+
+      boostpow_jobs,
+
+      boostpow_proofs
 
     }
 
   } catch(error) {
 
+    log.error(error)
+
     return badRequest(error)
 
   }
 
-
-
 }
-
-

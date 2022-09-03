@@ -366,6 +366,17 @@ server.route({
   }
 })
 
+const ProofSchema = Joi.object({
+  tx_id: Joi.string().required(),
+  tx_index: Joi.number().required(),
+  job_tx_id: Joi.string().required(),
+  job_tx_index: Joi.number().required(),
+  difficulty: Joi.string().required(),
+  content_tx_id: Joi.string().required(),
+  createdAt: Joi.date().required(),
+  updatedAt: Joi.date().required()
+})
+
 server.route({
   method: 'GET',
   path: '/api/v1/boostpow/jobs',
@@ -401,12 +412,100 @@ server.route({
           userNonce: Joi.string().required(),
           useGeneralPurposeBits: Joi.boolean().required(),
           createdAt: Joi.date().required(),
-          updatedAt: Joi.date().required()
+          updatedAt: Joi.date().required(),
+          proof: ProofSchema.optional()
         })).required()
       })
     }
   }
 })
+/*
+server.route({
+  method: 'GET',
+  path: '/api/v1/boostpow/jobs/answers',
+  handler: handlers.Boostpow.answer_jobs,
+  options: {
+    description: 'List Boost-Pow Answer Jobs Not Mined',
+    tags: ['api', 'boostpow'],
+    validate: {
+      query: Joi.object({
+        limit: Joi.number().optional(),
+        order_by: Joi.string().optional(),
+        order_direction: Joi.string().optional(),
+        start_timestamp: Joi.date().optional(),
+        end_timestamp: Joi.date().optional(),
+        content: Joi.string().optional(),
+        category: Joi.string().optional(),
+        tag: Joi.string().optional(),
+        txid: Joi.string().optional()
+      }).label('ListBoostPowJobsOptions'),
+    },
+    response: {
+      failAction: 'log',
+      schema: Joi.object({
+        jobs: Joi.array().items(Joi.object({
+          tx_id: Joi.string().required(),
+          tx_index: Joi.number().required(),
+          diff: Joi.string().required(),
+          content: Joi.string().required(),
+          timestamp: Joi.date().required(),
+          category: Joi.string().required(),
+          tag: Joi.string().required(),
+          additionalData: Joi.string().required(),
+          userNonce: Joi.string().required(),
+          useGeneralPurposeBits: Joi.boolean().required(),
+          createdAt: Joi.date().required(),
+          updatedAt: Joi.date().required(),
+          answer: Joi.any().required()
+        })).required()
+      })
+    }
+  }
+})
+
+server.route({
+  method: 'GET',
+  path: '/api/v1/boostpow/jobs/questions',
+  handler: handlers.Boostpow.question_jobs,
+  options: {
+    description: 'List Boost-Pow Question Jobs Not Mined',
+    tags: ['api', 'boostpow'],
+    validate: {
+      query: Joi.object({
+        limit: Joi.number().optional(),
+        order_by: Joi.string().optional(),
+        order_direction: Joi.string().optional(),
+        start_timestamp: Joi.date().optional(),
+        end_timestamp: Joi.date().optional(),
+        content: Joi.string().optional(),
+        category: Joi.string().optional(),
+        tag: Joi.string().optional(),
+        txid: Joi.string().optional()
+      }).label('ListBoostPowJobsOptions'),
+    },
+    response: {
+      failAction: 'log',
+      schema: Joi.object({
+        jobs: Joi.array().items(Joi.object({
+          tx_id: Joi.string().required(),
+          tx_index: Joi.number().required(),
+          diff: Joi.string().required(),
+          content: Joi.string().required(),
+          timestamp: Joi.date().required(),
+          category: Joi.string().required(),
+          tag: Joi.string().required(),
+          additionalData: Joi.string().required(),
+          userNonce: Joi.string().required(),
+          useGeneralPurposeBits: Joi.boolean().required(),
+          createdAt: Joi.date().required(),
+          updatedAt: Joi.date().required(),
+          question: Joi.any().required()
+        })).required()
+      })
+    }
+  }
+})*/
+
 
 server.route({
   method: 'GET',
@@ -425,21 +524,11 @@ server.route({
     response: {
       failAction: 'log',
       schema: Joi.object({
-        proofs: Joi.array().items(Joi.object({
-          tx_id: Joi.string().required(),
-          tx_index: Joi.number().required(),
-          job_tx_id: Joi.string().required(),
-          job_tx_index: Joi.number().required(),
-          difficulty: Joi.string().required(),
-          content_tx_id: Joi.string().required(),
-          createdAt: Joi.date().required(),
-          updatedAt: Joi.date().required()
-        })).required()
-      })
+        proofs: Joi.array().items(ProofSchema.required())
+      }).required()
     }
   }
 })
-
 
 server.route({
   method: 'POST',

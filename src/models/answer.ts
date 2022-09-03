@@ -9,6 +9,25 @@ export class Answer extends Model {
    */
   static associate(models) {
     // define association here
+
+    models.Answer.belongsTo(models.Question, {
+      foreignKey: "question_tx_id",
+      targetKey: "tx_id",
+      as: "question"
+    })
+
+    models.Answer.hasMany(models.BoostpowJob, {
+      foreignKey: "content",
+      sourceKey: "tx_id",
+      as: "boostpow_jobs"
+    })
+
+    models.Answer.hasMany(models.BoostpowProof, {
+      foreignKey: "content_tx_id",
+      sourceKey: "tx_id",
+      as: "boostpow_proofs"
+    })
+
   }
 };
 

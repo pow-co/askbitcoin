@@ -61,47 +61,6 @@ export { Answer }
 export { BoostpowProof }
 export { BoostpowJob }
 
-db.BoostpowJob.hasOne(BoostpowProof, {
-  foreignKey: 'job_tx_id',
-  sourceKey: 'tx_id',
-  as: 'proof'
-});
-
-db.Question.hasMany(Answer, {
-  foreignKey: 'question_tx_id',
-  sourceKey: 'tx_id',
-  as: 'answers'
-})
-
-db.Question.hasMany(BoostpowJob, {
-  foreignKey: 'content',
-  sourceKey: 'tx_id',
-  as: 'boostpow_jobs'
-})
-
-db.Question.hasMany(BoostpowProof, {
-  foreignKey: 'content_tx_id',
-  sourceKey: 'tx_id',
-  as: 'boostpow_proofs'
-})
-
-db.Answer.hasMany(BoostpowJob, {
-  foreignKey: 'content',
-  sourceKey: 'tx_id',
-})
-
-db.Answer.hasMany(BoostpowProof, {
-  foreignKey: 'content_tx_id',
-  sourceKey: 'tx_id'
-})
-
-db.Answer.belongsTo(Question)
-
-db.Question.hasMany(Answer, {
-  foreignKey: 'question_tx_id',
-  sourceKey: 'tx_id'
-})
-
 export { Event } from './event'
 
 export default db
