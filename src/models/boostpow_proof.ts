@@ -8,6 +8,8 @@ import { getChannel } from 'rabbi'
 export class BoostpowProof extends Model {
   id: number;
   content: string;
+  tx_id: string;
+  difficulty: number;
   /**
    * Helper method for defining associations.
    * This method is not a part of Sequelize lifecycle.

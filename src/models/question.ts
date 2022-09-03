@@ -7,6 +7,7 @@ import { getChannel } from 'rabbi'
 export class Question extends Model {
   id: number;
   content: string;
+  tx_id: string;
   /**
    * Helper method for defining associations.
    * This method is not a part of Sequelize lifecycle.

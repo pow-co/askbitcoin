@@ -47,9 +47,10 @@ export async function start() {
 
   }
 
-  sync_boost_onchain()
 
-  if (config.get('sync_boost_orders')) {
+  if (config.get('sync_boost')) {
+
+    sync_boost_onchain()
 
     sync_boost_orders();
 
