@@ -175,10 +175,8 @@ export async function proofs(req, h) {
 
     order,
 
-    limit,
-
-    offset
-
+    limit
+    
   }
 
   log.info('models.BoostpowProof.findAll', findAll)
