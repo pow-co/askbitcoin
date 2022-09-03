@@ -194,9 +194,31 @@ export async function show(req, h) {
 
   try {
 
-    // get question
-    // get proofs
-    // get answers
+    const where = {}
+
+    const query = {
+      timestamp: {}
+    }
+  
+    if (req.query.start_timestamp) {
+  
+      where['timestamp'] = {
+        [Op.gte]: req.query.start_timestamp
+      }
+  
+      query['timestamp']['>='] = req.query.start_timestamp
+  
+    }
+  
+    if (req.query.end_timestamp) {
+  
+      where['timestamp'] = {
+        [Op.lte]: req.query.end_timestamp
+      }
+  
+      query['timestamp']['<='] = req.query.end_timestamp
+  
+    }  
 
     const question = await models.Question.findOne({
 
@@ -204,7 +226,8 @@ export async function show(req, h) {
 
       include: [{
         model: models.BoostpowProof,
-        as: 'boostpow_proofs'
+        as: 'boostpow_proofs',
+        where
       }, {
         model: models.BoostpowJob,
         as: 'boostpow_jobs',
@@ -214,10 +237,12 @@ export async function show(req, h) {
       },{
         model: models.Answer,
         as: 'answers',
-        /*include: [{
+        include: [{
           model: models.BoostpowProof,
-          as: 'boostpow_proofs'
-        }]*/
+          as: 'boostpow_proofs',
+          where,
+          required: false
+        }]
       }]
 
     })
@@ -228,23 +253,7 @@ export async function show(req, h) {
 
     }
 
-    const { answers, boostpow_jobs, boostpow_proofs } = question
-
-    question.answers = undefined
-    question.boostpow_jobs = undefined
-    question.boostpow_proofs = undefined
-
-    return {
-
-      question,
-
-      answers,
-
-      boostpow_jobs,
-
-      boostpow_proofs
-
-    }
+    return { query, question }
 
   } catch(error) {
 

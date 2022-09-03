@@ -15,7 +15,7 @@ const headerSX = {
 const MainCard = React.forwardRef(
   (
     {
-      border = true,
+      border = false,
       boxShadow,
       children,
       content = true,

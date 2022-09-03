@@ -123,7 +123,9 @@ const AnswerDetailPage = () => {
   }
   console.log({ data });
 
-  const { question, answer } = data;
+  const { answer } = data;
+
+  const { question } = answer;
 
   //const events = useEvents(`answers.${query.answer_id}.question`, onAnswer);
 

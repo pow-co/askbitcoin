@@ -87,6 +87,8 @@ LinearProgressWithLabel.propTypes = {
 const MenuCard = () => {
   const theme = useTheme();
 
+  return <></>
+
   return (
     <CardStyle>
       <CardContent sx={{ p: 2 }}>

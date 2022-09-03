@@ -163,24 +163,66 @@ interface Answer {
 
 export async function show(req, h) {
 
-  const { tx_id } = req.params
-
   try {
 
-    let answer = await loadAnswer({ tx_id })
+    const where = {}
+
+    const query = {
+      timestamp: {}
+    }
+  
+    if (req.query.start_timestamp) {
+  
+      where['timestamp'] = {
+        [Op.gte]: req.query.start_timestamp
+      }
+  
+      query['timestamp']['>='] = req.query.start_timestamp
+  
+    }
+  
+    if (req.query.end_timestamp) {
+  
+      where['timestamp'] = {
+        [Op.lte]: req.query.end_timestamp
+      }
+  
+      query['timestamp']['<='] = req.query.end_timestamp
+  
+    }  
+
+    const answer = await models.Answer.findOne({
+
+      where: { tx_id: req.params.tx_id },
+
+      include: [{
+        model: models.BoostpowProof,
+        as: 'boostpow_proofs',
+        where
+      }, {
+        model: models.BoostpowJob,
+        as: 'boostpow_jobs',
+        where: {
+          proof_tx_id: null
+        }
+      },{
+        model: models.Question,
+        as: 'question'
+      }]
+
+    })
 
     if (!answer) {
 
       return notFound()
+
     }
 
-    let question = await loadQuestion({ tx_id: answer.question_tx_id })
-
-    return { answer, question }
+    return { query, answer }
 
   } catch(error) {
 
-    log.error('http.api.answers.show.error', error)
+    log.error(error)
 
     return badRequest(error)
 
