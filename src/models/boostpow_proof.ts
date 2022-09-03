@@ -1,6 +1,8 @@
 
 import { Model, DataTypes } from 'sequelize';
 
+import * as moment from 'moment'
+
 export class BoostpowProof extends Model {
   content: string;
   /**
@@ -9,8 +11,26 @@ export class BoostpowProof extends Model {
    * The `models/index` file will call this method automatically.
    */
   static associate(models) {
-    // define association here
+
+    models.BoostpowProof.belongsTo(models.Answer, {
+      foreignKey: 'content_tx_id',
+      targetKey: 'content',
+      as: 'answer'
+    })
+
+    models.BoostpowProof.belongsTo(models.Question, {
+      foreignKey: 'content_tx_id',
+      targetKey: 'content',
+      as: 'question'
+    })
+
+    models.BoostpowProof.belongsTo(models.BoostpowJob, {
+      foreignKey: 'job_tx_id',
+      targetKey: 'tx_id',
+      as: 'job'
+    })
   }
+
 };
 
 export function init(sequelize) {
