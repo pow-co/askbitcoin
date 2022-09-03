@@ -206,7 +206,7 @@ export async function parseAnswersByTxid(txid: string): Promise<Answer[]> {
 
 interface ImportAnswerResult {
   
-  answer: Answer,
+  answer: models.Answer,
 
   isNew: boolean
 
@@ -218,7 +218,7 @@ export async function importAnswersByTxid(txid: string): Promise<ImportAnswerRes
 
   // look up the question in the database by txid
 
-  const record = await findOne<Answer>('answers', { where: {
+  const record: any = await models.Answer.findOne({ where: {
 
     tx_id: txid
 
@@ -228,7 +228,7 @@ export async function importAnswersByTxid(txid: string): Promise<ImportAnswerRes
 
     isNew = false
 
-    const answer: Answer = {
+    const answer: any = {
 
       id: record.id,
 
@@ -264,7 +264,7 @@ export async function importAnswersByTxHex(hex: string): Promise<ImportAnswerRes
 
   return Promise.all(answers.map(async (answer) => {
 
-    const {record, isNew} = await findOrCreate<Answer>('answers', {
+    const [record, isNew] = await models.Answer.findOrCreate({
       where: {
         tx_id: answer.tx_id,
         tx_index: answer.tx_index,

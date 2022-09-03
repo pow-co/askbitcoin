@@ -108,7 +108,7 @@ const QuestionPage = () => {
 
             try {
 
-              let { data: postTransactionResponse } = await axios.post('http://localhost:5200 /api/v1/questions', {
+              let { data: postTransactionResponse } = await axios.post('https://askbitcoin.ai/api/v1/questions', {
                 transaction: rawTx
               });
     
@@ -158,6 +158,8 @@ const QuestionPage = () => {
 
             }
           })();
+
+          router.push(`/questions/${txid}`);
 
           break;
         case 'twetch':

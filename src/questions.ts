@@ -224,7 +224,7 @@ export async function loadQuestion(query: LoadQuestion): Promise<Question | null
 
 interface ImportQuestionResult {
   
-  question: Question,
+  question: models.Question,
 
   isNew: boolean
 
@@ -255,7 +255,7 @@ export async function importQuestionsByTxHex(hex: string): Promise<ImportQuestio
 
   return Promise.all(questions.map(async (question) => {
 
-    const {record, isNew} = await findOrCreate<Question>('questions', {
+    const [record, isNew] = await models.Question.findOrCreate({
       where: {
         tx_id: question.tx_id,
         tx_index: question.tx_index

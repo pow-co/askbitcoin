@@ -84,6 +84,38 @@ const QuestionDetailPage = () => {
 
           //router.push(`/answers/${txid}`);
 
+          (async () => {
+            try {
+
+              let { data: postTransactionResponse } = await axios.post('https://askbitcoin.ai/api/v1/transactions', {
+                transaction: rawTx
+              });
+    
+              console.log('postTransactionResponse', postTransactionResponse);
+    
+            } catch(error) {
+
+              console.error('postTransactionResponse', error)
+
+            }
+          })();
+
+          (async () => {
+            try {
+
+              let { data: postTransactionResponse } = await axios.post('https://askbitcoin.ai/api/v1/answers', {
+                transaction: rawTx
+              });
+    
+              console.log('postTransactionResponse', postTransactionResponse);
+    
+            } catch(error) {
+
+              console.error('postTransactionResponse', error)
+
+            }
+          })();
+
           break;
         case 'twetch':
           //TODO
