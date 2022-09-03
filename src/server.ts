@@ -367,6 +367,81 @@ server.route({
 })
 
 server.route({
+  method: 'GET',
+  path: '/api/v1/boostpow/jobs',
+  handler: handlers.Boostpow.jobs,
+  options: {
+    description: 'List Boost-Pow Jobs',
+    tags: ['api', 'boostpow'],
+    validate: {
+      query: Joi.object({
+        limit: Joi.number().optional(),
+        order_by: Joi.string().optional(),
+        order_direction: Joi.string().optional(),
+        start_timestamp: Joi.date().optional(),
+        end_timestamp: Joi.date().optional(),
+        content: Joi.string().optional(),
+        category: Joi.string().optional(),
+        tag: Joi.string().optional(),
+        txid: Joi.string().optional()
+      }).label('ListBoostPowJobsOptions'),
+    },
+    response: {
+      failAction: 'log',
+      schema: Joi.object({
+        jobs: Joi.array().items(Joi.object({
+          tx_id: Joi.string().required(),
+          tx_index: Joi.number().required(),
+          diff: Joi.string().required(),
+          content: Joi.string().required(),
+          timestamp: Joi.date().required(),
+          category: Joi.string().required(),
+          tag: Joi.string().required(),
+          additionalData: Joi.string().required(),
+          userNonce: Joi.string().required(),
+          useGeneralPurposeBits: Joi.boolean().required(),
+          createdAt: Joi.date().required(),
+          updatedAt: Joi.date().required()
+        })).required()
+      })
+    }
+  }
+})
+
+server.route({
+  method: 'GET',
+  path: '/api/v1/boostpow/proofs',
+  handler: handlers.Boostpow.proofs,
+  options: {
+    description: 'List Boost-Pow Proofs',
+    tags: ['api', 'boostpow'],
+    validate: {
+      query: Joi.object({
+        limit: Joi.number().optional(),
+        order_by: Joi.string().optional(),
+        order_direction: Joi.string().optional()
+      }).label('ListBoostPowProofsOptions'),
+    },
+    response: {
+      failAction: 'log',
+      schema: Joi.object({
+        proofs: Joi.array().items(Joi.object({
+          tx_id: Joi.string().required(),
+          tx_index: Joi.number().required(),
+          job_tx_id: Joi.string().required(),
+          job_tx_index: Joi.number().required(),
+          difficulty: Joi.string().required(),
+          content_tx_id: Joi.string().required(),
+          createdAt: Joi.date().required(),
+          updatedAt: Joi.date().required()
+        })).required()
+      })
+    }
+  }
+})
+
+
+server.route({
   method: 'POST',
   path: '/api/v1/transactions',
   handler: handlers.Transactions.create,
