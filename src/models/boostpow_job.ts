@@ -1,6 +1,10 @@
 
 import { Model, DataTypes, DecimalDataType } from 'sequelize';
 
+import events from '../events'
+
+import { getChannel } from 'rabbi'
+
 export class BoostpowJob extends Model {
   content: string;
   diff: DecimalDataType;
@@ -84,6 +88,18 @@ export function init(sequelize) {
       allowNull: true
     }
   }, {
+    hooks: {
+      async afterCreate(job: any) {
+
+        events.emit('askbitcoin.boostpow.job.created', job)
+
+        const channel = await getChannel()
+
+        const json = JSON.stringify(job.toJSON())
+
+        channel.publish('askbitcoin', 'askbitcoin.boostpow.job.created', Buffer.from(json))
+      }
+    },
     sequelize,
     modelName: 'BoostpowJob',
     tableName: 'boostpow_jobs'

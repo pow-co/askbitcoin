@@ -1,5 +1,9 @@
 import { Model, DataTypes } from 'sequelize';
 
+import events from '../events'
+
+import { getChannel } from 'rabbi'
+
 export class Answer extends Model {
   content: string;
   /**
@@ -55,6 +59,17 @@ export function init(sequelize) {
       allowNull: false
     }
   }, {
+    hooks: {
+      async afterCreate(answer: any) {
+        events.emit('askbitcoin.answer.created', answer)
+
+        const channel = await getChannel()
+
+        const json = JSON.stringify(answer.toJSON())
+
+        channel.publish('askbitcoin', 'askbitcoin.answer.created', Buffer.from(json))
+      }
+    },
     sequelize,
     modelName: 'Answer',
     tableName: 'answers'

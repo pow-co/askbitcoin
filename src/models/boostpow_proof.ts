@@ -1,7 +1,9 @@
 
 import { Model, DataTypes } from 'sequelize';
 
-import * as moment from 'moment'
+import events from '../events'
+
+import { getChannel } from 'rabbi'
 
 export class BoostpowProof extends Model {
   content: string;
@@ -65,6 +67,18 @@ export function init(sequelize) {
       allowNull: false
     }
   }, {
+    hooks: {
+      async afterCreate(proof: any) {
+
+        events.emit('askbitcoin.boostpow.proof.created', proof)
+
+        const channel = await getChannel()
+
+        const json = JSON.stringify(proof.toJSON())
+
+        channel.publish('askbitcoin', 'askbitcoin.boostpow.proof.created', Buffer.from(json))
+      }
+    },
     sequelize,
     modelName: 'BoostpowProof',
     tableName: 'boostpow_proofs'
