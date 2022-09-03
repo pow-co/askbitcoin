@@ -1,9 +1,7 @@
 import useSWR from 'swr';
 
-//export const BASE = `/api/v1`;
-
-//const baseURL = process.env.base_url || 'https://askbitcoin.ai'
-const baseURL = 'http://localhost:5200'
+const baseURL = 'https://askbitcoin.ai'
+//const baseURL = 'http://localhost:5200'
 
 export const BASE = `${baseURL}/api/v1`;
 
