@@ -416,7 +416,7 @@ async function handleAnswer(data: OnchainTransaction) {
     }
   })
 
-  log.info('answer.record', { record, tx_id, tx_index })
+  log.debug('answer.record', { record, tx_id, tx_index })
 
   if (record) { return record }
 
@@ -460,13 +460,6 @@ async function handleAnswer(data: OnchainTransaction) {
         timestamp: timestamp || new Date()
       }
     })
-
-    if (isNew) {
-
-      log.info('answer.recorded', _answer.toJSON())
-
-      events.emit('answer.created', _answer.toJSON())
-    }
   
   } catch(error) {
 
