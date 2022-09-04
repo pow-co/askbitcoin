@@ -106,7 +106,7 @@ export async function index(req, h) {
 
       query,
 
-      answer: result
+      answers: result
 
     }
 
