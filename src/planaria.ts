@@ -24,6 +24,8 @@ import * as bsv from 'bsv'
 
 import { BigNumber } from 'bignumber.js'
 
+import { BoostpowProof } from './models'
+
 export const onchainQueue = require('fastq').promise(handleOnchainTransaction, 3)
 
 export async function sync_boost_orders() {
@@ -541,6 +543,58 @@ async function handleQuestion(data: OnchainTransaction) {
 
 }
 
+export async function importProofFromTxHex(txhex: string): Promise<BoostpowProof | null> {
+
+  let proof = boostpow.BoostPowJobProof.fromRawTransaction(txhex)
+
+  if (!proof) {
+
+    log.info('planaria.importProofFromTxHex', { txhex })
+
+    return
+  }
+
+  const timestamp = await whatsonchain.getTimestamp(proof.txid)
+
+  const jobRecord = await models.BoostpowJob.findOne({
+    where: {
+      tx_id: proof.spentTxid,
+      tx_index: proof.spentVout
+    }
+  })
+
+  const job_tx = await run.blockchain.fetch(proof.spentTxid)
+
+  const job: boostpow.Job = boostpow.Job.fromRawTransaction(job_tx)
+
+  const defaults = Object.assign(proof.toObject(), {
+    tx_id: proof.txid,
+    tx_index: proof.vin,
+    timestamp,
+    content_tx_id: job.toObject().content,
+    difficulty: job.difficulty,
+    job_tx_id: job.txid,
+    job_tx_index: job.vout,
+    value: jobRecord.value,
+    price: jobRecord.price
+  })
+
+  const [record, isNew] = await models.BoostpowProof.findOrCreate({
+    where: {
+      tx_id: proof.txid,
+      tx_index: proof.vin
+    },
+    defaults
+  })
+
+  jobRecord.proof_tx_id = proof.txid
+
+  await jobRecord.save()
+
+  return record
+
+}
+
 export async function handleOnchainTransaction(data: OnchainTransaction) {
 
   var { tx_id, tx_index, app_id, key, value, nonce, author, signature } = data
@@ -728,55 +782,7 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
 
           log.info('run.blockchain.fetch.stop', { uid, timestamp: new Date() })
 
-          let proof = boostpow.BoostPowJobProof.fromRawTransaction(proof_tx)
-
-          if (!proof) {
-
-            log.info('boostpow.sync.onchain.proof.notfound', { proof_tx, data })
-
-            return
-          }
-
-          const timestamp = await whatsonchain.getTimestamp(proof_tx_id)
-
-          const jobRecord = await models.BoostpowJob.findOne({
-            where: {
-              tx_id: proof.spentTxid,
-              tx_index: proof.spentVout
-            }
-          })
-
-          const job_tx = await run.blockchain.fetch(proof.spentTxid)
-
-          const job: boostpow.Job = boostpow.Job.fromRawTransaction(job_tx)
-
-          const defaults = Object.assign(proof.toObject(), {
-            tx_id: proof.txid,
-            tx_index: proof.vin,
-            timestamp,
-            content_tx_id: job.toObject().content,
-            difficulty: job.difficulty,
-            job_tx_id: job.txid,
-            job_tx_index: job.vout
-          })
-
-          const [record, isNew] = await models.BoostpowProof.findOrCreate({
-            where: {
-              tx_id: proof.txid,
-              tx_index: proof.vin
-            },
-            defaults
-          })
-
-          if (isNew) {
-
-            events.emit('boostpow.proof.created', record)
-
-          }
-
-          log.info('boostpow.proof', record)
-
-          events.emit('boostpow.proof', record)
+          await importProofFromTxHex(proof_tx)
 
         } catch(error) {
 

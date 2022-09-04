@@ -3,7 +3,7 @@ import axios from 'axios'
 
 import BigNumber from 'bignumber.js'
 
-export async function convert(satoshis: number, currency: string) {
+export async function convert(satoshis: number, currency: string): Promise<number> {
 
   let bsv = new BigNumber(satoshis).dividedBy(100000000).toNumber()
 
