@@ -3,9 +3,9 @@ import { badRequest, notFound } from 'boom'
 
 import { log } from '../../log'
 
-import { loadQuestion } from '../../questions'
+import { loadQuestions } from '../../questions'
 
-import { loadAnswer } from '../../answers'
+import { loadAnswers } from '../../answers'
 
 import { models, sequelize } from '../../models'
 
