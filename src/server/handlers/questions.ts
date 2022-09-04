@@ -227,13 +227,15 @@ export async function show(req, h) {
       include: [{
         model: models.BoostpowProof,
         as: 'boostpow_proofs',
-        where
+        where,
+        required: false
       }, {
         model: models.BoostpowJob,
         as: 'boostpow_jobs',
         where: {
           proof_tx_id: null
-        }
+        },
+        required: false
       },{
         model: models.Answer,
         as: 'answers',
