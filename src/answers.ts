@@ -7,8 +7,6 @@ import { Author } from './authors'
 
 import { Transaction } from './transactions'
 
-import { knex } from './knex'
-
 import * as txo from 'txo'
 
 import { run } from './run'
@@ -61,39 +59,6 @@ interface LoadAnswer {
 }
 
 
-export async function loadAnswer(query: LoadAnswer): Promise<Answer> {
-
-  const start_timestamp = query.start_timestamp || 0;
-
-  const end_timestamp = query.end_timestamp || Date.now();
-
-  log.debug('answers.load.query', query)
-
-  let [answer] = await knex('answers')
-    .join('boostpow_proofs', 'answers.tx_id', 'boostpow_proofs.content')
-    .where('boostpow_proofs.timestamp', '>=', start_timestamp)
-    .where('boostpow_proofs.timestamp', '<=', end_timestamp)
-    .sum('difficulty as difficulty')
-    .groupBy('boostpow_proofs.content')
-    .orderBy('difficulty', 'desc')
-    .select(['answers.*', 'difficulty'])
-
-  if (answer) {
-
-    return answer
-
-  }
-
-  let [unBoosted] = await knex('answers')
-      .where('tx_id', query.tx_id)
-      .select('*')
-
-  unBoosted.difficulty = 0
-
-  return unBoosted
-
-}
-
 export async function loadAnswers(query: LoadAnswers): Promise<models.Answer[]> {
 
   const start_timestamp = query.start_timestamp || 0;
@@ -121,17 +86,6 @@ export async function loadAnswers(query: LoadAnswers): Promise<models.Answer[]> 
 
 interface RecentAnswersQuery {
   limit?: number;
-}
-
-export async function recentAnswers(query: RecentAnswersQuery={}): Promise<Answer> {
-
-  let answers = await knex('answers')
-    .select(['*'])
-    .orderBy('created_at', 'desc')
-    .limit(query.limit || 100)
-
-  return answers
-
 }
 
 export async function parseAnswersFromTxHex(txhex: string): Promise<Question[]> {

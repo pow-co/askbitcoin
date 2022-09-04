@@ -1,14 +1,16 @@
 
-import { Model, DataTypes, DecimalDataType } from 'sequelize';
+import { Model, DataTypes, DecimalDataType as Decimal, IntegerDataType as Integer } from 'sequelize';
 
 import events from '../events'
 
 import { getChannel } from 'rabbi'
 
+import { BoostpowProof } from './boostpow_proof'
+
 export class BoostpowJob extends Model {
-  id: number;
+  id: Integer;
   content: string;
-  diff: DecimalDataType;
+  diff: Decimal;
   timestamp: Date;
   tx_id: string;
   category: string;
@@ -17,6 +19,9 @@ export class BoostpowJob extends Model {
   userNonce: string;
   useGeneralPurposeBits: boolean;
   proof_tx_id: string;
+  script: string;
+  price: Decimal;
+  value: Integer;
   /**
    * Helper method for defining associations.
    * This method is not a part of Sequelize lifecycle.
@@ -57,8 +62,20 @@ export function init(sequelize) {
       type:  DataTypes.INTEGER,
       allowNull: false
     },
+    script: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
     diff: {
       type: DataTypes.DECIMAL,
+      allowNull: false
+    },
+    price: {
+      type: DataTypes.DECIMAL,
+      allowNull: false
+    },
+    value: {
+      type: DataTypes.INTEGER,
       allowNull: false
     },
     content: {
@@ -92,13 +109,42 @@ export function init(sequelize) {
     hooks: {
       async afterCreate(job: any) {
 
-        events.emit('askbitcoin.boostpow.job.created', job)
+        // Publish Message to Intra-Process Listeners
+        events.emit('askbitcoin.boostpow.job.created', job);
 
-        const channel = await getChannel()
+        // Publish Message to Inter-Process Listeners on AMQP
+        (async () => {
 
-        const json = JSON.stringify(job.toJSON())
+          const channel = await getChannel()
 
-        channel.publish('askbitcoin', 'askbitcoin.boostpow.job.created', Buffer.from(json))
+          const json = JSON.stringify(job.toJSON())
+
+          channel.publish('askbitcoin', 'askbitcoin.boostpow.job.created', Buffer.from(json))
+
+        })();
+
+        // Fill in boostpow proof if already in database
+        (async () => {
+
+          if (!job.proof_tx_id) {
+
+            const proof = await BoostpowProof.findOne({
+              where: {
+                job_tx_id: job.tx_id,
+                job_tx_index: job.tx_index
+              }
+            })
+
+            if (proof) {
+
+              job.proof_tx_id = proof.tx_id
+
+              await job.save()
+            }
+          }
+
+        })()
+
       }
     },
     sequelize,

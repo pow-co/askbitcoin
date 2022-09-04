@@ -9,8 +9,6 @@ import { Transaction } from './transactions'
 
 import { Wallet } from './rabbi/onchain'
 
-import { knex } from './knex'
-
 import { run } from './run'
 
 import * as sequelize from 'sequelize'
@@ -57,16 +55,6 @@ interface Query {
   end_timestamp?: Date;
   author_paymail?: string;
   author_public_key?: string;
-}
-
-export async function list(query: Query = {}): Promise<Question[]> {
-
-  let result = await knex('onchain_events').where({
-    key: 'question'
-  }).select('*')
-
-  return result
-
 }
 
 export async function find(txid: string): Promise<Question> {
@@ -143,16 +131,6 @@ interface RecentQuestionsQuery {
   limit?: number;
 }
 
-export async function recentQuestions(query: RecentQuestionsQuery={}): Promise<models.Question[]> {
-
-  let questions = await knex('questions')
-    .select(['*'])
-    .orderBy('created_at', 'desc')
-    .limit(query.limit || 100)
-
-  return questions
-
-}
 
 export async function loadQuestions(query: QuestionsQuery={}): Promise<models.Question[]> {
 
@@ -184,42 +162,6 @@ interface LoadQuestion {
   tx_index?: number;
   start_timestamp?: number;
   end_timestamp?: number;
-}
-
-export async function loadQuestion(query: LoadQuestion): Promise<Question | null> {
-
-  const start_timestamp = query.start_timestamp || 0;
-
-  const end_timestamp = query.end_timestamp || Date.now();
-
-  log.debug('question.load.query', query)
-
-  let [question] = await knex('questions')
-    .join('boostpow_proofs', 'questions.tx_id', 'boostpow_proofs.content')
-    .where('boostpow_proofs.timestamp', '>=', start_timestamp)
-    .where('boostpow_proofs.timestamp', '<=', end_timestamp)
-    .where('questions.tx_id', query.tx_id)
-    .sum('difficulty as difficulty')
-    .groupBy('boostpow_proofs.content')
-    .orderBy('difficulty', 'desc')
-    .select(['questions.*', 'difficulty'])
-
-  if (question) {
-
-    return question
-
-  }
-
-  let [unBoosted] = await knex('questions')
-      .where('tx_id', query.tx_id)
-      .select('*')
-
-  if (unBoosted) {
-    unBoosted.difficulty = 0
-  }
-
-  return unBoosted
-
 }
 
 interface ImportQuestionResult {

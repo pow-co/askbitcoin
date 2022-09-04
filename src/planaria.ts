@@ -20,6 +20,10 @@ import { run } from './run'
 
 import * as uuid from 'uuid'
 
+import * as bsv from 'bsv'
+
+import { BigNumber } from 'bignumber.js'
+
 export const onchainQueue = require('fastq').promise(handleOnchainTransaction, 3)
 
 export async function sync_boost_orders() {
@@ -35,6 +39,8 @@ export async function sync_boost_orders() {
     },
 
     onTransaction: async (json) => {
+
+      log.debug("__BOOST ORDER__", json)
 
     }
   })
@@ -119,6 +125,66 @@ export async function sync_all_onchain(app_id: string) {
   })
 
   crawler.start()
+
+
+  const crawler_sv = new Crawler({
+
+    query: {
+      q: {
+        find: {
+          "out.s2": "onchain.sv",
+          "blk.i": {
+            "$gt": block_height_start
+          }
+        },
+        project: {
+          "blk": 1,
+          "tx.h": 1,
+          "tx.t": 1,
+          "out.i": 1,
+          "out.s2": 1,
+          "out.s3": 1,
+          "out.s4": 1,
+          "out.s5": 1,
+          "out.s6": 1,
+          "out.s7": 1,
+          "out.s8": 1,
+          "out.s9": 1,
+          "out.s10": 1,
+          "out.s11": 1,
+          "out.o1": 1
+        }
+      }
+    },
+
+    onTransaction: (json) => {
+
+      let outputs = json.out
+        .filter(({s2}) => s2 === 'onchain')
+
+      outputs.map(output => {
+
+        let message: OnchainTransaction = {
+          tx_id: json['tx']['h'],
+          tx_index: output['i'],
+          app_id: output['s3'],
+          key: output['s4'],
+          value: JSON.parse(output['s5']),
+          nonce: output['s6'],
+          author: output['s7'],
+          signature: output['s8'],
+          source: 'bitbus'
+        }
+
+        onchainQueue.push(message)
+
+      })
+
+
+    }
+  })
+
+  crawler_sv.start()
 }
 
 export async function sync_onchain_app(app_id: string) {
@@ -192,6 +258,74 @@ export async function sync_onchain_app(app_id: string) {
   })
 
   crawler.start()
+
+  const crawler_sv = new Crawler({
+
+    query: {
+      q: {
+        find: {
+          "out.s2": "onchain",
+          "out.s3": app_id,
+          "blk.i": {
+            "$gt": block_height_start
+          }
+        },
+        project: {
+          "blk": 1,
+          "tx.h": 1,
+          "tx.t": 1,
+          "out.i": 1,
+          "out.s2": 1,
+          "out.s3": 1,
+          "out.s4": 1,
+          "out.s5": 1,
+          "out.s6": 1,
+          "out.s7": 1,
+          "out.s8": 1,
+          "out.s9": 1,
+          "out.s10": 1,
+          "out.s11": 1,
+          "out.o1": 1
+        }
+      }
+    },
+
+    onTransaction: (json) => {
+
+      let outputs = json.out
+        .filter(({s2}) => s2 === 'onchain')
+        .filter(({s3}) => s3 === app_id)
+
+      outputs.map(output => {
+
+        var value = output['s5']
+
+        if (typeof value === 'string') {
+
+          value = JSON.parse(value)
+
+        }
+
+        let message: OnchainTransaction = {
+          tx_id: json['tx']['h'],
+          tx_index: output['i'],
+          app_id: output['s3'],
+          key: output['s4'],
+          value,
+          nonce: output['s6'],
+          author: output['s7'],
+          signature: output['s8'],
+          source: 'bitbus'
+        }
+
+        onchainQueue.push(message)
+
+      })
+
+    }
+  })
+
+  crawler_sv.start()
 
 }
 
@@ -269,7 +403,6 @@ export interface OnchainTransaction {
   timestamp?: Date;
 }
 
-import { knex } from './knex'
 import { error } from 'winston'
 
 async function handleAnswer(data: OnchainTransaction) {
@@ -337,7 +470,7 @@ async function handleAnswer(data: OnchainTransaction) {
   
   } catch(error) {
 
-    console.error('ANSWER FOC ERROR', error)
+    log.error('answer.handle.error', error)
 
   }
 
@@ -354,7 +487,7 @@ async function handleQuestion(data: OnchainTransaction) {
     }
   })
 
-  log.info('question.record', { record, tx_id, tx_index })
+  log.debug('question.record', { record, tx_id, tx_index })
 
   if (record) { return record }
 
@@ -437,39 +570,6 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
 
   try {
 
-    let [record] = await knex('onchain_events').where({
-      tx_id: data.tx_id,
-      tx_index: data.tx_index
-    }).select('id')
-
-    if (record) {
-
-      log.debug('onchain.transaction.duplicate', data)
-
-    } else {
-
-      const insert = {
-        tx_id,
-        tx_index,
-        app_id,
-        key,
-        value,
-      }
-
-      
-
-      if (nonce) { insert['nonce'] = nonce }
-
-      if (author) { insert['author'] = author }
-
-      if (signature) { insert['signature'] = signature }
-
-      const result = await knex('onchain_events').insert(insert)
-
-      log.info('onchain.event.recorded', insert)
-
-    }
-
     if (key === 'question') {
 
       try {
@@ -498,7 +598,7 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
 
     }
 
-    if (app_id === config.get('boostpow_onchain_app_id')) {
+    if (app_id === config.get('boostpow_onchain_app_id') || app_id === 'boostpow') {
 
       if (key === 'job') {
 
@@ -533,12 +633,21 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
 
           }
 
+          const tx = new bsv.Transaction(job_tx)
+
+          const index = value.tx_index || 0
+
+          const satoshis = tx.outputs[index].satoshis
+
           const timestamp = await whatsonchain.getTimestamp(job_tx_id)
 
           const defaults = Object.assign(job.toObject(), {
             tx_id: job.txid,
             tx_index: job.vout,
-            timestamp
+            timestamp,
+            script: job.toScript().toHex(),
+            value: satoshis,
+            price: new BigNumber(satoshis).dividedBy(job.difficulty).toNumber()
           })
 
           const [record, isNew] = await models.BoostpowJob.findOrCreate({
@@ -551,7 +660,32 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
 
           if (isNew) {
 
-            events.emit('boostpow.job.created', record)
+            // check if the proof is already in the database, and add the proof_tx_id found
+            const proof = await models.BoostpowProof.findOne({
+              where: {
+                job_tx_id: record.tx_id,
+                job_tx_index: record.tx_index
+                
+              }
+            })
+
+            if (proof && !record.proof_tx_id) {
+
+              record.proof_tx_id = proof.tx_id
+
+              await record.save()
+            }
+
+          } else {
+
+            if (!record.script) {
+              // backfill old jobs which did not already include script
+
+              record.script = job.toScript().toHex()
+
+              await record.save()
+            }
+
           }
 
           log.info('boostpow.job', record)
@@ -630,7 +764,7 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
             content_tx_id: job.toObject().content,
             difficulty: job.difficulty,
             job_tx_id: job.txid,
-            job_tx_index: job.vout          
+            job_tx_index: job.vout
           })
 
           const [record, isNew] = await models.BoostpowProof.findOrCreate({
@@ -667,5 +801,17 @@ export async function handleOnchainTransaction(data: OnchainTransaction) {
   log.error('handleOnchainTransaction', {error, data })
 
 }
+
+}
+
+if (require.main === module) {
+
+  if (config.get('sync_boost')) {
+
+    sync_onchain_app('boostpow')
+  
+    sync_onchain_app(config.get('boostpow_onchain_app_id'))
+
+  }
 
 }

@@ -1,6 +1,4 @@
 
-import { knex } from '../../knex'
-
 import { badRequest, notFound } from 'boom'
 
 import { loadQuestion, loadQuestions, recentQuestions, importQuestionsByTxHex } from '../../questions'

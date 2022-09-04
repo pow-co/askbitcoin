@@ -68,7 +68,15 @@ export function init(sequelize) {
     timestamp: {
       type: DataTypes.DATE,
       allowNull: false
-    }
+    },
+    price: {
+      type: DataTypes.DECIMAL,
+      allowNull: true
+    },
+    value: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
   }, {
     hooks: {
       async afterCreate(proof: any) {

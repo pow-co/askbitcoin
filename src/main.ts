@@ -3,8 +3,6 @@ import config from './config'
 
 import { start as server } from './server'
 
-import { knex } from './knex'
-
 import { BoostPowJob, BoostPowJobProof } from 'boostpow'
 
 import * as whatsonchain from './whatsonchain'
@@ -24,8 +22,6 @@ import { getTransaction } from './powco'
 import { start as rocketchat } from './rocketchat'
 
 export async function start() {
-
-  await knex.migrate.latest();
 
   if (config.get('webui_enabled')) {
 
