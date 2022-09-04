@@ -21,6 +21,8 @@ import { log } from './log'
 
 import { getTransaction } from './powco'
 
+import { start as rocketchat } from './rocketchat'
+
 export async function start() {
 
   await knex.migrate.latest();
@@ -32,6 +34,12 @@ export async function start() {
       cwd: `${process.cwd()}/web-ui`
 
     });
+
+  }
+
+  if (config.get('notify_rocketchat')) {
+
+    rocketchat();
 
   }
 
