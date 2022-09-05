@@ -3,10 +3,6 @@ import { badRequest, notFound } from 'boom'
 
 import { log } from '../../log'
 
-import { loadQuestions } from '../../questions'
-
-import { loadAnswers } from '../../answers'
-
 import { models, sequelize } from '../../models'
 
 import * as moment from 'moment'

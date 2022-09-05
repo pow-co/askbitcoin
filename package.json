@@ -6,14 +6,15 @@
    "scripts": {
       "dev": "nodemon src/main.ts",
       "start": "ts-node src/main.ts",
-      "test": "NODE_ENV=test mocha --require=ts-node/register --timeout=20000 __tests__/**/*_test.ts --exit",
+      "test": "NODE_ENV=test nyc mocha --require=ts-node/register --timeout=20000 __tests__/**/*_test.ts --exit",
       "runtest": "NODE_ENV=test mocha --require=ts-node/register --timeout=20000 $1",
       "build": "tsc",
       "postbuild": "shebang-trim dist/bin/cli.js && chmod +x dist/bin/cli.js",
       "ci": "circleci local execute --job build",
       "commit": "npx cz",
       "build_web_ui": "cd web-ui && npm run build",
-      "db:migrate": "sequelize db:migrate"
+      "db:migrate": "sequelize db:migrate",
+      "mine": "ts-node miner/main.ts"
    },
    "bin": {
       "askbitcoin": "./dist/bin/cli.js"
@@ -31,7 +32,9 @@
       "@types/knex": "^0.16.1",
       "bignumber.js": "^9.0.2",
       "boom": "^7.3.0",
+      "boostminer": "^0.5.0",
       "boostpow": "^1.6.0",
+      "broadcast-transaction": "^0.4.0",
       "bsv": "^1.5.6",
       "bsv-p2p": "^0.0.10",
       "chalk": "^4.1.2",
@@ -78,6 +81,7 @@
       "cz-conventional-changelog": "^3.3.0",
       "escape-string-regexp": "^5.0.0",
       "mocha": "^9.1.2",
+      "nyc": "^15.1.0",
       "sequelize": "^6.21.4",
       "sequelize-cli": "^6.4.1",
       "shebang-trim": "^1.1.0",

@@ -74,7 +74,9 @@ nconf.defaults({
   sync_ask_bitcoin: true,
   ask_bitcoin_user_private_key: null,
   planaria_token: 'eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiIxRlRyUWRaRjczd21tSFpVbzRhQzI1a0JWNUprWFRoeGl3IiwiaXNzdWVyIjoiZ2VuZXJpYy1iaXRhdXRoIn0.SHovaVkvTncvNmI0M1Q4WFZ0Ulk2SHdEMXQzOGM1RHJkVTFoTEYyLzhJeEhGZzJsSDQxeldzRG1vdUttemJPb2pJTXd4aVM5Qk9VNjFQNUhJK2x6bUxNPQ',
-  api_base: 'https://askbitcoin.ai'
+  api_base: 'https://askbitcoin.ai',
+  boostpow_miner_address: '16oWWdfgsoFXKfWo27vDHDVEaTUshqFr1h',
+  node_env: 'development'
 })
 
 nconf.required([

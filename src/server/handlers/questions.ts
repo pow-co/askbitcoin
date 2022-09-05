@@ -1,9 +1,8 @@
 
 import { badRequest, notFound } from 'boom'
 
-import { loadQuestions, recentQuestions, importQuestionsByTxHex } from '../../questions'
+import { importQuestionsByTxHex } from '../../questions'
 
-import { loadAnswers } from '../../answers'
 import { models, sequelize } from '../../models'
 
 import { Op } from 'sequelize'

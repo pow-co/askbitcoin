@@ -46,44 +46,6 @@ interface Query {
   author_public_key?: string;
 }
 
-interface LoadAnswers {
-  question_tx_id: string;
-  start_timestamp?: number;
-  end_timestamp?: number;
-}
-
-interface LoadAnswer {
-  tx_id: string;
-  start_timestamp?: number;
-  end_timestamp?: number;
-}
-
-
-export async function loadAnswers(query: LoadAnswers): Promise<models.Answer[]> {
-
-  const start_timestamp = query.start_timestamp || 0;
-
-  const end_timestamp = query.end_timestamp || Date.now();
-
-  log.info('answers.load.query', { start_timestamp, end_timestamp })
-  
-  const proofs = await models.BoostpowProof.findAll({
-    attributes: [
-      'content',
-      [sequelize.fn('sum', sequelize.col('difficulty')), 'difficulty']
-    ],
-    group: ['content']
-  })
-
-  const answers = await models.Answer.findAll({
-    order: [['id', 'desc']],
-    limit: 100
-  })
-
-  return answers
-
-}
-
 interface RecentAnswersQuery {
   limit?: number;
 }
@@ -93,8 +55,6 @@ export async function parseAnswersFromTxHex(txhex: string): Promise<Question[]> 
   try {
 
     const _txo = await txo.fromTx(txhex)
-
-    if (!_txo) { return null }
 
     const txid = _txo['tx']['h']
 
@@ -108,29 +68,33 @@ export async function parseAnswersFromTxHex(txhex: string): Promise<Question[]> 
             out['s5']) {
 
           const { content, question_tx_id } = JSON.parse(out['s5'])
+
+          console.log("CONNT", { content, question_tx_id })
   
-          if (content && question_tx_id) {
+          if (!!content) {
+
+            if (!!question_tx_id) {
   
-            const answer: Answer = {
-              content,
-              question_tx_id,
-              tx_index: out['i'],
-              tx_id: txid,
-              transaction: {
-                txid,
-                hex: txhex
+              const answer: Answer = {
+                content,
+                question_tx_id,
+                tx_index: out['i'],
+                tx_id: txid,
+                transaction: {
+                  txid,
+                  hex: txhex
+                }
               }
+    
+              return answer
+    
             }
-  
-            return answer
-  
+
           }
   
         }
 
       } catch(error) {
-
-        log.error('parseAnswersFromTransaction.error', error)
 
       }
 

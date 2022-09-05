@@ -2,9 +2,9 @@
 
 import { Model, Sequelize } from 'sequelize'
 
-const env = process.env.NODE_ENV || 'development';
+import nconf  from '../config'
 
-const config = require(__dirname + '/../config/config.json')[env];
+const config = require(__dirname + '/../config/config.json')[nconf.get('node_env')];
 
 const db: any = {};
 
@@ -45,11 +45,13 @@ export const models = require('require-all')({
   }
 });
 
-Object.keys(db).forEach(modelName => {
-  if (db[modelName].associate) {
-    db[modelName].associate(db);
+Object.values(models).forEach((model: any) => {
+
+  if (model.associate) {
+
+    model.associate(models)
   }
-});
+})
 
 import { Question } from './question'
 import { Answer } from './answer'
