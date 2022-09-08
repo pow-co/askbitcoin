@@ -60,6 +60,7 @@
       "through2": "^4.0.2",
       "txo": "^0.0.21",
       "winston": "^3.3.3",
+      "winston-loki": "^6.0.6",
       "ws": "^8.2.0"
    },
    "devDependencies": {
