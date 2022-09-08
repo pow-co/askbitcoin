@@ -42,7 +42,7 @@ const AnswersPage = () => {
     setQueryParams(filter.query);
   };
 
-  console.log({ answers });
+  console.log({ data, answers });
 
   return (
     <MainCard title={<FormattedMessage id="answers-pow" />}>

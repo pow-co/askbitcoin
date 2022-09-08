@@ -3,15 +3,13 @@ import config from './config'
 
 import { start as server } from './server'
 
-import { knex } from './knex'
-
 import { BoostPowJob, BoostPowJobProof } from 'boostpow'
 
 import * as whatsonchain from './whatsonchain'
 
 import { start as actors } from './rabbi/actors'
 
-import { sync_boost_orders, sync_ask_bitcoin } from './planaria'
+import { sync_boost_orders, sync_ask_bitcoin, sync_boost_onchain } from './planaria'
 
 import { onchain } from './rabbi/onchain/bitsocket'
 
@@ -21,9 +19,9 @@ import { log } from './log'
 
 import { getTransaction } from './powco'
 
-export async function start() {
+import { start as rocketchat } from './rocketchat'
 
-  await knex.migrate.latest();
+export async function start() {
 
   if (config.get('webui_enabled')) {
 
@@ -32,6 +30,12 @@ export async function start() {
       cwd: `${process.cwd()}/web-ui`
 
     });
+
+  }
+
+  if (config.get('notify_rocketchat')) {
+
+    rocketchat();
 
   }
 
@@ -47,7 +51,10 @@ export async function start() {
 
   }
 
-  if (config.get('sync_boost_orders')) {
+
+  if (config.get('sync_boost')) {
+
+    sync_boost_onchain()
 
     sync_boost_orders();
 
@@ -65,93 +72,9 @@ export async function start() {
       log.info('onchain.boostpow.event', event)
     })
 
-    onchain(boostpow).on('proof', async ({tx_id}) => {
+    onchain(boostpow).on('proof', async (proof) => {
 
-      log.info(`onchain.${boostpow}.proof`, {tx_id})
-
-      if (tx_id) {
-
-        let tx = await getTransaction(tx_id)
-
-        console.log(tx.toString())
-
-        let proof = BoostPowJobProof.fromTransaction(tx)
-
-        if (proof) {
-
-          console.log(proof)
-
-          let json = Object.assign(proof.toObject(), {
-            tx_id: proof.txid,
-            tx_index: proof.vin
-          })
-
-          const job_tx = await getTransaction(proof.spentTxid)
-
-          const job = BoostPowJob.fromTransaction(job_tx)
-
-          json = Object.assign(json, { 
-            job_tx_id: job.txid,
-            job_tx_index: job.vout,
-            content: job.content.hex,
-            tag: job.tag.hex,
-            difficulty: job.difficulty,
-            value: job.value,
-            timestamp: new Date()
-          })
-
-          console.log(json)
-
-          const [record] = await knex('boostpow_proofs').where({
-            tx_id: json.tx_id,
-            tx_index: json.tx_index
-          })
-          .select('*')
-
-          console.log('record', record)
-
-          if (!record) {
-
-            try {
-
-              let woc_tx = await whatsonchain.getTransaction(json.tx_id)
-
-              console.log({ woc_tx })
-
-              if (woc_tx && woc_tx.time) {
-
-                json['timestamp'] = woc_tx.time
-
-              }
-
-            } catch(error) {
-
-              log.error('whatsonchain.get_transaction', error)
-
-            }
-
-            try {
-
-              const result = await knex('boostpow_proofs').insert(json)
-
-              console.log(result)
-
-            } catch(error) {
-
-              log.debug('knex.boostpow_proofs.insert.error', { error, json })
-
-              log.error('knex.boostpow_proofs.insert', error)
-
-            }
-          }
-
-        }
-
-      }
-
-      // if no txid then txid is this transaction
-      // download the raw transaction
-      // check to see if transaction in fact contains boost proofs
+      log.info(`onchain.${boostpow}.proof`, proof)
 
     })
 

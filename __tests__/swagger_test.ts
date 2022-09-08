@@ -1,15 +1,7 @@
 
-import { server, start } from '../src/server'
-
-import { expect } from './utils'
+import { expect, server } from './utils'
 
 describe('Swagger Documentation', () => {
-
-  before(async () => {
-
-    await start()
-
-  })
 
   it('GET /swagger.json should provide the API schema', async () => {
 

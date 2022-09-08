@@ -1,6 +1,6 @@
 import { useState } from 'react';
 // material-ui
-import { Typography, Grid, Button, CardContent, Stack, Rating } from '@mui/material';
+import { Typography, Grid, Button, CardContent, Stack, Rating, Box} from '@mui/material';
 
 // project imports
 import MainCard from 'components/ui-component/cards/MainCard';
@@ -108,7 +108,7 @@ const QuestionPage = () => {
 
             try {
 
-              let { data: postTransactionResponse } = await axios.post('http://localhost:5200 /api/v1/questions', {
+              let { data: postTransactionResponse } = await axios.post('https://askbitcoin.ai/api/v1/questions', {
                 transaction: rawTx
               });
     
@@ -159,6 +159,8 @@ const QuestionPage = () => {
             }
           })();
 
+          router.push(`/questions/${txid}`);
+
           break;
         case 'twetch':
           //TODO
@@ -193,12 +195,15 @@ const QuestionPage = () => {
 
   let { data, error, refresh, loading } = useAPI(`/questions`, queryParams);
 
+  let { data: recent } = useAPI(`/recent/questions`);
+
   console.log({ data, error, refresh, loading });
 
   if (error) {
     console.log('ERROR', error);
     return <p>Error</p>;
   }
+
 
   if (loading && !data) {
     return (
@@ -215,24 +220,40 @@ const QuestionPage = () => {
   const { questions } = data;
 
   return (
-    <MainCard>
-      <FormControl submit={postQuestion} placeholder="Ask Bitcoin a question" />
-      <Grid container sx={{ pb: '16px' }} spacing={1}>
-        <Grid item xs={6}>
-          <Typography align="right" variant="h2">
-            <FormattedMessage id="questions-pow" />
-          </Typography>
+    <>
+      <MainCard>
+        <FormControl submit={postQuestion} placeholder="Ask Bitcoin a question" />
+        <Grid container sx={{ pb: '16px' }} spacing={1}>
+          <Grid item xs={6}>
+            <Typography align="right" variant="h2">
+              <FormattedMessage id="questions-pow" />
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <FormControlSelect handleFilter={onChangeFilter} />
+          </Grid>
         </Grid>
-        <Grid item xs={6}>
-          <FormControlSelect handleFilter={onChangeFilter} />
-        </Grid>
-      </Grid>
-      <Stack direction="column" justifyContent="flex-end">
-        {questions.map((question) => {
-          return <Post key={question.id} post={question} />;
-        })}
-      </Stack>
-    </MainCard>
+        <Stack direction="column" justifyContent="flex-end">
+          {questions.map((question) => {
+            return <Post key={question.id} post={question} />;
+          })}
+        </Stack>
+      </MainCard>
+
+      <MainCard >
+        <Stack direction="column" justifyContent="flex-end">
+          <Box sx={{ padding: '2em' }}>
+            <Typography sx={{ p: '16px' }} align="center" variant="h2">
+              Recently Asked Questions
+            </Typography>
+          </Box>
+          {recent?.questions && recent.questions.map((question) => {
+            return <Post key={question.id} post={question} />;
+          })}
+        </Stack>
+      </MainCard>
+    </>
+    
   );
 };
 

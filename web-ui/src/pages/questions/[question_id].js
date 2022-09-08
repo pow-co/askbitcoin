@@ -84,6 +84,38 @@ const QuestionDetailPage = () => {
 
           //router.push(`/answers/${txid}`);
 
+          (async () => {
+            try {
+
+              let { data: postTransactionResponse } = await axios.post('https://askbitcoin.ai/api/v1/transactions', {
+                transaction: rawTx
+              });
+    
+              console.log('postTransactionResponse', postTransactionResponse);
+    
+            } catch(error) {
+
+              console.error('postTransactionResponse', error)
+
+            }
+          })();
+
+          (async () => {
+            try {
+
+              let { data: postTransactionResponse } = await axios.post('https://askbitcoin.ai/api/v1/answers', {
+                transaction: rawTx
+              });
+    
+              console.log('postTransactionResponse', postTransactionResponse);
+    
+            } catch(error) {
+
+              console.error('postTransactionResponse', error)
+
+            }
+          })();
+
           break;
         case 'twetch':
           //TODO
@@ -117,6 +149,9 @@ const QuestionDetailPage = () => {
 
   let { data, error, refresh, loading } = useAPI(`/questions/${query.question_id}`, queryParams);
 
+
+
+
   if (error) {
     console.error('ERROR', error);
     return <p>Error</p>;
@@ -135,7 +170,23 @@ const QuestionDetailPage = () => {
     setQueryParams(filter.query);
   };
 
-  const { question, answers } = data;
+  const { question } = data;
+
+  console.log("DATAAA", data)
+
+  var { answers } = question;
+
+  answers = answers.map(answer => {
+
+    return Object.assign(answer, {
+      difficulty: answer.boostpow_proofs.reduce((sum, { difficulty }) => {
+        return sum + difficulty
+      }, 0)
+    })
+
+  })
+
+  answers = answers.sort((a, b) => a.difficulty < b.difficulty ? 1 : 0)
 
   return (
     <MainCard>

@@ -1,15 +1,7 @@
 
-import { server, start } from '../src/server'
-
-import { expect } from './utils'
+import { expect, server } from './utils'
 
 describe('Scraping Prometheus Metrics', () => {
-
-  before(async () => {
-
-    await start()
-
-  })
 
   it('GET /metrics should provide the metrics', async () => {
 

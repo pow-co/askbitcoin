@@ -1,8 +1,6 @@
 
 const EventSource = require('eventsource')
 
-import { knex } from '../../knex'
-
 import { log } from '../../log'
 
 import { EventEmitter } from 'events'
