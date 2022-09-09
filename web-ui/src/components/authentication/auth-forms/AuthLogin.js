@@ -95,7 +95,7 @@ const AuthLogin = ({ loginProp, ...others }) => {
 
   const handcashHandler = async () => {
     //TODO
-    return
+    return;
     setIsSubmitting(true);
     try {
       let result = await handcashSignIn();
@@ -145,7 +145,7 @@ const AuthLogin = ({ loginProp, ...others }) => {
             </Button>
           </AnimateButton>
         </Grid>
-        <Grid item xs={12}>
+        {/* <Grid item xs={12}>
           <AnimateButton>
             <Button
               disableElevation
@@ -186,7 +186,7 @@ const AuthLogin = ({ loginProp, ...others }) => {
               <FormattedMessage id="connect-handcash" />
             </Button>
           </AnimateButton>
-        </Grid>
+        </Grid> */}
       </Grid>
 
       <Box sx={{ mt: 2 }}>
