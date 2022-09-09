@@ -1,6 +1,6 @@
 import { useState } from 'react';
 // material-ui
-import { Typography, Grid, Button } from '@mui/material';
+import { Box, Typography, Grid, Button, Stack } from '@mui/material';
 
 import Link from 'next/link';
 
@@ -86,33 +86,25 @@ const QuestionDetailPage = () => {
 
           (async () => {
             try {
-
               let { data: postTransactionResponse } = await axios.post('https://askbitcoin.ai/api/v1/transactions', {
                 transaction: rawTx
               });
-    
+
               console.log('postTransactionResponse', postTransactionResponse);
-    
-            } catch(error) {
-
-              console.error('postTransactionResponse', error)
-
+            } catch (error) {
+              console.error('postTransactionResponse', error);
             }
           })();
 
           (async () => {
             try {
-
               let { data: postTransactionResponse } = await axios.post('https://askbitcoin.ai/api/v1/answers', {
                 transaction: rawTx
               });
-    
+
               console.log('postTransactionResponse', postTransactionResponse);
-    
-            } catch(error) {
-
-              console.error('postTransactionResponse', error)
-
+            } catch (error) {
+              console.error('postTransactionResponse', error);
             }
           })();
 
@@ -149,8 +141,8 @@ const QuestionDetailPage = () => {
 
   let { data, error, refresh, loading } = useAPI(`/questions/${query.question_id}`, queryParams);
 
-
-
+  let recent = [];
+  //let { data: recent } = useAPI('/recent/answers');
 
   if (error) {
     console.error('ERROR', error);
@@ -158,7 +150,6 @@ const QuestionDetailPage = () => {
   }
 
   if (!data) {
-
     return (
       <p>
         <FormattedMessage id="loading" />
@@ -172,40 +163,52 @@ const QuestionDetailPage = () => {
 
   const { question } = data;
 
-  console.log("DATAAA", data)
-
   var { answers } = question;
 
-  answers = answers.map(answer => {
-
+  answers = answers.map((answer) => {
     return Object.assign(answer, {
       difficulty: answer.boostpow_proofs.reduce((sum, { difficulty }) => {
-        return sum + difficulty
+        return sum + difficulty;
       }, 0)
-    })
+    });
+  });
 
-  })
-
-  answers = answers.sort((a, b) => a.difficulty < b.difficulty ? 1 : 0)
+  answers = answers.sort((a, b) => (a.difficulty < b.difficulty ? 1 : 0));
 
   return (
-    <MainCard>
-      <Post post={question} />
-      <FormControl question={question.tx_id} submit={postAnswer} placeholder="Add your answer" />
-      <Grid container sx={{ pb: '16px' }} spacing={1}>
-        <Grid item xs={6}>
-          <Typography align="right" variant="h2">
-            <FormattedMessage id="answers-pow" />
-          </Typography>
+    <>
+      <MainCard>
+        <Post post={question} />
+        <FormControl question={question.tx_id} submit={postAnswer} placeholder="Add your answer" />
+        <Grid container sx={{ pb: '16px' }} spacing={1}>
+          <Grid item xs={6}>
+            <Typography align="right" variant="h2">
+              <FormattedMessage id="answers-pow" />
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <FormControlSelect handleFilter={onChangeFilter} />
+          </Grid>
         </Grid>
-        <Grid item xs={6}>
-          <FormControlSelect handleFilter={onChangeFilter} />
-        </Grid>
-      </Grid>
-      {answers.map((answer) => {
-        return <Post key={answer.tx_id} answer post={answer} />;
-      })}
-    </MainCard>
+        {answers.map((answer) => {
+          return <Post key={answer.tx_id} answer post={answer} />;
+        })}
+      </MainCard>
+
+      <MainCard>
+        <Stack direction="column" justifyContent="flex-end">
+          <Box sx={{ padding: '2em' }}>
+            <Typography sx={{ p: '16px' }} align="center" variant="h2">
+              Recent Answers
+            </Typography>
+          </Box>
+          {recent?.answers &&
+            recent.answers.map((answer) => {
+              return <Post key={answer.id} post={answer} />;
+            })}
+        </Stack>
+      </MainCard>
+    </>
   );
 };
 QuestionDetailPage.Layout = 'authGuard';

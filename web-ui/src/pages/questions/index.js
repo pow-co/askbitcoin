@@ -1,6 +1,6 @@
 import { useState } from 'react';
 // material-ui
-import { Typography, Grid, Button, CardContent, Stack, Rating, Box} from '@mui/material';
+import { Typography, Grid, Button, CardContent, Stack, Rating, Box } from '@mui/material';
 
 // project imports
 import MainCard from 'components/ui-component/cards/MainCard';
@@ -90,72 +90,51 @@ const QuestionPage = () => {
 
           (async () => {
             try {
-
               let { data: postTransactionResponse } = await axios.post('https://askbitcoin.ai/api/v1/transactions', {
                 transaction: rawTx
               });
-    
+
               console.log('postTransactionResponse', postTransactionResponse);
-    
-            } catch(error) {
-
-              console.error('postTransactionResponse', error)
-
+            } catch (error) {
+              console.error('postTransactionResponse', error);
             }
           })();
 
           (async () => {
-
             try {
-
               let { data: postTransactionResponse } = await axios.post('https://askbitcoin.ai/api/v1/questions', {
                 transaction: rawTx
               });
-    
+
               console.log('api.questsions.post.response', postTransactionResponse);
 
               router.push(`/questions/${txid}`);
-    
-            } catch(error) {
-
-              console.error('api.questsions.post.response', error)
-
+            } catch (error) {
+              console.error('api.questsions.post.response', error);
             }
           })();
 
-
           (async () => {
-
             try {
-
               let { data: postTransactionResponse } = await axios.post('https://pow.co/api/v1/transactions', {
                 transaction: rawTx
               });
-    
+
               console.log('powco_post_transaction_response', postTransactionResponse);
-    
-            } catch(error) {
-
-              console.error('powco_post_transaction_response', error)
-
+            } catch (error) {
+              console.error('powco_post_transaction_response', error);
             }
           })();
 
-
           (async () => {
-
             try {
-
               let { data: postTransactionResponse } = await axios.post('https://pow.co/api/v1/jobs', {
                 transaction: rawTx
               });
-    
+
               console.log('powco_post_transaction_response', postTransactionResponse);
-    
-            } catch(error) {
-
-              console.error('powco_post_transaction_response', error)
-
+            } catch (error) {
+              console.error('powco_post_transaction_response', error);
             }
           })();
 
@@ -204,7 +183,6 @@ const QuestionPage = () => {
     return <p>Error</p>;
   }
 
-
   if (loading && !data) {
     return (
       <p>
@@ -217,7 +195,7 @@ const QuestionPage = () => {
     setQueryParams(filter.query);
   };
 
-  const { questions } = data;
+  const { questions } = data || [];
 
   return (
     <>
@@ -240,20 +218,20 @@ const QuestionPage = () => {
         </Stack>
       </MainCard>
 
-      <MainCard >
+      <MainCard>
         <Stack direction="column" justifyContent="flex-end">
           <Box sx={{ padding: '2em' }}>
             <Typography sx={{ p: '16px' }} align="center" variant="h2">
               Recently Asked Questions
             </Typography>
           </Box>
-          {recent?.questions && recent.questions.map((question) => {
-            return <Post key={question.id} post={question} />;
-          })}
+          {recent?.questions &&
+            recent.questions.map((question) => {
+              return <Post key={question.id} post={question} />;
+            })}
         </Stack>
       </MainCard>
     </>
-    
   );
 };
 

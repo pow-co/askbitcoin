@@ -131,6 +131,11 @@ interface RecentQuestionsQuery {
   limit?: number;
 }
 
+export async function recentQuestions(query: RecentQuestionsQuery={}): Promise<models.Question[]>{
+
+  return []
+}
+
 
 export async function loadQuestions(query: QuestionsQuery={}): Promise<models.Question[]> {
 

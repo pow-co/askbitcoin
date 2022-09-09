@@ -1,5 +1,5 @@
 // material-ui
-import { Typography, Button } from '@mui/material';
+import { Typography, Button, Stack, Box } from '@mui/material';
 
 import Link from 'next/link';
 
@@ -107,6 +107,9 @@ const AnswerDetailPage = () => {
 
   let { data, error, refresh, loading } = useAPI(`/answers/${query.answer_id}`);
 
+  let recent = [];
+  //let { data: recent } = useAPI(`/recent/answers`);
+
   console.log({ data, error, refresh, loading });
 
   if (error) {
@@ -132,13 +135,24 @@ const AnswerDetailPage = () => {
   //window.events = events;
 
   return (
-    <MainCard>
-      <h1>Answer</h1>
-      <Post answer post={answer} />
-      <h2>Question</h2>
-      <Post post={question} />
-      <FormControl question={question.tx_id} submit={postAnswer} placeholder="Answer this question" />
-    </MainCard>
+    <>
+      <MainCard>
+        <h1>Answer</h1>
+        <Post answer post={answer} />
+        <h2>Question</h2>
+        <Post post={question} />
+        <FormControl question={question.tx_id} submit={postAnswer} placeholder="Answer this question" />
+      </MainCard>
+      <MainCard>
+        <Stack direction="column" justifyContent="flex-end">
+          <Typography variant="h2">Other Answers</Typography>
+          {recent?.answers &&
+            recent.answers.map((answer) => {
+              return <Post key={answer.id} post={answer} />;
+            })}
+        </Stack>
+      </MainCard>
+    </>
   );
 };
 AnswerDetailPage.Layout = 'authGuard';

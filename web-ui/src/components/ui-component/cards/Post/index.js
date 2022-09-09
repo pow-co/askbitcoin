@@ -57,6 +57,8 @@ import { useRouter } from 'next/router';
 
 const avatarImage = '/assets/images/profile/';
 
+import { DateTime } from 'luxon';
+
 import axios from 'utils/axios';
 
 import { QRCodeSVG } from 'qrcode.react';
@@ -118,7 +120,7 @@ FormInput.propTypes = {
 const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAdd, answer }) => {
   const theme = useTheme();
   const router = useRouter();
-  const { tx_id, content, author, difficulty, answer_count, created_at } = post;
+  const { tx_id, content, author, difficulty, answers, created_at, timestamp } = post;
 
   const [qrDialogOpen, setQrDialogOpen] = React.useState(false);
 
@@ -230,7 +232,7 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
                     {/* <FiberManualRecordIcon sx={{ width: '10px', height: '10px', opacity: 0.5, m: '0 5px' }} /> */}
                     {/* {question.time} */}
                     <a target="_blank" rel="noopener" href={`https://whatsonchain.com/tx/${tx_id}`}>
-                      {new Date(created_at).toString('')}
+                      {DateTime.fromSeconds(parseInt(timestamp)).toRelative().toString()}
                     </a>
                   </Typography>
                 </Grid>
@@ -345,7 +347,7 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
           <Grid xs={2} md={4} item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
             <Button onClick={handleChangeComment} variant="text" color="inherit" startIcon={<ChatBubbleTwoToneIcon color="secondary" />}>
               {/* {data.comments ? data.comments.length : 0} comments */}
-              {answer_count}
+              {answers ? answers.length : 0}
             </Button>
           </Grid>
           {/* <Grid xs={4} justifyContent="center" item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
