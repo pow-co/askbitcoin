@@ -1,6 +1,6 @@
 import { useState } from 'react';
 // material-ui
-import { Typography, Grid, CardContent, Stack, Rating } from '@mui/material';
+import { Typography, Grid, Box, CardContent, Stack, Rating } from '@mui/material';
 
 // project imports
 import MainCard from 'components/ui-component/cards/MainCard';
@@ -20,6 +20,8 @@ import FormControlSelect from 'components/ui-component/extended/Form/FormControl
 const AnswersPage = () => {
   const [queryParams, setQueryParams] = useState('');
   let { data, error, refresh, loading } = useAPI('/answers', queryParams);
+
+  let { data: recent } = useAPI(`/recent/answers`);
 
   console.log({ data, error, refresh, loading });
 
@@ -45,23 +47,39 @@ const AnswersPage = () => {
   console.log({ data, answers });
 
   return (
-    <MainCard title={<FormattedMessage id="answers-pow" />}>
-      <Grid container sx={{ pb: '16px' }} spacing={1}>
-        <Grid item xs={6}>
-          <Typography align="right" variant="h2">
-            <FormattedMessage id="answers-pow" />
-          </Typography>
+    <>
+      <MainCard title={<FormattedMessage id="answers-pow" />}>
+        <Grid container sx={{ pb: '16px' }} spacing={1}>
+          <Grid item xs={6}>
+            <Typography align="right" variant="h2">
+              <FormattedMessage id="answers-pow" />
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <FormControlSelect handleFilter={onChangeFilter} />
+          </Grid>
         </Grid>
-        <Grid item xs={6}>
-          <FormControlSelect handleFilter={onChangeFilter} />
-        </Grid>
-      </Grid>
-      <Stack direction="column" justifyContent="flex-end">
-        {answers.map((answer) => {
-          return <Post key={answer.tx_id} answer post={answer} />;
-        })}
-      </Stack>
-    </MainCard>
+        <Stack direction="column" justifyContent="flex-end">
+          {answers.map((answer) => {
+            return <Post key={answer.tx_id} answer post={answer} />;
+          })}
+        </Stack>
+      </MainCard>
+
+      <MainCard>
+        <Stack direction="column" justifyContent="flex-end">
+          <Box sx={{ padding: '2em' }}>
+            <Typography sx={{ p: '16px' }} align="center" variant="h2">
+              Recent Answers
+            </Typography>
+          </Box>
+          {recent?.answers &&
+            recent.answers.map((answer) => {
+              return <Post key={answer.id} post={answer} />;
+            })}
+        </Stack>
+      </MainCard>
+    </>
   );
 };
 
