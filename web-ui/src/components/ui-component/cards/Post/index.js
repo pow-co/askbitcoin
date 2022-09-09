@@ -347,7 +347,7 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
           <Grid xs={2} md={4} item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
             <Button onClick={handleChangeComment} variant="text" color="inherit" startIcon={<ChatBubbleTwoToneIcon color="secondary" />}>
               {/* {data.comments ? data.comments.length : 0} comments */}
-              {answers.length}
+              {answers ? answers.length : 0}
             </Button>
           </Grid>
           {/* <Grid xs={4} justifyContent="center" item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
