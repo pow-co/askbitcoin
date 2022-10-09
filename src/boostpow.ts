@@ -52,7 +52,10 @@ export async function importProofsFromTxHex({tx_hex}: {tx_hex: string}): Promise
         log.info('planaria.importProofFromTxHex', { tx_hex })
 
         return
+        
     }
+
+    console.log('PROOF', proof)
 
     const timestamp = await getTimestamp(proof.txid)
 
@@ -75,8 +78,8 @@ export async function importProofsFromTxHex({tx_hex}: {tx_hex: string}): Promise
         difficulty: job.difficulty,
         job_tx_id: job.txid,
         job_tx_index: job.vout,
-        value: jobRecord.value,
-        price: jobRecord.price
+        //value: jobRecord.value,
+        //price: jobRecord.price
     })
 
     const [record, isNew] = await BoostpowProof.findOrCreate({
@@ -87,9 +90,13 @@ export async function importProofsFromTxHex({tx_hex}: {tx_hex: string}): Promise
         defaults
     })
 
-    jobRecord.proof_tx_id = proof.txid
+    if (jobRecord) {
 
-    await jobRecord.save()
+        jobRecord.proof_tx_id = proof.txid
+
+        await jobRecord['save']()
+
+    }
 
     return [record]
 

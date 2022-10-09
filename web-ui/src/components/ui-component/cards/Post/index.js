@@ -206,8 +206,6 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
     router.push(`/${answer ? 'answers' : 'questions'}/${tx_id}`);
   };
 
-  const selectedValue = '';
-
   function handleClickOpen() {
     console.log('handle click open');
   }

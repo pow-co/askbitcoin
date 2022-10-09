@@ -173,7 +173,7 @@ const QuestionDetailPage = () => {
     });
   });
 
-  answers = answers.sort((a, b) => (a.difficulty < b.difficulty ? 1 : 0));
+  answers = answers.sort((a, b) => (a.difficulty > b.difficulty ? 1 : -1));
 
   return (
     <>

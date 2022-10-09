@@ -4,12 +4,6 @@ import { Typography, Grid, Button, CardContent, Stack, Rating, Box } from '@mui/
 
 // project imports
 import MainCard from 'components/ui-component/cards/MainCard';
-import { gridSpacing } from 'store/constant';
-import StarTwoToneIcon from '@mui/icons-material/StarTwoTone';
-import StarBorderTwoToneIcon from '@mui/icons-material/StarBorderTwoTone';
-import RateReviewTwoToneIcon from '@mui/icons-material/RateReviewTwoTone';
-
-import Link from 'next/link';
 
 // ==============================|| QUESTION PAGE ||============================== //
 import { useAPI } from 'hooks/useAPI';
@@ -17,7 +11,6 @@ import useAuth from 'hooks/useAuth';
 import { FormattedMessage } from 'react-intl';
 import Post from 'components/ui-component/cards/Post';
 import FormControl from 'components/ui-component/extended/Form/FormControl';
-import Avatar from 'components/ui-component/extended/Avatar';
 
 import { useSnackbar } from 'notistack';
 import { useEvents } from 'hooks/useEvents';
@@ -26,13 +19,33 @@ import FormControlSelect from 'components/ui-component/extended/Form/FormControl
 import { useRouter } from 'next/router';
 import axios from 'utils/axios';
 
-const QuestionPage = () => {
-  const [queryParams, setQueryParams] = useState('');
+import moment from 'moment'
+
+function ago(period) {
+  return moment().subtract(1, period).unix() * 1000
+}
+
+const QuestionPage = ({ period }) => {
   const { user, wallet, isLoggedIn } = useAuth();
 
   const router = useRouter();
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
+  const timestamps = {
+    'all-time': 0,
+    'last-year': ago('year'),
+    'last-month': ago('month'),
+    'last-week': ago('week'),
+    'last-day': ago('day'),
+    'last-hour': ago('hour')
+  }
+
+  if (!period) { period = 'last-week' }
+
+  console.log('PERIOD', period)
+
+  const [queryParams, setQueryParams] = useState(`?start_timestamp=${timestamps[period]}`);
 
   async function postQuestion(content) {
     if (!isLoggedIn) {
@@ -172,7 +185,7 @@ const QuestionPage = () => {
 
   window.events = events;
 
-  let { data, error, refresh, loading } = useAPI(`/questions`, queryParams);
+  let { data, error, refresh, loading } = useAPI(`/questions${queryParams}`);
 
   let { data: recent } = useAPI(`/recent/questions`);
 
@@ -192,7 +205,10 @@ const QuestionPage = () => {
   }
 
   const onChangeFilter = (filter) => {
+
+    console.log('CHANGE FILTER', filter)
     setQueryParams(filter.query);
+
   };
 
   const { questions } = data || [];
@@ -208,11 +224,11 @@ const QuestionPage = () => {
             </Typography>
           </Grid>
           <Grid item xs={6}>
-            <FormControlSelect handleFilter={onChangeFilter} />
+            <FormControlSelect handleFilter={onChangeFilter} period={period}/>
           </Grid>
         </Grid>
         <Stack direction="column" justifyContent="flex-end">
-          {questions.map((question) => {
+          {questions && questions.map((question) => {
             return <Post key={question.id} post={question} />;
           })}
         </Stack>

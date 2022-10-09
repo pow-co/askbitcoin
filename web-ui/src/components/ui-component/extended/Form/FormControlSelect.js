@@ -6,9 +6,15 @@ import { useTheme } from '@mui/material/styles';
 import { Divider, FormControl, InputAdornment, MenuItem, Select, Typography } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 
+import { useRouter } from 'next/router';
+
+import moment from 'moment'
+
 // ==============================|| FORM CONTROL SELECT ||============================== //
 
-const FormControlSelect = ({ captionLabel, handleFilter, formState, iconPrimary, iconSecondary, selected, textPrimary, textSecondary }) => {
+
+
+const FormControlSelect = ({ captionLabel, handleFilter, formState, iconPrimary, iconSecondary, selected, period }) => {
   const [now, setNow] = useState(new Date());
   const theme = useTheme();
   const IconPrimary = iconPrimary;
@@ -17,61 +23,77 @@ const FormControlSelect = ({ captionLabel, handleFilter, formState, iconPrimary,
   const IconSecondary = iconSecondary;
   const secondaryIcon = iconSecondary ? <IconSecondary fontSize="small" sx={{ color: theme.palette.grey[700] }} /> : null;
 
-  var yearToNow = now;
-  yearToNow.setFullYear(yearToNow.getFullYear() - 1);
-  var monthToNow = now;
-  monthToNow.setMonth(monthToNow.getMonth() - 1);
-  var weekToNow = now;
-  weekToNow.setDate(weekToNow.getDay() - 7);
-  var dayToNow = now;
-  dayToNow.setDate(weekToNow.getDay() - 1);
-  var hourToNow = now;
-  hourToNow.setHours(hourToNow.getHours() - 1);
+  function ago(period) {
+    return moment(now).subtract(1, period).unix() * 1000
+  }
+
+  if (!period) {
+
+    period = 'last-week'
+  }
+
+  const router = useRouter()
 
   const filters = [
     {
       id: 0,
       title: <FormattedMessage id="all-time" />,
-      query: ''
+      query: '',
+      name: 'all-time'
     },
     {
       id: 1,
       title: <FormattedMessage id="year" />,
-      query: `?start_timestamp=${yearToNow.getTime()}`
+      query: `?start_timestamp=${ago('year')}`,
+      name: 'last-year'
     },
     {
       id: 2,
       title: <FormattedMessage id="month" />,
-      query: `?start_timestamp=${monthToNow.getTime()}`
+      query: `?start_timestamp=${ago('month')}`,
+      name: 'last-month'
     },
     {
       id: 3,
       title: <FormattedMessage id="week" />,
-      query: `?start_timestamp=${weekToNow.getTime()}`
+      query: `?start_timestamp=${ago('week')}`,
+      name: 'last-week'
     },
     {
       id: 4,
       title: <FormattedMessage id="day" />,
-      query: `?start_timestamp=${dayToNow.getTime()}`
+      query: `?start_timestamp=${ago('day')}`,
+      name: 'last-day'
     },
     {
       id: 5,
       title: <FormattedMessage id="hour" />,
-      query: `?start_timestamp=${hourToNow.getTime()}`
+      query: `?start_timestamp=${ago('hour')}`,
+      name: 'last-hour'
     }
   ];
+
+  console.log('PERIOD', period)
+
+  const filterIndex = filters.filter(f => f.name === period)[0]
 
   const errorState = formState === 'error';
   const val = selected || '';
 
   // const [filter, setFilter] = useState(val);
-  const [filter, setFilter] = useState(0);
+  var [filter, setFilter] = useState(filterIndex.id);
   const handleChange = (event) => {
+
+    console.log('HANDLE CHANGE', event.target.value)
     event.preventDefault();
-    setNow(Date.now());
-    handleFilter(filters[event.target.value]);
-    setFilter(event.target.value);
+    //handleFilter(filters[event.target.value]);
+    //setFilter(event.target.value);
+
+    window.location = `/questions/${filters[event.target.value].name}`
+
   };
+
+  console.log({ filter, filters})
 
   return (
     <FormControl error={errorState}>
@@ -79,36 +101,12 @@ const FormControlSelect = ({ captionLabel, handleFilter, formState, iconPrimary,
         id="outlined-select-filter"
         variant="standard"
         disableUnderline
-        label={captionLabel}
+        label={filter}
         value={filter}
         onChange={handleChange}
-        /* InputProps={{
-          startAdornment: (
-            <>
-              {primaryIcon && <InputAdornment position="start">{primaryIcon}</InputAdornment>}
-              {textPrimary && (
-                <>
-                  <InputAdornment position="start">{textPrimary}</InputAdornment>
-                  <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
-                </>
-              )}
-            </>
-          ),
-          endAdornment: (
-            <>
-              {secondaryIcon && <InputAdornment position="end">{secondaryIcon}</InputAdornment>}
-              {textSecondary && (
-                <>
-                  <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
-                  <InputAdornment position="end">{textSecondary}</InputAdornment>
-                </>
-              )}
-            </>
-          )
-        }} */
       >
         {filters.map((option, index) => (
-          <MenuItem key={index} value={option.id}>
+          <MenuItem key={index} value={option.id} selected={filter === 0}>
             <Typography variant="h3" color="primary">
               {option.title}
             </Typography>
