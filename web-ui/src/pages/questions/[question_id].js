@@ -57,8 +57,8 @@ const QuestionDetailPage = () => {
           let result = await relayone.send({
             opReturn: ['onchain', '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', 'answer', json],
             currency: 'USD',
-            amount: 0.01,
-            to: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN'
+            amount: 0.02,
+            to: 'askbitcoin@relayx.io'
           });
           let { amount, currency, identity, paymail, rawTx, satoshis, txid } = result;
           console.log(result);

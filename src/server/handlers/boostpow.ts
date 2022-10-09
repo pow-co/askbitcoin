@@ -10,22 +10,23 @@ import * as moment from 'moment'
 import { quoteDifficulty } from '../../prices'
 
 import { badRequest } from 'boom'
+
 import * as models from '../../models'
 
-import { sequelize } from '../../models'
-
 import { Op } from 'sequelize'
-import { importJobsFromTxHex } from '../../boostpow'
 
+import { prices } from '../..'
+
+import { Address } from 'bsv'
 
 function isHex(num) {
   return Boolean(num.match(/^0x[0-9a-f]+$/i))
 }
 
-
 export async function build (req, h) {
 
   try {
+
     var { currency, value, difficulty, category, tag } = req.query
 
     if (!currency) { currency = 'USD' }
@@ -57,6 +58,12 @@ export async function build (req, h) {
       newJob['tag'] = tag
       
     }
+
+    const feeAmountBsv = await prices.convertPrice(0.01, 'USD', 'BSV')
+
+    const feeSatoshis = feeAmountBsv * 100_000_000
+
+    const feeScript = new Address('16oWWdfgsoFXKfWo27vDHDVEaTUshqFr1h').toScript().toString('hex') // askbitcoin@relayx.io
   
     const script = BoostPowJob.fromObject(newJob).toHex()
   
@@ -72,6 +79,9 @@ export async function build (req, h) {
       outputs: [{
         script,
         amount
+      }, {
+        script: feeScript,
+        amount: feeSatoshis
       }]
     }
   
@@ -86,7 +96,6 @@ export async function build (req, h) {
     return badRequest(error)
 
   }
-
 
 }
 

@@ -57,11 +57,13 @@ import { Question } from './question'
 import { Answer } from './answer'
 import { BoostpowProof } from './boostpow_proof'
 import { BoostpowJob } from './boostpow_job'
+import { KeyValue } from './key_value'
 
 export { Question }
 export { Answer }
 export { BoostpowProof }
 export { BoostpowJob }
+export { KeyValue }
 
 export { Event } from './event'
 
