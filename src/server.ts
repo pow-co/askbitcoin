@@ -344,7 +344,8 @@ export async function NewServer(): Promise<Server> {
       validate: {
         query: Joi.object({
           currency: Joi.string().default('USD').optional(),
-          value: Joi.number().default(0.05).optional()
+          value: Joi.number().default(0.05).optional(),
+          difficulty: Joi.number().optional()
         }).label('NewBoostPowOptions'),
         params: Joi.object({
           tx_id: Joi.string().required()

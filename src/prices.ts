@@ -2,6 +2,10 @@
 import axios from 'axios'
 
 import BigNumber from 'bignumber.js'
+import config from './config'
+import log from './log'
+
+const USD_PER_DIFFICULTY=100
 
 export async function convert(satoshis: number, currency: string): Promise<number> {
 
@@ -30,19 +34,29 @@ interface DifficultyQuote {
   difficulty: number;
 }
 
-export async function quoteDifficulty({ currency, value }): Promise<DifficultyQuote> {
+interface QuoteDiffifculty {
+  currency: string;
+  value: number;
+  difficulty: number;
+}
 
-  value = await convertPrice(value, currency, 'USD')
+export async function quoteDifficulty({ currency, value, difficulty }: QuoteDiffifculty): Promise<DifficultyQuote> {
 
-  const pricePerDifficulty = { currency: 'USD', value: 100 }
+  log.info('difficulty.quote', { currency, value, difficulty })
 
-  const difficulty = new BigNumber(value).dividedBy(pricePerDifficulty.value).toNumber()
+  const bsv_amount = await convertPrice(value, currency, 'BSV')
 
-  const price = new BigNumber(difficulty).times(pricePerDifficulty.value).toNumber()
+  currency = 'BSV'
 
-  const bsv_amount = await convertPrice(price, 'USD', 'BSV')
+  if (!difficulty) {
+
+    difficulty = new BigNumber(value).dividedBy(config.get('bsv_per_difficulty')).toNumber()
+
+  }
 
   const satoshis = toSatoshis(bsv_amount)
+
+  log.info('difficulty.quote.result', { currency, value, satoshis, difficulty})
 
   return { satoshis, difficulty }
 
