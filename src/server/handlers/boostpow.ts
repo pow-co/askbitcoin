@@ -17,7 +17,7 @@ import { Op } from 'sequelize'
 
 import { prices } from '../..'
 
-import { Address } from 'bsv'
+import { Address, Script } from 'bsv'
 
 function isHex(num) {
   return Boolean(num.match(/^0x[0-9a-f]+$/i))
@@ -59,11 +59,11 @@ export async function build (req, h) {
       
     }
 
-    const feeAmountBsv = await prices.convertPrice(0.01, 'USD', 'BSV')
+    const feeAmountBsv = await prices.convertPrice(0.02, 'USD', 'BSV')
 
     const feeSatoshis = feeAmountBsv * 100_000_000
 
-    const feeScript = new Address('16oWWdfgsoFXKfWo27vDHDVEaTUshqFr1h').toScript().toString('hex') // askbitcoin@relayx.io
+    const feeScript = Script.fromAddress(new Address('16oWWdfgsoFXKfWo27vDHDVEaTUshqFr1h')).toHex()
   
     const script = BoostPowJob.fromObject(newJob).toHex()
   
