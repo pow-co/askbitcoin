@@ -69,7 +69,7 @@ const BoostButton = ({ txid, content, difficulty }) => {
 
       // Post the new boostpow job transaction to the indexer API at pow.co
       axios
-        .post(`https://pow.co/api/v1/boost/jobs/${txid}`)
+        .get(`https://pow.co/api/v1/boost/jobs/${txid}`)
         .then(({ data }) => {
           console.log(`pow.co/api/v1/jobs/${result.txid}.result`, data);
         })
