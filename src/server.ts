@@ -150,8 +150,13 @@ export async function NewServer(): Promise<Server> {
     path: '/api/v1/questions/new',
     handler: handlers.Questions.build,
     options: {
-      description: 'Returns required Transaction Outputs for a AskBitcoinQuestion',
+      description: 'Returns BIP 270 Payment Request for A New Question',
       tags: ['api', 'questions'],
+      validate: {
+        payload: Joi.object({
+          question: Joi.string().required()
+        }).required().label('BuildQuestion')
+      },
       response: {
         failAction: 'log',
         schema: Joi.object({
@@ -184,14 +189,19 @@ export async function NewServer(): Promise<Server> {
     path: '/api/v1/questions',
     handler: handlers.Questions.create,
     options: {
-      description: 'Submit signed bitcoin transaction containing AskQuestion',
+      description: 'Submit signed bitcoin transaction containing a Question',
       tags: ['api', 'questions'],
+      validate: {
+        payload: Joi.object({
+          transaction: Joi.string()
+        })
+        .label('ImportQuestionTransaction')
+      },
       response: {
         failAction: 'log',
         schema: Joi.object({
-          outputs: Outputs.required(),
-          error: Joi.string().optional()
-        }).label('AskQuestionTransaction')
+          questions: Joi.array().required()
+        }).label('Questions')
       }
     }
   })
@@ -199,16 +209,65 @@ export async function NewServer(): Promise<Server> {
   server.route({
     method: 'POST',
     path: '/api/v1/answers',
-    handler: handlers.Answers.create,
+    handler: handlers.Answers.createByTxhex,
     options: {
-      description: 'Submit signed bitcoin transaction containing AnswerQuestion',
+      description: 'Submit signed bitcoin transaction containing an Answer',
       tags: ['api', 'answers'],
+      validate: {
+        payload: Joi.object({
+          transaction: Joi.string()
+        })
+        .label('ImportAnswerTransaction')
+      },
       response: {
         failAction: 'log',
         schema: Joi.object({
-          outputs: Outputs.required(),
-          error: Joi.string().optional()
-        }).label('AnswerQuestionTransaction')
+          answers: Joi.array().required()
+        }).label('Answers')
+      }
+    }
+  })
+
+  server.route({
+    method: 'POST',
+    path: '/api/v1/answers/{txid}',
+    handler: handlers.Answers.createByTxid,
+    options: {
+      description: 'Import a bitcoin transaction containing an Answer',
+      tags: ['api', 'answers'],
+      validate: {
+        params: Joi.object({
+          txid: Joi.string()
+        })
+        .label('ImportAnswerTxid')
+      },
+      response: {
+        failAction: 'log',
+        schema: Joi.object({
+          answers: Answers.required()
+        }).label('Answers')
+      }
+    }
+  })
+
+  server.route({
+    method: 'POST',
+    path: '/api/v1/questions/{txid}',
+    handler: handlers.Questions.createByTxid,
+    options: {
+      description: 'Import a bitcoin transaction containing a Question',
+      tags: ['api', 'questions'],
+      validate: {
+        params: Joi.object({
+          txid: Joi.string()
+        })
+        .label('ImportQuestionTxid')
+      },
+      response: {
+        failAction: 'log',
+        schema: Joi.object({
+          answers: Questions.required()
+        }).label('Questions')
       }
     }
   })

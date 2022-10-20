@@ -8,8 +8,25 @@ import { models, sequelize } from '../../models'
 import * as moment from 'moment'
 
 import { Op } from 'sequelize'
+import { importAnswersByTxHex, importAnswersByTxid } from '../../answers'
 
 export async function create(req, h) {
+
+}
+
+export async function createByTxid(req, h) {
+
+  const answers = await importAnswersByTxid(req.params.txid)
+
+  return { answers }
+
+}
+
+export async function createByTxhex(req, h) {
+
+  const answers = await importAnswersByTxHex(req.params.transaction)
+
+  return { answers }
 
 }
 
@@ -187,26 +204,36 @@ export async function show(req, h) {
   
     }  
 
-    const answer = await models.Answer.findOne({
+    console.log('PARAMS', req.params)
+
+    let answer = await models.Answer.findOne({
 
       where: { tx_id: req.params.tx_id },
 
       include: [{
-        model: models.BoostpowProof,
-        as: 'boostpow_proofs',
-        where
-      }, {
-        model: models.BoostpowJob,
-        as: 'boostpow_jobs',
-        where: {
-          proof_tx_id: null
-        }
-      },{
         model: models.Question,
         as: 'question'
       }]
 
     })
+
+    console.log("ANSWER 0", answer)
+
+    if (!answer) {
+
+      await importAnswersByTxid(req.params.tx_id)
+
+      answer = await models.Answer.findOne({
+
+        where: { tx_id: req.params.tx_id },
+
+        include: [{
+          model: models.Question,
+          as: 'question'
+        }]
+
+      })
+    }
 
     if (!answer) {
 

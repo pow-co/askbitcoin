@@ -1,7 +1,7 @@
 
 import { badRequest, notFound } from 'boom'
 
-import { importQuestionsByTxHex } from '../../questions'
+import { importQuestionsByTxHex, importQuestionsByTxid } from '../../questions'
 
 import { models, sequelize } from '../../models'
 
@@ -28,6 +28,13 @@ export async function create(req, h) {
     return badRequest(error)
 
   }
+
+}
+export async function createByTxid(req, h) {
+
+  const questions = await importQuestionsByTxid(req.params.txid)
+
+  return { questions }
 
 }
 

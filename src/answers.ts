@@ -5,7 +5,7 @@ import { Question } from './questions'
 
 import { Author } from './authors'
 
-import { Transaction } from './transactions'
+import { ensureTransaction, Transaction } from './transactions'
 
 import * as txo from 'txo'
 
@@ -170,13 +170,23 @@ export async function importAnswersByTxid(txid: string): Promise<ImportAnswerRes
 
   }
 
+  log.info('answers.importByTxid.blockchain.fetch', { txid })
+
   const hex = await run.blockchain.fetch(txid)
 
-  return importAnswersByTxHex(hex)
+  log.info('answers.importByTxid.fetch.result', { txid, hex })
+
+  return importAnswersByTxHex(hex, true)
 
 }
 
-export async function importAnswersByTxHex(hex: string): Promise<ImportAnswerResult[]> {
+export async function importAnswersByTxHex(hex: string, verified: boolean=false): Promise<ImportAnswerResult[]> {
+
+  if (!verified) {
+
+    await ensureTransaction(hex)
+
+  }
 
   const answers: Answer[] = await parseAnswersFromTxHex(hex)
 
