@@ -38,9 +38,6 @@ const AnswerDetailPage = () => {
 
   let { data, error, refresh, loading } = useAPI(`/answers/${query.answer_id}`);
 
-  let { data: questionData, error: questionError, refresh: questionRefresh, loading: questionLoading } = useAPI(`/questions/${question.tx_id}`, queryParams);
-
-
   async function postAnswer(question_tx_id, content) {
     const json = JSON.stringify({
       question_tx_id,
@@ -194,7 +191,7 @@ const AnswerDetailPage = () => {
           <FormControlSelect handleFilter={onChangeFilter} />
         </Grid>
       </Grid>
-      {questionData.question.answers.map((answer) => {
+      {data.question?.answers.map((answer) => {
         return <Answer key={answer.tx_id} answer post={answer} />;
       })}
     </MainCard>
