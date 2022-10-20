@@ -37,7 +37,7 @@ interface DifficultyQuote {
 interface QuoteDiffifculty {
   currency: string;
   value: number;
-  difficulty: number;
+  difficulty?: number;
 }
 
 export async function quoteDifficulty({ currency, value, difficulty }: QuoteDiffifculty): Promise<DifficultyQuote> {
