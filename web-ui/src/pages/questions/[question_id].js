@@ -7,10 +7,16 @@ import Link from 'next/link';
 // project imports
 import MainCard from 'components/ui-component/cards/MainCard';
 import Post from 'components/ui-component/cards/Post';
+
+import Answer from 'components/ui-component/cards/Post/Answer'
+import Question from 'components/ui-component/cards/Post/Question'
+
 import FormControl from 'components/ui-component/extended/Form/FormControl';
 import FormControlSelect from 'components/ui-component/extended/Form/FormControlSelect';
 
 import { useAPI } from 'hooks/useAPI';
+
+import axios from 'hooks/useAPI'
 import useAuth from 'hooks/useAuth';
 
 import { useRouter } from 'next/router';
@@ -33,6 +39,10 @@ const QuestionDetailPage = () => {
   const query = router.query;
 
   const { enqueueSnackbar } = useSnackbar();
+
+  const events = useEvents(`questions.${query.question_id}.answer`, onAnswer);
+
+  let { data, error, refresh, loading } = useAPI(`/questions/${query.question_id}`, queryParams);
 
   async function postAnswer(question_tx_id, content) {
     const json = JSON.stringify({
@@ -63,7 +73,7 @@ const QuestionDetailPage = () => {
           let { amount, currency, identity, paymail, rawTx, satoshis, txid } = result;
           console.log(result);
 
-          enqueueSnackbar(`Answer Posted by ${paymail}`, {
+          enqueueSnackbar(`Answer Posted`, {
             anchorOrigin: {
               vertical: 'top',
               horizontal: 'center'
@@ -76,13 +86,18 @@ const QuestionDetailPage = () => {
             )
           });
 
-          /* let { data: postTransactionResponse } = await axios.post('https://askbitcoin.ai/api/v1/transactions', {
-            transaction: rawTx
-          });
+          (async () => {
+            try {
 
-          console.log('postTransactionResponse', postTransactionResponse); */
+              await axios.get(`https://askbitcoin.ai/api/v1/answers/${txid}`);
 
-          //router.push(`/answers/${txid}`);
+              refresh()
+
+            } catch (error) {
+
+              console.error('api.answers.show.error', error);
+            }
+          })();
 
           (async () => {
             try {
@@ -135,12 +150,6 @@ const QuestionDetailPage = () => {
     enqueueSnackbar(`new answer: ${answer.content}`);
   }
 
-  const events = useEvents(`questions.${query.question_id}.answer`, onAnswer);
-
-  window.events = events;
-
-  let { data, error, refresh, loading } = useAPI(`/questions/${query.question_id}`, queryParams);
-
   let recent = [];
   //let { data: recent } = useAPI('/recent/answers');
 
@@ -178,7 +187,7 @@ const QuestionDetailPage = () => {
   return (
     <>
       <MainCard>
-        <Post post={question} />
+        <Question post={question} />
         <FormControl question={question.tx_id} submit={postAnswer} placeholder="Add your answer" />
         <Grid container sx={{ pb: '16px' }} spacing={1}>
           <Grid item xs={6}>
@@ -191,7 +200,7 @@ const QuestionDetailPage = () => {
           </Grid>
         </Grid>
         {answers.map((answer) => {
-          return <Post key={answer.tx_id} answer post={answer} />;
+          return <Answer key={answer.tx_id} answer post={answer} />;
         })}
       </MainCard>
 
@@ -204,7 +213,7 @@ const QuestionDetailPage = () => {
           </Box>
           {recent?.answers &&
             recent.answers.map((answer) => {
-              return <Post key={answer.id} post={answer} />;
+              return <Answer key={answer.id} post={answer} />;
             })}
         </Stack>
       </MainCard>

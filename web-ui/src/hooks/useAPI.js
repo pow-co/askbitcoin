@@ -7,6 +7,7 @@ export const BASE = `${baseURL}/api/v1`;
 
 import axios from '../utils/axios';
 
+
 //const axiosInstance = axios.create({ baseURL: process.env.HOST_API_KEY || '' });
 const axiosInstance = axios.create({ baseURL });
 

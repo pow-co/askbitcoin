@@ -31,8 +31,8 @@ import gfm from 'remark-gfm';
 import { useSnackbar } from 'notistack';
 
 // project imports
-import Comment from './Comment';
-import MainCard from '../MainCard';
+import Comment from '../Comment';
+import MainCard from '../../MainCard';
 import AnimateButton from 'components/ui-component/extended/AnimateButton';
 import ImageList from 'components/ui-component/extended/ImageList';
 import Avatar from 'components/ui-component/extended/Avatar';
@@ -114,6 +114,9 @@ FormInput.propTypes = {
   required: PropTypes.bool,
   fullWidth: PropTypes.bool
 };
+
+import moment from 'moment'
+
 
 // ==============================|| SOCIAL PROFILE - POST ||============================== //
 
@@ -202,16 +205,15 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
             <Grid item xs zeroMinWidth>
               <Grid container alignItems="center" spacing={1}>
                 <Grid item>
-                  <Typography align="left" variant="h5" component="div">
+                  {author && <Typography align="left" variant="h5" component="div">
                     {author ? author.name : 'Anonymous'}
-                  </Typography>
+                  </Typography>}
                 </Grid>
                 <Grid item>
                   <Typography align="left" variant="caption">
-                    {/* <FiberManualRecordIcon sx={{ width: '10px', height: '10px', opacity: 0.5, m: '0 5px' }} /> */}
-                    {/* {question.time} */}
+
                     <a target="_blank" rel="noopener" href={`https://whatsonchain.com/tx/${tx_id}`}>
-                      {DateTime.fromSeconds(parseInt(timestamp)).toRelative().toString()}
+                      {moment(timestamp).format('MMM Do YYYY, h:mm:ss a')}
                     </a>
                   </Typography>
                 </Grid>
@@ -264,14 +266,11 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
                 >
                   View QR Code
                 </MenuItem>
-                {/* <MenuItem onClick={handleClose}>Edit</MenuItem>
-                <MenuItem onClick={handleClose}>Delete</MenuItem> */}
               </Menu>
             </Grid>
           </Grid>
         </Grid>
 
-        {/* post - content */}
         <Grid
           item
           xs={12}
@@ -288,31 +287,6 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
           <BoostpowQrCodeDialog tx_id={tx_id} currency={'USD'} value={0.05} open={qrDialogOpen} onClose={handleClose} />
         </Grid>
 
-        {/* post - photo grid */}
-        {/* {data && data.images && data.images.length > 0 && (
-            <Grid item xs={12}>
-              <ImageList itemData={data.images} />
-            </Grid>
-          )} */}
-
-        {/* post - video */}
-        {/* {data.video && (
-            <Grid item xs={12} sx={{ '&.MuiGrid-root': { pt: 2 } }}>
-              <CardMedia
-                sx={{
-                  borderRadius: `${borderRadius}px`,
-                  height: 330,
-                  [theme.breakpoints.down('xl')]: {
-                    height: 220
-                  }
-                }}
-                component="iframe"
-                src={`https://www.youtube.com/embed/${data.video}`}
-              />
-            </Grid>
-          )} */}
-
-        {/* post - comment, likes and replay history */}
         <Grid
           item
           xs={12}
@@ -325,113 +299,16 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
           <Grid xs={3} md={4} item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}></Grid>
           <Grid xs={2} md={4} item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
             <Button onClick={handleChangeComment} variant="text" color="inherit" startIcon={<ChatBubbleTwoToneIcon color="secondary" />}>
-              {/* {data.comments ? data.comments.length : 0} comments */}
               {answers ? answers.length : 0}
             </Button>
           </Grid>
-          {/* <Grid xs={4} justifyContent="center" item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
-            <Button
-              variant="text"
-              onClick={(event) => {
-                event.stopPropagation();
-                setQrDialogOpen(true);
-                return false;
-              }}
-              color="inherit"
-              size="small"
-              //startIcon={<ThumbUpAltTwoToneIcon color={data && data.likes && data.likes.like ? 'primary' : 'inherit'} />}
-              startIcon={<QrCode color={'inherit'} />}
-            ></Button>
-          </Grid> */}
+
           <Grid xs={6} md={4} justifyContent="center" item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
             <BoostButton txid={tx_id} content={content} difficulty={difficulty} />
           </Grid>
-          {/* <Button
-                  variant="text"
-                  onClick={handleBoost}
-                  color="inherit"
-                  size="small"
-                  //startIcon={<ThumbUpAltTwoToneIcon color={data && data.likes && data.likes.like ? 'primary' : 'inherit'} />}
-                  startIcon={<ThumbUpAltTwoToneIcon color={'inherit'} />}
-                >
-                  {difficulty}
-                  <Typography color="inherit" sx={{ fontWeight: 500, ml: 0.5, display: { xs: 'none', sm: 'block' } }}>
-                    D
-                  </Typography>
-                </Button> */}
-          {/* <Grid item>
-                <IconButton onClick={handleSharedClick} size="large">
-                  <ShareTwoToneIcon sx={{ width: '1rem', height: '1rem' }} />
-                </IconButton>
-                <Menu
-                  id="menu-post"
-                  anchorEl={anchorSharedEl}
-                  keepMounted
-                  open={Boolean(anchorSharedEl)}
-                  onClose={handleSharedClose}
-                  variant="selectedMenu"
-                  anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'right'
-                  }}
-                  transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right'
-                  }}
-                  sx={{
-                    '& .MuiSvgIcon-root': {
-                      marginRight: '14px',
-                      fontSize: '1.25rem'
-                    }
-                  }}
-                >
-                  <MenuItem onClick={handleSharedClose}>
-                    <ShareTwoToneIcon fontSize="inherit" /> Share Now
-                  </MenuItem>
-                  <MenuItem onClick={handleSharedClose}>
-                    <PeopleAltTwoToneIcon fontSize="inherit" /> Share to Friends
-                  </MenuItem>
-                  <MenuItem onClick={handleSharedClose}>
-                    <ChatTwoToneIcon fontSize="inherit" /> Send in Messanger
-                  </MenuItem>
-                  <MenuItem onClick={handleSharedClose}>
-                    <ContentCopyTwoToneIcon fontSize="inherit" /> Copy Link
-                  </MenuItem>
-                </Menu>
-              </Grid> */}
+
         </Grid>
-        {/* add new comment */}
-        {/* <Collapse in={openComment} sx={{ width: '100%' }}>
-            {openComment && (
-              <Grid item xs={12} sx={{ pt: 2 }}>
-                <form onSubmit={handleSubmit(onSubmit)}>
-                  <Grid container spacing={2} alignItems="flex-start">
-                    <Grid item sx={{ display: { xs: 'none', sm: 'block' } }}>
-                      <Avatar
-                        sx={{ mt: 0.75 }}
-                        alt="User 1"
-                        src={profile && profile.avatar ? `${avatarImage}${profile.avatar}` : `${avatarImage}user-1.png`}
-                        size="xs"
-                      />
-                    </Grid>
-                    <Grid item xs zeroMinWidth>
-                      <FormProvider {...methods}>
-                        <FormInput fullWidth name="name" label="Write a comment..." size={matchesXS ? 'small' : 'medium'} bug={errors} />
-                      </FormProvider>
-                    </Grid>
-                    <Grid item>
-                      <AnimateButton>
-                        <Button type="submit" variant="contained" color="secondary" size={matchesXS ? 'small' : 'large'} sx={{ mt: 0.5 }}>
-                          Comment
-                        </Button>
-                      </AnimateButton>
-                    </Grid>
-                  </Grid>
-                </form>
-              </Grid>
-            )}
-          </Collapse>
-          {commentsResult} */}
+
       </Grid>
     </MainCard>
   );
