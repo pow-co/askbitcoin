@@ -55,8 +55,6 @@ export async function importProofsFromTxHex({tx_hex}: {tx_hex: string}): Promise
         
     }
 
-    console.log('PROOF', proof)
-
     const timestamp = await getTimestamp(proof.txid)
 
     const jobRecord = await BoostpowJob.findOne({
@@ -84,8 +82,8 @@ export async function importProofsFromTxHex({tx_hex}: {tx_hex: string}): Promise
 
     const [record, isNew] = await BoostpowProof.findOrCreate({
         where: {
-        tx_id: proof.txid,
-        tx_index: proof.vin
+          tx_id: proof.txid,
+          tx_index: proof.vin
         },
         defaults
     })

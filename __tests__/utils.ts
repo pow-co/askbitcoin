@@ -46,10 +46,11 @@ import { Server } from 'hapi'
 
 export var server: Server
 
-before(async () => {
+export async function setupServer() {
 
-    process.kill(process.pid, "SIGHUP"); 
+  process.kill(process.pid, "SIGHUP"); 
 
-    server = await NewServer()
+  server = await NewServer()
 
-})
+}
+

@@ -5,9 +5,13 @@ import { models } from '../models'
 
 import * as moment from 'moment'
 
+import log from '../log'
+
 import delay from 'delay'
 
-export default async function start() {
+export async function start() {
+
+  log.info('crawlers.import_powco_work.start')
 
   const [storage] = await models.KeyValue.findOrCreate({
     where: {
@@ -20,8 +24,6 @@ export default async function start() {
       }
     }
   })
-
-  console.log('STORAGE', storage.toJSON())
 
   const { start_timestamp } = storage.value
 
@@ -42,8 +44,6 @@ export default async function start() {
     }
 
     for (let { tx_hex, content, timestamp, spend_tx_id: tx_id } of data.work) {
-
-      console.log({tx_hex, content, timestamp})
 
       const question = await models.Question.findOne({
         where: {
@@ -83,10 +83,32 @@ export default async function start() {
 
   }
 
+  log.info('crawlers.import_powco_work.end')
+
 }
+
+export default start
 
 if (require.main === module) {
 
-  start()
+  (async () => {
+
+    while (true) {
+
+      try {
+
+        await start()
+
+        await delay(5200)
+
+      } catch(error) {
+
+        log.error("crawlers.import_powco_work.error", error)
+
+      }
+
+    }
+
+  })()
 
 }

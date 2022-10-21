@@ -11,6 +11,8 @@ import { start as actors } from './rabbi/actors'
 
 import { sync_boost_orders, sync_ask_bitcoin, sync_boost_onchain } from './planaria'
 
+import { start as import_powco_work_crawler } from './crawlers/import_powco_work'
+
 import { onchain } from './rabbi/onchain/bitsocket'
 
 import { spawn } from 'child_process'
@@ -51,6 +53,11 @@ export async function start() {
 
   }
 
+  if (config.get('sync_powco')) {
+
+    import_powco_work_crawler()
+
+  }
 
   if (config.get('sync_boost')) {
 

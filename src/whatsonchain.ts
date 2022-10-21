@@ -29,8 +29,6 @@ export async function getTimestamp(txid: string): Promise<Date> {
 
   let {body} = await http.get(url)
 
-  console.log('GET TIMESTAMP BODY', body)
-
   return new Date(parseInt(body.time) * 1000)
 
 }
