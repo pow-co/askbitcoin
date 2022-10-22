@@ -6,6 +6,12 @@ import * as bsv from 'bsv'
 
 const { version } = require('../../package')
 
+import { Op } from 'sequelize'
+
+import * as models from '../models'
+
+import { formatStringAsUrlStub } from '../url'
+
 import { run } from '../run'
 
 import { log } from '../log'
@@ -87,9 +93,9 @@ program
 
     //let questions = client.listQuestions()
 
-    let questions = await AskBitcoin.questions.list()
+    //let questions = await AskBitcoin.questions.list()
 
-    console.log(questions)
+    //console.log(questions)
 
     process.exit(0)
 
@@ -265,6 +271,36 @@ function createBoostpowTransaction(params: CreateBoostPowTransaction): bsv.Trans
   return transaction
 
 }
+
+program
+  .command('set-url-stubs')
+  .action(async () => {
+
+    const questions = await models.Question.findAll({
+      where: {
+        url_stub: {
+          [Op.eq]: null
+        }
+      }
+    })
+
+    for (let question of questions) {
+
+      try {
+
+        question.url_stub = formatStringAsUrlStub(question.content)
+
+        await question.save()
+
+      } catch(error) {
+
+        log.error("question.set_url_stub.error", error)
+
+      }
+
+    }
+
+  })
 
 program
   .command('boost <content_tx_id> <content_tx_index> <value> [currency]')

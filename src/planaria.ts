@@ -545,53 +545,63 @@ async function handleQuestion(data: OnchainTransaction) {
 
 export async function importProofFromTxHex(txhex: string): Promise<BoostpowProof | null> {
 
-  let proof = boostpow.BoostPowJobProof.fromRawTransaction(txhex)
+  try {
 
-  if (!proof) {
+    let proof = boostpow.BoostPowJobProof.fromRawTransaction(txhex)
 
-    log.info('planaria.importProofFromTxHex', { txhex })
+    if (!proof) {
 
-    return
-  }
+      log.info('planaria.importProofFromTxHex', { txhex })
 
-  const timestamp = await whatsonchain.getTimestamp(proof.txid)
-
-  const jobRecord = await models.BoostpowJob.findOne({
-    where: {
-      tx_id: proof.spentTxid,
-      tx_index: proof.spentVout
+      return
     }
-  })
 
-  const job_tx = await run.blockchain.fetch(proof.spentTxid)
+    const timestamp = await whatsonchain.getTimestamp(proof.txid)
 
-  const job: boostpow.Job = boostpow.Job.fromRawTransaction(job_tx)
+    const jobRecord = await models.BoostpowJob.findOne({
+      where: {
+        tx_id: proof.spentTxid,
+        tx_index: proof.spentVout
+      }
+    })
 
-  const defaults = Object.assign(proof.toObject(), {
-    tx_id: proof.txid,
-    tx_index: proof.vin,
-    timestamp,
-    content_tx_id: job.toObject().content,
-    difficulty: job.difficulty,
-    job_tx_id: job.txid,
-    job_tx_index: job.vout,
-    value: jobRecord.value,
-    price: jobRecord.price
-  })
+    const job_tx = await run.blockchain.fetch(proof.spentTxid)
 
-  const [record, isNew] = await models.BoostpowProof.findOrCreate({
-    where: {
+    const job: boostpow.Job = boostpow.Job.fromRawTransaction(job_tx)
+
+    const defaults = Object.assign(proof.toObject(), {
       tx_id: proof.txid,
-      tx_index: proof.vin
-    },
-    defaults
-  })
+      tx_index: proof.vin,
+      timestamp,
+      content_tx_id: job.toObject().content,
+      difficulty: job.difficulty,
+      job_tx_id: job.txid,
+      job_tx_index: job.vout,
+      value: jobRecord.value,
+      price: jobRecord.price
+    })
 
-  jobRecord.proof_tx_id = proof.txid
+    const [record, isNew] = await models.BoostpowProof.findOrCreate({
+      where: {
+        tx_id: proof.txid,
+        tx_index: proof.vin
+      },
+      defaults
+    })
 
-  await jobRecord.save()
+    jobRecord.proof_tx_id = proof.txid
 
-  return record
+    await jobRecord.save()
+
+    return record
+
+  } catch(error) {
+
+    log.error('planaria.import_proof_by_txhex.error', error)
+
+    return null
+
+  }
 
 }
 

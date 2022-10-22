@@ -1,6 +1,8 @@
 
 import axios from 'axios'
+
 import { importProofsFromTxHex, importProofsFromTxId } from '../boostpow'
+
 import { models } from '../models'
 
 import * as moment from 'moment'
@@ -9,7 +11,7 @@ import log from '../log'
 
 import delay from 'delay'
 
-export async function start() {
+export async function run() {
 
   log.info('crawlers.import_powco_work.start')
 
@@ -45,37 +47,45 @@ export async function start() {
 
     for (let { tx_hex, content, timestamp, spend_tx_id: tx_id } of data.work) {
 
-      const question = await models.Question.findOne({
-        where: {
-          tx_id: content
+      try {
+
+        const question = await models.Question.findOne({
+          where: {
+            tx_id: content
+          }
+        })
+
+        const answer = await models.Answer.findOne({
+          where: {
+            tx_id: content
+          }
+        })
+
+        if (question  || answer) {
+
+          if (tx_hex) {
+
+            await importProofsFromTxHex({ tx_hex })
+
+          } else if (tx_id) {
+
+            await importProofsFromTxId({ tx_id })
+
+          }
+
         }
-      })
 
-      const answer = await models.Answer.findOne({
-        where: {
-          tx_id: content
+        storage.value = {
+          start_timestamp: moment(timestamp).unix()
         }
-      })
 
-      if (question  || answer) {
+        await storage.save()
 
-        if (tx_hex) {
+      } catch(error) {
 
-          await importProofsFromTxHex({ tx_hex })
-
-        } else if (tx_id) {
-
-          await importProofsFromTxId({ tx_id })
-
-        }
+        log.error('crawlers.import_powco_work', error)
 
       }
-
-      storage.value = {
-        start_timestamp: moment(timestamp).unix()
-      }
-
-      await storage.save()
 
     }
 
@@ -87,28 +97,29 @@ export async function start() {
 
 }
 
-export default start
+export async function start() {
 
-if (require.main === module) {
+  while (true) {
 
-  (async () => {
+    try {
 
-    while (true) {
+      await run()
 
-      try {
+    } catch(error) {
 
-        await start()
-
-        await delay(5200)
-
-      } catch(error) {
-
-        log.error("crawlers.import_powco_work.error", error)
-
-      }
+      log.error("crawlers.import_powco_work.error", error)
 
     }
 
-  })()
+    await delay(5200)
+
+
+  }
+
+}
+
+if (require.main === module) {
+
+  start()
 
 }

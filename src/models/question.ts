@@ -4,10 +4,13 @@ import events from '../events'
 
 import { getChannel } from 'rabbi'
 
+import { formatStringAsUrlStub } from '../url'
+
 export class Question extends Model {
   id: number;
   content: string;
   tx_id: string;
+  url_stub: string;
   /**
    * Helper method for defining associations.
    * This method is not a part of Sequelize lifecycle.
@@ -56,6 +59,10 @@ export function init(sequelize) {
       type: DataTypes.TEXT,
       allowNull: false
     },
+    url_stub: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
     timestamp: {
       type: DataTypes.DATE,
       allowNull: false
@@ -70,6 +77,10 @@ export function init(sequelize) {
         const json = JSON.stringify(question.toJSON())
 
         channel.publish('askbitcoin', 'askbitcoin.question.created', Buffer.from(json))
+
+        question.url_stub = formatStringAsUrlStub(question.content)
+
+        question.save()
       }
     },
     sequelize,

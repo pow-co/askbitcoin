@@ -270,3 +270,94 @@ export async function show(req, h) {
   }
 
 }
+
+export async function showByStub(req, h) {
+
+  try {
+
+    let question = await models.Question.findOne({
+
+      where: {
+
+        url_stub: req.params.question_stub
+
+      },
+
+      order: [['timestamp', 'asc']]
+
+    })
+
+    const where = {}
+
+    const query = {
+      timestamp: {}
+    }
+  
+    if (req.query.start_timestamp) {
+  
+      where['timestamp'] = {
+        [Op.gte]: req.query.start_timestamp
+      }
+  
+      query['timestamp']['>='] = req.query.start_timestamp
+  
+    }
+  
+    if (req.query.end_timestamp) {
+  
+      where['timestamp'] = {
+        [Op.lte]: req.query.end_timestamp
+      }
+  
+      query['timestamp']['<='] = req.query.end_timestamp
+  
+    }  
+
+    question = await models.Question.findOne({
+
+      where: { tx_id: question.tx_id },
+
+      include: [{
+        model: models.BoostpowProof,
+        as: 'boostpow_proofs',
+        where,
+        required: false
+      }, {
+        model: models.BoostpowJob,
+        as: 'boostpow_jobs',
+        where: {
+          proof_tx_id: null
+        },
+        required: false
+      },{
+        model: models.Answer,
+        as: 'answers',
+        include: [{
+          model: models.BoostpowProof,
+          as: 'boostpow_proofs',
+          where,
+          required: false
+        }]
+      }]
+
+    })
+
+    if (!question) {
+
+      return notFound()
+
+    }
+
+    return { query, question }
+
+
+
+  } catch(error) {
+
+    log.error('questions.show-by-stub.error', error)
+
+    return badRequest(error)
+
+  }
+
+}

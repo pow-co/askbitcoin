@@ -376,6 +376,25 @@ export async function NewServer(): Promise<Server> {
 
   server.route({
     method: 'GET',
+    path: '/api/v1/question-by-stub/{question_stub}',
+    handler: handlers.Questions.showByStub,
+    options: {
+      description: 'Show a Question with Answers and Work',
+      tags: ['api', 'questions'],
+      response: {
+        failAction: 'log',
+        schema: Joi.object({
+          question: Questions.required(),
+          answers: Answers.required(),
+          work: Joi.number().required(),
+          links: Links.required()
+        }).label('ShowQuestionResponse')
+      }
+    }
+  })
+
+  server.route({
+    method: 'GET',
     path: '/api/v1/answers/{tx_id}',
     handler: handlers.Answers.show,
     options: {
