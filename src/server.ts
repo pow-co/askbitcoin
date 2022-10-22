@@ -637,6 +637,12 @@ export async function NewServer(): Promise<Server> {
     }
   })
 
+  server.route({
+    method: 'GET',
+    path: '/sitemap.xml',
+    handler: handlers.Sitemap.index
+  })
+
   var started = false
 
   if (started) return;
