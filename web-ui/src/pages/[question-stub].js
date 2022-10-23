@@ -4,6 +4,8 @@ import { Box, Typography, Grid, Button, Stack } from '@mui/material';
 
 import Link from 'next/link';
 
+import Head from 'next/head'
+
 // project imports
 import MainCard from 'components/ui-component/cards/MainCard';
 import Post from 'components/ui-component/cards/Post';
@@ -188,6 +190,24 @@ const QuestionDetailPage = () => {
 
   return (
     <>
+      <Head>
+        <meta name="title" content={`Ask Bitcoin - ${question.content}`} key="title"/>
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`https://askbitcoin.ai/${question.url_stub}`} key="og_url" />
+        <meta property="og:title" content={`Ask Bitcoin - ${question.content}`} key="og_title"/>
+        <meta
+          property="og:description"
+          content={`Top Answers Ranked by Proof of Work to the Question ${question.content}`}
+        />
+        <meta property="twitter:url" content={`https://askbitcoin.ai/${question.url_stub}`} key="twitter_url" />
+        <meta property="twitter:title" content={`Ask Bitcoin - ${question.content}`} key="twitter_title" />
+        <meta
+          property="twitter:description"
+          content={`Top Answers Ranked by Proof of Work to the Question ${question.content}`}
+          key="twitter_description"
+        />
+      </Head>
       <MainCard>
         <Question post={question} />
         <FormControl question={question.tx_id} submit={postAnswer} placeholder="Add your answer" />

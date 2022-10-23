@@ -2,6 +2,8 @@ import { useState } from 'react';
 // material-ui
 import { Box, Typography, Grid, Button, Stack } from '@mui/material';
 
+import BigNumber from 'bignumber.js'
+
 import Link from 'next/link';
 
 // project imports
@@ -24,6 +26,8 @@ import { useRouter } from 'next/router';
 import { FormattedMessage } from 'react-intl';
 
 import { useSnackbar } from 'notistack';
+
+import Head from 'next/head'
 
 // ==============================|| QUESTION DETAIL PAGE ||============================== //
 
@@ -174,20 +178,51 @@ const QuestionDetailPage = () => {
 
   var { answers } = question;
 
+  question.difficulty = question.boostpow_proofs.reduce((sum, proof) => {
+    return new BigNumber(sum).plus(proof.difficulty).toNumber()
+  }, 0)
+
   answers = answers.map((answer) => {
     return Object.assign(answer, {
       difficulty: answer.boostpow_proofs.reduce((sum, { difficulty }) => {
-        return sum + difficulty;
+        return new BigNumber(sum).plus(difficulty).toNumber();
       }, 0)
     });
   });
 
-  answers = answers.sort((a, b) => (a.difficulty > b.difficulty ? 1 : -1));
+  answers = answers.sort((a, b) => (a.difficulty < b.difficulty ? 1 : -1));
+
+  for (let answer of answers) {
+
+    console.log('DIFF', answer.difficulty)
+  }
 
   return (
     <>
+      <Head>
+        <meta name="title" content={`Ask Bitcoin - ${question.content}`} key="title"/>
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`https://askbitcoin.ai/${question.url_stub}`} key="og_url" />
+        <meta property="og:title" content={`Ask Bitcoin - ${question.content}`} key="og_title"/>
+        <meta
+          property="og:description"
+          content={`Top Answers Ranked by Proof of Work to the Question ${question.content}`}
+        />
+        <meta property="twitter:url" content={`https://askbitcoin.ai/${question.url_stub}`} key="twitter_url" />
+        <meta property="twitter:title" content={`Ask Bitcoin - ${question.content}`} key="twitter_title" />
+        <meta
+          property="twitter:description"
+          content={`Top Answers Ranked by Proof of Work to the Question ${question.content}`}
+          key="twitter_description"
+        />
+      </Head>
       <MainCard>
         <Question post={question} />
+
+        </MainCard>
+        <br/>
+        <MainCard>
         <FormControl question={question.tx_id} submit={postAnswer} placeholder="Add your answer" />
         <Grid container sx={{ pb: '16px' }} spacing={1}>
           <Grid item xs={6}>
@@ -203,6 +238,8 @@ const QuestionDetailPage = () => {
           return <Answer key={answer.tx_id} answer post={answer} />;
         })}
       </MainCard>
+
+      <h3>Recent Answers</h3>
 
       <MainCard>
         <Stack direction="column" justifyContent="flex-end">

@@ -198,11 +198,12 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
     <MainCard onClick={navigate}>
       <Grid container spacing={1}>
         <Grid item xs={12}>
-          <Grid container wrap="nowrap" alignItems="center" spacing={1}>
+          <Grid container xs={12} wrap="nowrap" alignItems="center" spacing={1}>
             <Grid item>
               <Avatar alt="User 1" src={author?.email ? `https://bitpic.network/u/${author.email}` : 'https://bitpic.network/u/unknown'} />
             </Grid>
-            <Grid item xs zeroMinWidth>
+            
+            <Grid sx={{minWidth: '50%' }} item xs={12} sm={6} md={6}>
               <Grid container alignItems="center" spacing={1}>
                 <Grid item>
                   {author && <Typography align="left" variant="h5" component="div">
@@ -210,15 +211,36 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
                   </Typography>}
                 </Grid>
                 <Grid item>
-                  <Typography align="left" variant="caption">
+                  <Typography align="left" wrap="scroll">
+                  <ReactMarkdown sx={{overflow: 'scroll'}} remarkPlugins={[gfm]}>{content}</ReactMarkdown>
 
-                    <a target="_blank" rel="noopener" href={`https://whatsonchain.com/tx/${tx_id}`}>
-                      {moment(timestamp).format('MMM Do YYYY, h:mm:ss a')}
-                    </a>
                   </Typography>
                 </Grid>
               </Grid>
             </Grid>
+
+          <Grid xs={4} md={4} justifyContent="center" item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
+            <BoostButton txid={tx_id} content={content} difficulty={difficulty} />
+          </Grid>
+
+          <Grid
+            item
+            xs={4}
+            container
+            alignItems="center"
+            justifyContent="space-arround"
+            fullWidth
+            sx={{ mt: 0, height: 69, color: theme.palette.mode === 'dark' ? 'grey.700' : 'grey.800' }}
+          >
+          <Grid xs={2} md={2} item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}></Grid>
+          <Grid xs={2} md={2} item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
+            <Button onClick={handleChangeComment} variant="text" color="inherit" startIcon={<ChatBubbleTwoToneIcon color="secondary" />}>
+              {answers ? answers.length : 0}
+            </Button>
+          </Grid>
+
+
+        </Grid>
             <Grid item>
               <ButtonBase sx={{ borderRadius: '12px' }} onClick={handleClick}>
                 <Avatar
@@ -281,33 +303,18 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
             }
           }}
         >
-          <ReactMarkdown remarkPlugins={[gfm]}>{content}</ReactMarkdown>
+
+          <Typography  variant="caption">
+                              <a target="_blank" rel="noopener" href={`https://whatsonchain.com/tx/${tx_id}`}>
+                      {moment(timestamp).format('MMM Do YYYY, h:mm:ss a')}
+                    </a>
+                    </Typography>
           <br />
 
           <BoostpowQrCodeDialog tx_id={tx_id} currency={'USD'} value={0.05} open={qrDialogOpen} onClose={handleClose} />
         </Grid>
 
-        <Grid
-          item
-          xs={12}
-          container
-          alignItems="center"
-          justifyContent="space-arround"
-          fullWidth
-          sx={{ mt: 0, height: 69, color: theme.palette.mode === 'dark' ? 'grey.700' : 'grey.800' }}
-        >
-          <Grid xs={3} md={4} item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}></Grid>
-          <Grid xs={2} md={4} item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
-            <Button onClick={handleChangeComment} variant="text" color="inherit" startIcon={<ChatBubbleTwoToneIcon color="secondary" />}>
-              {answers ? answers.length : 0}
-            </Button>
-          </Grid>
 
-          <Grid xs={6} md={4} justifyContent="center" item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
-            <BoostButton txid={tx_id} content={content} difficulty={difficulty} />
-          </Grid>
-
-        </Grid>
 
       </Grid>
     </MainCard>

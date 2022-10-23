@@ -10,6 +10,7 @@ import { useAPI } from 'hooks/useAPI';
 import useAuth from 'hooks/useAuth';
 import { FormattedMessage } from 'react-intl';
 import Post from 'components/ui-component/cards/Post';
+import Question from 'components/ui-component/cards/Post/Question';
 import FormControl from 'components/ui-component/extended/Form/FormControl';
 
 import { useSnackbar } from 'notistack';
@@ -229,7 +230,7 @@ const QuestionPage = ({ period }) => {
         </Grid>
         <Stack direction="column" justifyContent="flex-end">
           {questions && questions.map((question) => {
-            return <Post key={question.id} post={question} />;
+            return <Question key={question.id} post={question} />;
           })}
         </Stack>
       </MainCard>
@@ -243,7 +244,7 @@ const QuestionPage = ({ period }) => {
           </Box>
           {recent?.questions &&
             recent.questions.map((question) => {
-              return <Post key={question.id} post={question} />;
+              return <Question key={question.id} post={question} />;
             })}
         </Stack>
       </MainCard>

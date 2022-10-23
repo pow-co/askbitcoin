@@ -72,7 +72,7 @@ const BoostButton = ({ txid, content, difficulty }) => {
         .get(`https://pow.co/api/v1/boost/jobs/${txid}`)
         .then(({ data }) => {
           console.log(`pow.co/api/v1/jobs/${result.txid}.result`, data);
-        })
+         })
         .catch((error) => {
           console.error(`pow.co/api/v1/jobs/${result.txid}`, error);
         });

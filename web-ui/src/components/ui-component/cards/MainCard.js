@@ -37,6 +37,8 @@ const MainCard = React.forwardRef(
         ref={ref}
         {...others}
         sx={{
+          padding: 0,
+          margin: 0,
           border: border ? '1px solid' : 'none',
           borderColor: theme.palette.mode === 'dark' ? theme.palette.background.default : theme.palette.primary[200] + 75,
           ':hover': {
@@ -47,7 +49,7 @@ const MainCard = React.forwardRef(
           ...sx
         }}
       >
-        <CardContent>{children}</CardContent>
+        <CardContent sx={{padding: '1em', margin: 0}}>{children}</CardContent>
       </Card>
     );
   }
