@@ -1,5 +1,6 @@
 
 import * as http from 'superagent'
+import log from './log';
 
 interface WhatsonchainTransaction {
   txid: string;
@@ -29,6 +30,16 @@ export async function getTimestamp(txid: string): Promise<Date> {
 
   let {body} = await http.get(url)
 
-  return new Date(parseInt(body.time) * 1000)
+  log.info("whatsonchain.timestamp", body)
+
+  if (body.time) {
+
+    return new Date(parseInt(body.time) * 1000)
+
+  } else {
+    
+    return new Date()
+
+  }
 
 }

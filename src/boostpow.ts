@@ -26,7 +26,9 @@ export async function importProofsFromTxId({tx_id}: { tx_id: string}): Promise<B
 
     const tx_hex = await run.blockchain.fetch(tx_id)
 
-    return importProofsFromTxHex(tx_hex)
+    log.info('boostpow.importProofFromTxId', { tx_id, tx_hex })
+
+    return importProofsFromTxHex({tx_hex})
     
 }
 
@@ -49,7 +51,7 @@ export async function importProofsFromTxHex({tx_hex}: {tx_hex: string}): Promise
 
     if (!proof) {
 
-        log.info('planaria.importProofFromTxHex', { tx_hex })
+        log.info('planaria.importProofFromTxHex.proofNotFound', { tx_hex })
 
         return
         
@@ -79,6 +81,8 @@ export async function importProofsFromTxHex({tx_hex}: {tx_hex: string}): Promise
         //value: jobRecord.value,
         //price: jobRecord.price
     })
+
+    console.log("boostpowProof.findOrCreate", {defaults})
 
     const [record, isNew] = await BoostpowProof.findOrCreate({
         where: {

@@ -20,6 +20,8 @@ import * as boostpow from 'boostpow'
 
 import * as AskBitcoin from '..'
 
+import { importProofsFromTxId } from '../boostpow'
+
 import { BigNumber } from 'bignumber.js'
 
 //import { onchain, config, prices } from '..'
@@ -55,6 +57,24 @@ program
   .option('--ask_bitcoin_user_private_key <string>')
   .option('--start <timestamp>')
   .option('--end <timestamp>')
+
+program
+  .command('importproof <txid>')
+  .action(async (txid) => {
+
+    try {
+
+      let result = await importProofsFromTxId({ tx_id: txid })
+
+      console.log(result)
+
+    } catch(error) {
+
+      console.error('error', error)
+
+    }
+
+  })
 
 program
   .command('wallet [currency]')

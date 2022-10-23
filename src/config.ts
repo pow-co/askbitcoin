@@ -45,8 +45,9 @@ process.on('SIGHUP', () => {
 })
 
 nconf.defaults({
+  powco_stream: true,
   sync_boost: true,
-  sync_powco: false,
+  sync_powco: true,
   notify_rocketchat: true,
   askbitcoin_onchain_app_id: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', // askbitcoin.ai
   onchain_app_id: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', // askbitcoin.ai

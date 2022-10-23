@@ -13,6 +13,8 @@ import { sync_boost_orders, sync_ask_bitcoin, sync_boost_onchain } from './plana
 
 import { start as import_powco_work_crawler } from './crawlers/import_powco_work'
 
+import stream from './powco/stream'
+
 import { onchain } from './rabbi/onchain/bitsocket'
 
 import { spawn } from 'child_process'
@@ -56,6 +58,12 @@ export async function start() {
   if (config.get('sync_powco')) {
 
     import_powco_work_crawler()
+
+  }
+
+  if (config.get('powco_stream')) {
+
+    stream()
 
   }
 
@@ -118,6 +126,8 @@ export async function start() {
     })
 
   }
+
+
 
 }
 
