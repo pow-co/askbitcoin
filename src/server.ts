@@ -658,7 +658,7 @@ export async function NewServer(): Promise<Server> {
         description: 'Ask Bitcoin a Question - Bitcoin AI Ranks the Top Answers'
       },
       schemes: ['https'],
-      host: 'https://askbitcoin.ai',
+      host: 'askbitcoin.ai',
       documentationPath: '/api',
       grouping: 'tags'
     }

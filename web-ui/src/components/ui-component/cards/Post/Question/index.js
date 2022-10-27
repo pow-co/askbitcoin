@@ -123,7 +123,7 @@ import moment from 'moment'
 const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAdd, answer }) => {
   const theme = useTheme();
   const router = useRouter();
-  const { tx_id, content, author, difficulty, answers, created_at, timestamp } = post;
+  var { tx_id, content, author, difficulty, answers, created_at, timestamp } = post;
 
   const [qrDialogOpen, setQrDialogOpen] = React.useState(false);
 
@@ -192,6 +192,13 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
 
   function handleClickOpen() {
     console.log('handle click open');
+  }
+
+  console.log('TIME STAMP', timestamp)
+
+  if (typeof timestamp === 'number') {
+
+    timestamp = timestamp * 1000
   }
 
   return (
