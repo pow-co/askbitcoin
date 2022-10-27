@@ -146,6 +146,24 @@ export async function NewServer(): Promise<Server> {
   })
 
   server.route({
+    method: 'GET',
+    path: '/api/v1/addresses/{address}/tokens',
+    handler: handlers.Tokens.show,
+    options: {
+      description: 'List Token Balances For Address',
+      tags: ['api', 'tokens'],
+      validate: {
+        params: Joi.object({
+          address: Joi.string().required()
+        }).required()
+      },
+      response: {
+        failAction: 'log'
+      }
+    }
+  })
+
+  server.route({
     method: 'POST',
     path: '/api/v1/questions/new',
     handler: handlers.Questions.build,

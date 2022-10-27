@@ -34,7 +34,7 @@ const other = {
       url: '/answers',
       icon: IconBrandChrome,
       breadcrumbs: false
-    },
+    }/*,
     {
       id: 'authors',
       title: <FormattedMessage id="authors" />,
@@ -60,7 +60,7 @@ const other = {
       icon: icons.IconHelp,
       external: true,
       target: true
-    }
+    }*/
   ]
 };
 

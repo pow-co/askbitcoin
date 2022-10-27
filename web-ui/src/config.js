@@ -33,9 +33,9 @@ const config = {
   fontFamily: `'Roboto', sans-serif`,
   borderRadius: 8,
   outlinedFilled: true,
-  navType: 'dark', // light, dark
+  navType: 'light', // light, dark
   presetColor: 'default', // default, theme1, theme2, theme3, theme4, theme5, theme6
-  locale: 'zh', // 'en' - English, 'fr' - French, 'ro' - Romanian, 'zh' - Chinese
+  locale: 'en', // 'en' - English, 'fr' - French, 'ro' - Romanian, 'zh' - Chinese
   rtlLayout: false
 };
 

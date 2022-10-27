@@ -43,6 +43,11 @@ const CardStyle = styled(Card)(({ theme }) => ({
 const UpgradePlanCard = () => {
   const theme = useTheme();
 
+  function getPowcoNFTClicked() {
+
+    window.open('https://pow.co/token')
+  }
+
   return (
     <CardStyle>
       <CardContent>
@@ -62,7 +67,7 @@ const UpgradePlanCard = () => {
           <Grid item>
             <Stack direction="row">
               <AnimateButton>
-                <Button variant="contained" color="warning" sx={{ boxShadow: 'none' }}>
+                <Button variant="contained" color="warning" sx={{ boxShadow: 'none' }} onClick={getPowcoNFTClicked}>
                   <FormattedMessage id="get-the-nft"/>
                 </Button>
               </AnimateButton>

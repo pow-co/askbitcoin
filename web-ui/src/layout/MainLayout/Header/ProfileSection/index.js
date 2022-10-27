@@ -188,6 +188,7 @@ const ProfileSection = () => {
                           {user?.email ? <FormattedMessage id="signed-in" /> : <FormattedMessage id="anonymous-user" />}
                         </Typography>
                       </Stack>
+                      {/*
                       <OutlinedInput
                         sx={{ width: '100%', pr: 1, pl: 2, my: 2 }}
                         id="input-search-profile"
@@ -204,6 +205,7 @@ const ProfileSection = () => {
                           'aria-label': 'weight'
                         }}
                       />
+                       */}
                       <Divider />
                     </Box>
                     <PerfectScrollbar style={{ height: '100%', maxHeight: 'calc(100vh - 250px)', overflowX: 'hidden' }}>
@@ -215,7 +217,8 @@ const ProfileSection = () => {
                             bgcolor: theme.palette.mode === 'dark' ? theme.palette.dark[800] : theme.palette.primary.light,
                             my: 2
                           }}
-                        >
+                        >                    {/*
+
                           <CardContent>
                             <Grid container spacing={3} direction="column">
                               <Grid item>
@@ -254,7 +257,7 @@ const ProfileSection = () => {
                                 </Grid>
                               </Grid>
                             </Grid>
-                          </CardContent>
+                        </CardContent>*/}
                         </Card>
                         <Divider />
                         <List

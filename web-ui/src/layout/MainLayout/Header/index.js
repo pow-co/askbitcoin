@@ -60,7 +60,7 @@ const Header = () => {
       </Box>
 
       {/* header search */}
-      <SearchSection />
+      {/*<SearchSection />*/}
       <Box sx={{ flexGrow: 1 }} />
       <Box sx={{ flexGrow: 1 }} />
 
@@ -69,8 +69,10 @@ const Header = () => {
         <LocalizationSection />
       </Box>
 
-      {/* notification & profile */}
+      {/* notification & profile
       <NotificationSection />
+       */}
+
       <ProfileSection />
 
       {/* mobile header */}
