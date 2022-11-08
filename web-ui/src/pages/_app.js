@@ -33,6 +33,7 @@ import { SnackbarProvider } from 'notistack';
 //import { JWTProvider as AuthProvider } from 'contexts/JWTContext';
 // import { AWSCognitoProvider as AuthProvider } from 'contexts/AWSCognitoContext';
 import { WalletProvider as AuthProvider } from '../contexts/WalletContext';
+import { TimeframeProvider } from 'contexts/TimeframeContext';
 //import { TwetchProvider as AuthProvider } from '../contexts/TwetchContext';
 
 const Noop = ({ children }) => <> {children} </>;
@@ -81,10 +82,12 @@ function App({ Component, pageProps }) {
                       }}
                     >
                       <AuthProvider>
-                        <Layout>
-                          <Component {...pageProps} />
-                          <Snackbar />
-                        </Layout>
+                        <TimeframeProvider>
+                          <Layout>
+                            <Component {...pageProps} />
+                            <Snackbar />
+                          </Layout>
+                        </TimeframeProvider>
                       </AuthProvider>
                     </SnackbarProvider>
                   </NavigationScroll>
