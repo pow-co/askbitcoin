@@ -20,33 +20,20 @@ import FormControlSelect from 'components/ui-component/extended/Form/FormControl
 import { useRouter } from 'next/router';
 import axios from 'utils/axios';
 
-import moment from 'moment'
+import moment from 'moment';
+import { useTimeframe } from 'contexts/TimeframeContext';
 
 function ago(period) {
-  return moment().subtract(1, period).unix() * 1000
+  return moment().subtract(1, period).unix() * 1000;
 }
 
-const QuestionPage = ({ period }) => {
+const QuestionPage = () => {
   const { user, wallet, isLoggedIn } = useAuth();
+  const { period, setPeriod, startTimestamp } = useTimeframe();
 
   const router = useRouter();
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-
-  const timestamps = {
-    'all-time': 0,
-    'last-year': ago('year'),
-    'last-month': ago('month'),
-    'last-week': ago('week'),
-    'last-day': ago('day'),
-    'last-hour': ago('hour')
-  }
-
-  if (!period) { period = 'last-week' }
-
-  console.log('PERIOD', period)
-
-  const [queryParams, setQueryParams] = useState(`?start_timestamp=${timestamps[period]}`);
 
   async function postQuestion(content) {
     if (!isLoggedIn) {
@@ -186,7 +173,7 @@ const QuestionPage = ({ period }) => {
 
   window.events = events;
 
-  let { data, error, refresh, loading } = useAPI(`/questions${queryParams}`);
+  let { data, error, refresh, loading } = useAPI(`/questions?start_timestamp=${startTimestamp}`);
 
   let { data: recent } = useAPI(`/recent/questions`);
 
@@ -205,13 +192,6 @@ const QuestionPage = ({ period }) => {
     );
   }
 
-  const onChangeFilter = (filter) => {
-
-    console.log('CHANGE FILTER', filter)
-    setQueryParams(filter.query);
-
-  };
-
   const { questions } = data || [];
 
   return (
@@ -225,13 +205,14 @@ const QuestionPage = ({ period }) => {
             </Typography>
           </Grid>
           <Grid item xs={6}>
-            <FormControlSelect handleFilter={onChangeFilter} period={period}/>
+            <FormControlSelect />
           </Grid>
         </Grid>
         <Stack direction="column" justifyContent="flex-end">
-          {questions && questions.map((question) => {
-            return <Question key={question.id} post={question} />;
-          })}
+          {questions &&
+            questions.map((question) => {
+              return <Question key={question.id} post={question} />;
+            })}
         </Stack>
       </MainCard>
 

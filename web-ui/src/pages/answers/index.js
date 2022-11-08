@@ -16,10 +16,12 @@ import { useAPI } from 'hooks/useAPI';
 import { FormattedMessage } from 'react-intl';
 import Post from 'components/ui-component/cards/Post';
 import FormControlSelect from 'components/ui-component/extended/Form/FormControlSelect';
+import { useTimeframe } from 'contexts/TimeframeContext';
 
 const AnswersPage = () => {
-  const [queryParams, setQueryParams] = useState('');
-  let { data, error, refresh, loading } = useAPI('/answers', queryParams);
+  const { period, startTimestamp } = useTimeframe();
+  //let { data, error, refresh, loading } = useAPI(`/answers?start_timestamp=${startTimestamp}`);
+  let { data, error, refresh, loading } = useAPI(`/answers?start_timestamp=0`);
 
   let { data: recent } = useAPI(`/recent/answers`);
 
@@ -40,10 +42,6 @@ const AnswersPage = () => {
 
   const { answers } = data;
 
-  const onChangeFilter = (filter) => {
-    setQueryParams(filter.query);
-  };
-
   console.log({ data, answers });
 
   return (
@@ -56,7 +54,7 @@ const AnswersPage = () => {
             </Typography>
           </Grid>
           <Grid item xs={6}>
-            <FormControlSelect handleFilter={onChangeFilter} />
+            <FormControlSelect />
           </Grid>
         </Grid>
         <Stack direction="column" justifyContent="flex-end">
