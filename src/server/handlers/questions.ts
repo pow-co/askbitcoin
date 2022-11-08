@@ -149,6 +149,32 @@ export async function index(req, h) {
 
 export async function recent(req, h) {
 
+  const where = {}
+
+  const query = {
+    timestamp: {}
+  }
+
+  if (req.query.start_timestamp) {
+
+    where['timestamp'] = {
+      [Op.gte]: req.query.start_timestamp
+    }
+
+    query['timestamp']['>='] = req.query.start_timestamp
+
+  }
+
+  if (req.query.end_timestamp) {
+
+    where['timestamp'] = {
+      [Op.lte]: req.query.end_timestamp
+    }
+
+    query['timestamp']['<='] = req.query.end_timestamp
+
+  }
+
   const limit = req.query.limit || 100
 
   const offset = req.query.offset || 0
@@ -156,6 +182,9 @@ export async function recent(req, h) {
   try {
 
     const questions = await models.Question.findAll({
+      
+      where,
+      
       order: [['timestamp', 'desc']],
       limit,
       offset,
