@@ -1,5 +1,5 @@
 // material-ui
-import { Typography, Button, Stack, Box, Grid} from '@mui/material';
+import { Typography, Button, Stack, Box, Grid } from '@mui/material';
 
 import Link from 'next/link';
 
@@ -10,7 +10,7 @@ import Question from 'components/ui-component/cards/Post/Question';
 import FormControl from 'components/ui-component/extended/Form/FormControl';
 import FormControlSelect from 'components/ui-component/extended/Form/FormControlSelect';
 
-import { useState } from 'react'
+import { useState } from 'react';
 
 import { useAPI } from 'hooks/useAPI';
 
@@ -27,16 +27,14 @@ import useAuth from 'hooks/useAuth';
 const AnswerDetailPage = () => {
   window.postAnswer = postAnswer;
   const { user, wallet, isLoggedIn } = useAuth();
-
-  const [queryParams, setQueryParams] = useState('');
-
+  const { startTimestamp } = useTimeframe();
 
   const router = useRouter();
   const query = router.query;
 
   const { enqueueSnackbar } = useSnackbar();
 
-  let { data, error, refresh, loading } = useAPI(`/answers/${query.answer_id}`);
+  let { data, error, refresh, loading } = useAPI(`/answers/${query.answer_id}?start_timestamp=${startTimestamp}`);
 
   async function postAnswer(question_tx_id, content) {
     const json = JSON.stringify({
@@ -90,17 +88,13 @@ const AnswerDetailPage = () => {
 
           (async () => {
             try {
-
               await axios.get(`https://askbitcoin.ai/api/v1/answers/${txid}`);
 
-              refresh()
-
+              refresh();
             } catch (error) {
-
               console.error('api.answers.show.error', error);
             }
           })();
-
 
           /* let { data: postTransactionResponse } = await axios.post('https://askbitcoin.ai/api/v1/transactions', {
             transaction: rawTx
@@ -136,9 +130,8 @@ const AnswerDetailPage = () => {
     enqueueSnackbar(`new answer: ${answer.content}`);
   }
 
-
-  let recent = [];
-  //let { data: recent } = useAPI(`/recent/answers`);
+  //let recent = [];
+  let { data: recent } = useAPI(`/recent/answers?start_timestamp=${startTimestamp}`);
 
   console.log({ data, error, refresh, loading });
 
@@ -160,17 +153,9 @@ const AnswerDetailPage = () => {
 
   const { question } = answer;
 
-
-
-
   //const events = useEvents(`answers.${query.answer_id}.question`, onAnswer);
 
   //window.events = events;
-
-  const onChangeFilter = (filter) => {
-    setQueryParams(filter.query);
-  };
-
 
   return (
     <>
@@ -179,36 +164,36 @@ const AnswerDetailPage = () => {
         <Answer answer post={answer} />
       </MainCard>
       <MainCard>
-      <Question post={question} />
-      <FormControl question={question.tx_id} submit={postAnswer} placeholder="Add your answer" />
-      <Grid container sx={{ pb: '16px' }} spacing={1}>
-        <Grid item xs={6}>
-          <Typography align="right" variant="h2">
-            <FormattedMessage id="answers-pow" />
-          </Typography>
+        <Question post={question} />
+        <FormControl question={question.tx_id} submit={postAnswer} placeholder="Add your answer" />
+        <Grid container sx={{ pb: '16px' }} spacing={1}>
+          <Grid item xs={6}>
+            <Typography align="right" variant="h2">
+              <FormattedMessage id="answers-pow" />
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <FormControlSelect />
+          </Grid>
         </Grid>
-        <Grid item xs={6}>
-          <FormControlSelect handleFilter={onChangeFilter} />
-        </Grid>
-      </Grid>
-      {data.question?.answers.map((answer) => {
-        return <Answer key={answer.tx_id} answer post={answer} />;
-      })}
-    </MainCard>
+        {data.question?.answers.map((answer) => {
+          return <Answer key={answer.tx_id} answer post={answer} />;
+        })}
+      </MainCard>
 
-    <MainCard>
-      <Stack direction="column" justifyContent="flex-end">
-        <Box sx={{ padding: '2em' }}>
-          <Typography sx={{ p: '16px' }} align="center" variant="h2">
-            Recent Answers
-          </Typography>
-        </Box>
-        {recent?.answers &&
-          recent.answers.map((answer) => {
-            return <Answer key={answer.id} post={answer} />;
-          })}
-      </Stack>
-    </MainCard>
+      <MainCard>
+        <Stack direction="column" justifyContent="flex-end">
+          <Box sx={{ padding: '2em' }}>
+            <Typography sx={{ p: '16px' }} align="center" variant="h2">
+              Recent Answers
+            </Typography>
+          </Box>
+          {recent?.answers &&
+            recent.answers.map((answer) => {
+              return <Answer key={answer.id} post={answer} />;
+            })}
+        </Stack>
+      </MainCard>
     </>
   );
 };

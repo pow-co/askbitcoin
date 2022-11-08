@@ -19,11 +19,11 @@ import FormControlSelect from 'components/ui-component/extended/Form/FormControl
 import { useTimeframe } from 'contexts/TimeframeContext';
 
 const AnswersPage = () => {
-  const { period, startTimestamp } = useTimeframe();
-  //let { data, error, refresh, loading } = useAPI(`/answers?start_timestamp=${startTimestamp}`);
-  let { data, error, refresh, loading } = useAPI(`/answers?start_timestamp=0`);
+  const { startTimestamp } = useTimeframe();
+  let { data, error, refresh, loading } = useAPI(`/answers?start_timestamp=${startTimestamp}`);
+  //let { data, error, refresh, loading } = useAPI(`/answers?start_timestamp=0`);
 
-  let { data: recent } = useAPI(`/recent/answers`);
+  let { data: recent } = useAPI(`/recent/answers?start_timestamp=${startTimestamp}`);
 
   console.log({ data, error, refresh, loading });
 
