@@ -4,3 +4,4 @@ node_modules/
 .git
 .runcache/
 web-ui/node_modules/
+powco-dev.2022-10-21.private-key.pem

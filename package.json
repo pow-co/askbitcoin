@@ -14,7 +14,9 @@
     "commit": "npx cz",
     "build_web_ui": "cd web-ui && npm run build",
     "db:migrate": "sequelize db:migrate",
-    "mine": "ts-node miner/main.ts"
+    "mine": "ts-node miner/main.ts",
+    "docker:build": "docker build -t proofofwork/askbitcoin .",
+    "docker:push": "docker push proofofwork/askbitcoin"
   },
   "bin": {
     "askbitcoin": "./dist/bin/cli.js"
@@ -37,6 +39,7 @@
     "boostpow": "^1.6.0",
     "broadcast-transaction": "^0.4.0",
     "bsv": "^1.5.6",
+    "bsv-2": "npm:bsv@^2.0.10",
     "bsv-p2p": "^0.0.10",
     "chalk": "^4.1.2",
     "commander": "^9.3.0",

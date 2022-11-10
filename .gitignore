@@ -16,3 +16,4 @@ dist/
 .runcache/
 web-ui/node_modules/
 .nyc_output/
+powco-dev.2022-10-21.private-key.pem
