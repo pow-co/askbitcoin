@@ -29,7 +29,7 @@ function ago(period) {
 
 const QuestionPage = () => {
   const { user, wallet, isLoggedIn } = useAuth();
-  const { period, setPeriod, startTimestamp } = useTimeframe();
+  const { startTimestamp } = useTimeframe();
 
   const router = useRouter();
 
@@ -175,7 +175,8 @@ const QuestionPage = () => {
 
   let { data, error, refresh, loading } = useAPI(`/questions?start_timestamp=${startTimestamp}`);
 
-  let { data: recent } = useAPI(`/recent/questions`);
+  //let { data: recent } = useAPI(`/recent/questions?start_timestamp=0`);
+  let { data: recent } = useAPI(`/recent/questions?start_timestamp=${startTimestamp}`);
 
   console.log({ data, error, refresh, loading });
 

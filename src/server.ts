@@ -297,6 +297,13 @@ export async function NewServer(): Promise<Server> {
     options: {
       description: 'List all Answers Ranked by Proof of Work',
       tags: ['api', 'answers'],
+      validate: {
+        query: Joi.object({
+          start_timestamp: Joi.number().integer().optional(),
+          end_timestamp: Joi.number().integer().optional()
+        })
+        .label('ListAnswersQuery')
+      },
       response: {
         failAction: 'log',
         schema: Joi.object({
@@ -315,7 +322,9 @@ export async function NewServer(): Promise<Server> {
       tags: ['api', 'answers'],
       validate: {
         query: Joi.object({
-          limit: Joi.number().integer().optional()
+          limit: Joi.number().integer().optional(),
+          start_timestamp: Joi.number().integer().optional(),
+          end_timestamp: Joi.number().integer().optional()
         })
         .label('RecentAnswersQuery')
       },
@@ -360,7 +369,9 @@ export async function NewServer(): Promise<Server> {
       tags: ['api', 'questions'],
       validate: {
         query: Joi.object({
-          limit: Joi.number().integer().optional()
+          limit: Joi.number().integer().optional(),
+          start_timestamp: Joi.number().integer().optional(),
+          end_timestamp: Joi.number().integer().optional()
         })
         .label('RecentQuestionsQuery')
       },
@@ -380,6 +391,13 @@ export async function NewServer(): Promise<Server> {
     options: {
       description: 'Show a Question with Answers and Work',
       tags: ['api', 'questions'],
+      validate: {
+        query: Joi.object({
+          start_timestamp: Joi.number().integer().optional(),
+          end_timestamp: Joi.number().integer().optional()
+        })
+        .label('QuestionDetailQuery')
+      },
       response: {
         failAction: 'log',
         schema: Joi.object({
@@ -399,6 +417,13 @@ export async function NewServer(): Promise<Server> {
     options: {
       description: 'Show a Question with Answers and Work',
       tags: ['api', 'questions'],
+      validate: {
+        query: Joi.object({
+          start_timestamp: Joi.number().integer().optional(),
+          end_timestamp: Joi.number().integer().optional()
+        })
+        .label('QuestionStubQuery')
+      },
       response: {
         failAction: 'log',
         schema: Joi.object({
@@ -418,6 +443,13 @@ export async function NewServer(): Promise<Server> {
     options: {
       description: 'Show an Answers with Question and Work',
       tags: ['api', 'answers'],
+      validate: {
+        query: Joi.object({
+          start_timestamp: Joi.number().integer().optional(),
+          end_timestamp: Joi.number().integer().optional()
+        })
+        .label('AnswerDetailQuery')
+      },
       response: {
         failAction: 'log',
         schema: Joi.object({
