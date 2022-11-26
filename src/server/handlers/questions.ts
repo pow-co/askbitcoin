@@ -229,18 +229,6 @@ export async function show(req, h) {
       where: { tx_id: req.params.tx_id },
 
       include: [{
-        model: models.BoostpowProof,
-        as: 'boostpow_proofs',
-        where,
-        required: false
-      }, {
-        model: models.BoostpowJob,
-        as: 'boostpow_jobs',
-        where: {
-          proof_tx_id: null
-        },
-        required: false
-      },{
         model: models.Answer,
         as: 'answers',
         include: [{
