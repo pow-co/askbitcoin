@@ -17,6 +17,8 @@ import axios from 'utils/axios';
 
 import { useSnackbar } from 'notistack';
 
+import { PublicKey } from 'bsv'
+
 // constant
 const JWT_SECRET = JWT_API.secret;
 const JWT_EXPIRES_TIME = JWT_API.timeout;
@@ -150,6 +152,8 @@ export const WalletProvider = ({ children }) => {
   const relayxSignIn = async () => {
     const token = await relayone.authBeta();
 
+    const identity = new PublicKey(json.pubkey).toAddress().toString()
+
     const json = JSON.parse(atob(token.split('.')[0]));
     localStorage.setItem('auth.type', 'relayx');
     localStorage.setItem('relayx.token', token);
@@ -158,6 +162,7 @@ export const WalletProvider = ({ children }) => {
     localStorage.setItem('relayx.pubkey', json.pubkey);
     localStorage.setItem('relayx.origin', json.origin);
     localStorage.setItem('relayx.issued_at', json.issued_at);
+    localStorage.setItem('relayx.identity', identity);
 
     const user = {
       id: json.pubkey,

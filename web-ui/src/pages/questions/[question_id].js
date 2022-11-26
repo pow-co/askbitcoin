@@ -27,6 +27,8 @@ import { FormattedMessage } from 'react-intl';
 
 import { useSnackbar } from 'notistack';
 
+import { PublicKey } from 'bsv'
+
 import Head from 'next/head'
 
 // ==============================|| QUESTION DETAIL PAGE ||============================== //
@@ -34,7 +36,10 @@ import Head from 'next/head'
 import { useEffect } from 'react';
 import { useEvents } from 'hooks/useEvents';
 
+const authorIdentityPrefix = '15PciHG22SNLQJXMoSUaWVi7WSqc7hCfva';
+
 const QuestionDetailPage = () => {
+  console.log('askbitcoin.version', '0.0.1-a')
   const [queryParams, setQueryParams] = useState('');
   window.postAnswer = postAnswer;
   const { user, wallet, isLoggedIn } = useAuth();
@@ -49,10 +54,13 @@ const QuestionDetailPage = () => {
   let { data, error, refresh, loading } = useAPI(`/questions/${query.question_id}`, queryParams);
 
   async function postAnswer(question_tx_id, content) {
-    const json = JSON.stringify({
+
+    const payload = {
       question_tx_id,
       content
-    });
+    }
+
+    const json = JSON.stringify(payload)
 
     if (!isLoggedIn) {
       enqueueSnackbar('Please, Log In', {
@@ -68,8 +76,38 @@ const QuestionDetailPage = () => {
     try {
       switch (wallet) {
         case 'relayx':
+
+          const payloadToSign = JSON.stringify(Object.assign(payload, {
+            onchain_app: '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN',
+            onchain_event: 'answer',
+            onchain_nonce: new Date().getTime()
+          }))
+
+          const bitcom = '18ea4BfMuWZxVav4hz5HmBDJBaxsG8wBEF'
+
+          console.log('relayx.sign', `${bitcom}${payloadToSign}`)
+
+          const { value: signature } = await relayone.sign(`${bitcom}${payloadToSign}`)
+
+          const pubkey = localStorage.getItem('relayx.pubkey')
+
+          const id = new PublicKey(pubkey).toAddress().toString()
+
+          console.log('relayone.signature', signature)
+    
           let result = await relayone.send({
-            opReturn: ['onchain', '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN', 'answer', json],
+            opReturn: [
+              'onchain',
+              '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN',
+              'answer',
+              payloadToSign,
+              "|",
+              authorIdentityPrefix,
+              "BITCOIN_ECDSA",
+              id,
+              signature,
+              '0x05'
+            ],
             currency: 'USD',
             amount: 0.0218,
             to: '1MqPZFc31jUetZ5hxVtG4tijJSugAcSZCQ'
