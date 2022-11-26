@@ -1,11 +1,10 @@
 import React from 'react';
 import { Box, IconButton, SvgIcon, Typography } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import axios from 'axios';
 
-import { Script } from 'bsv';
+import { wrapRelayx } from 'stag-relayx'
 
-const BoostButton = ({ txid, content, difficulty }) => {
+const BoostButton = ({ txid: contentTxid, content, difficulty }) => {
   const { enqueueSnackbar } = useSnackbar();
 
   const handleBoost = async (event) => {
@@ -20,14 +19,6 @@ const BoostButton = ({ txid, content, difficulty }) => {
       }
     });
 
-    const url = `https://askbitcoin.ai/api/v1/boostpow/${txid}/new?value=${value}&currency=${currency}`;
-
-    console.log('boostpow.job.build', { url });
-
-    let { data } = await axios.get(url);
-
-    console.log('boostpow.payment_request', data);
-
     enqueueSnackbar(`Posting Boostpow Order: ${content}`, {
       anchorOrigin: {
         vertical: 'top',
@@ -36,63 +27,29 @@ const BoostButton = ({ txid, content, difficulty }) => {
       variant: 'info'
     });
 
-    const script = new Script(data.outputs[0].script);
-
-    const amount = data.outputs[0].amount / 100000000;
-
     try {
-      const send = {
-        opReturn: [
-          'onchain',
-          '18pPQigu7j69ioDcUG9dACE1iAN9nCfowr',
-          'job',
-          JSON.stringify({
-            index: 0
-          })
-        ],
-        amount,
-        to: script.toASM(),
-        currency: 'BSV'
-      };
 
-      console.log('relayx.send.params', send);
+      const stag = wrapRelayx(relayone)
 
-      const result = await relayone.send({
-        outputs: [send, {
-          currency: 'USD',
-          amount: 0.0218,
-          to: '1MqPZFc31jUetZ5hxVtG4tijJSugAcSZCQ'
-        }]
-      });
+      const {txid, txhex, job} = await stag.boost.buy({
+        content: contentTxid,
+        value: 124_000,
+        difficulty: 0.025
+      })
+      
+      relayone.send({
+        currency: 'BSV',
+        amount: 0.00052,
+        to: '1MqPZFc31jUetZ5hxVtG4tijJSugAcSZCQ' // askbitcoin.ai revenue address
+      })
+      .then(result => {
+        console.log('relayone.send.reward.result', result)
+      })
+      .catch(error => {
+        console.log('relayone.send.reward.error', error)
+      })
 
-      console.log('relayx.send.result', result);
-
-      console.log('RESULT', result);
-
-      const { txid } = result;
-
-      console.log('TXID', txid);
-
-      // Post the new boostpow job transaction to the indexer API at pow.co
-      axios
-        .get(`https://pow.co/api/v1/boost/jobs/${txid}`)
-        .then(({ data }) => {
-          console.log(`pow.co/api/v1/jobs/${result.txid}.result`, data);
-         })
-        .catch((error) => {
-          console.error(`pow.co/api/v1/jobs/${result.txid}`, error);
-        });
-
-      axios
-        .post(`https://pow.co/api/v1/boost/jobs`, {
-          transaction: result.rawTx
-        })
-        .then(({ data }) => {
-          console.log(`post.pow.co/api/v1/jobs.result`, data);
-        })
-        .catch((error) => {
-          console.error(`post.pow.co/api/v1/jobs`, error);
-        });
+      console.log("stag.boost.buy.result", { txid, txhex, job})
 
       enqueueSnackbar(`Boostpow Order Posted`, {
         anchorOrigin: {
@@ -102,7 +59,7 @@ const BoostButton = ({ txid, content, difficulty }) => {
         variant: 'success'
       });
 
-      enqueueSnackbar(`boostpow.job ${result.txid}`, {
+      enqueueSnackbar(`boostpow.job ${txid}`, {
         anchorOrigin: {
           vertical: 'bottom',
           horizontal: 'center'
@@ -110,7 +67,6 @@ const BoostButton = ({ txid, content, difficulty }) => {
         persist: true
       });
 
-      console.log('relay.quote', result);
     } catch (error) {
       console.error('relayx', error);
 
