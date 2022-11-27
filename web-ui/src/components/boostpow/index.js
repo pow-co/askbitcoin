@@ -4,7 +4,7 @@ import { useSnackbar } from 'notistack';
 
 import { wrapRelayx } from 'stag-relayx'
 
-const BoostButton = ({ txid: contentTxid, content, difficulty }) => {
+const BoostButton = ({ txid: contentTxid, content, difficulty, showDifficulty=true }) => {
   const { enqueueSnackbar } = useSnackbar();
 
   const handleBoost = async (event) => {
@@ -130,9 +130,13 @@ const BoostButton = ({ txid: contentTxid, content, difficulty }) => {
           ></path>
         </SvgIcon>
       </IconButton>
-      <Typography variant="p" sx={{ fontSize: '16px', ml: '4px' }}>
-        {difficulty ? parseFloat(difficulty).toFixed(4) : 0} D
-      </Typography>
+      {difficulty && (
+
+        <Typography variant="p" sx={{ fontSize: '16px', ml: '4px' }}>        
+          {parseFloat(difficulty).toFixed(4)} D
+        </Typography>
+      )}
+
     </Box>
   );
 };

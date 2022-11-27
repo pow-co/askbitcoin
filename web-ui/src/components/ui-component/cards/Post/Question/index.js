@@ -120,7 +120,7 @@ import moment from 'moment'
 
 // ==============================|| SOCIAL PROFILE - POST ||============================== //
 
-const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAdd, answer }) => {
+const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAdd, answer, showDifficulty=true }) => {
   const theme = useTheme();
   const router = useRouter();
   var { tx_id, content, author, difficulty, answers, created_at, timestamp } = post;
@@ -194,8 +194,6 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
     console.log('handle click open');
   }
 
-  console.log('TIME STAMP', timestamp)
-
   if (typeof timestamp === 'number') {
 
     timestamp = timestamp * 1000
@@ -227,7 +225,7 @@ const Post = ({ commentAdd, handleCommentLikes, handleReplayLikes, post, replyAd
             </Grid>
 
           <Grid xs={4} md={4} justifyContent="center" item sx={{ h: '100%', w: '100%', display: 'flex', justifyContent: 'center' }}>
-            <BoostButton txid={tx_id} content={content} difficulty={difficulty} />
+            <BoostButton txid={tx_id} content={content} difficulty={difficulty} showDifficulty={showDifficulty} />
           </Grid>
 
           <Grid

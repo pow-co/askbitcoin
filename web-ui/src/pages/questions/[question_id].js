@@ -216,10 +216,6 @@ const QuestionDetailPage = () => {
 
   var { answers } = question;
 
-  question.difficulty = question.boostpow_proofs.reduce((sum, proof) => {
-    return new BigNumber(sum).plus(proof.difficulty).toNumber()
-  }, 0)
-
   answers = answers.map((answer) => {
     return Object.assign(answer, {
       difficulty: answer.boostpow_proofs.reduce((sum, { difficulty }) => {
@@ -256,7 +252,7 @@ const QuestionDetailPage = () => {
         />
       </Head>
       <MainCard>
-        <Question post={question} />
+        <Question post={question} showDifficulty={false}/>
 
         </MainCard>
         <br/>
