@@ -375,6 +375,28 @@ export async function NewServer(): Promise<Server> {
 
   server.route({
     method: 'GET',
+    path: '/api/v1/search',
+    handler: handlers.Search.show,
+    options: {
+      description: 'Search Questions and Answers',
+      tags: ['api', 'search'],
+      validate: {
+        query: Joi.object({
+          q: Joi.string().required()
+        })
+        .label('Search')
+      },
+      response: {
+        failAction: 'log',
+        schema: Joi.object({
+          results: Questions.label('SearchResults').required()
+        }).label('SearchResponse')
+      }
+    }
+  })
+
+  server.route({
+    method: 'GET',
     path: '/api/v1/questions/{tx_id}',
     handler: handlers.Questions.show,
     options: {

@@ -38,6 +38,20 @@ export class Question extends Model {
     })
 
   }
+
+  static getSearchVector() {
+    return 'questions_content_vector'
+  }
+
+  static async search(query) {
+
+    const result = await this.sequelize
+      .query(`SELECT * FROM questions WHERE "${this.getSearchVector()}" @@ plainto_tsquery('english', ?)`,   {
+        replacements: [query]
+      });
+
+    return result[0]
+  }
 };
 
 export function init(sequelize) {

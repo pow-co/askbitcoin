@@ -1,6 +1,8 @@
 
 export * as questions from './questions'
 
+export * as search from './search'
+
 export * as answers from './answers'
 
 export { Question } from './questions'
