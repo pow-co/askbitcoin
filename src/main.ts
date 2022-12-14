@@ -9,8 +9,6 @@ import * as whatsonchain from './whatsonchain'
 
 import { start as actors } from './rabbi/actors'
 
-import { sync_boost_orders, sync_ask_bitcoin, sync_boost_onchain } from './planaria'
-
 import { start as import_powco_work_crawler } from './crawlers/import_powco_work'
 
 import stream from './powco/stream'
@@ -67,17 +65,7 @@ export async function start() {
 
   }
 
-  if (config.get('sync_boost')) {
-
-    sync_boost_onchain()
-
-    sync_boost_orders();
-
-  }
-
   if (config.get('sync_ask_bitcoin')) {
-
-    sync_ask_bitcoin();
 
     const app_id = config.get('askbitcoin_onchain_app_id')
 
