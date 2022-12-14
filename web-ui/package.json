@@ -33,7 +33,7 @@
     "@tabler/icons": "^1.54.0",
     "amazon-cognito-identity-js": "^5.2.7",
     "apexcharts": "^3.33.2",
-    "axios": "^0.26.0",
+    "axios": "^0.26.1",
     "boring-avatars": "^1.7.0",
     "bsv": "1.5.6",
     "chance": "^1.1.8",
