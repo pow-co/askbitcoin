@@ -10,6 +10,7 @@ import { Op } from 'sequelize'
 import { log } from '../../log'
 
 import * as moment from 'moment'
+import BigNumber from 'bignumber.js'
 
 export async function create(req, h) {
 
@@ -237,9 +238,17 @@ export async function show(req, h) {
           where,
           required: false
         }]
+      } , {
+        model: models.BoostpowProof,
+        as: 'boostpow_proofs',
+        where
       }]
 
     })
+
+    const difficulty = question.boostpow_proofs.reduce((sum, proof) => {
+      return sum.plus(parseFloat(proof.difficulty))
+    }, new BigNumber(0)).toNumber()
 
     if (!question) {
 
@@ -247,7 +256,7 @@ export async function show(req, h) {
 
     }
 
-    return { query, question }
+    return { query, question, difficulty }
 
   } catch(error) {
 
