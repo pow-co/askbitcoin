@@ -241,10 +241,15 @@ export async function show(req, h) {
       } , {
         model: models.BoostpowProof,
         as: 'boostpow_proofs',
-        where
+        where,
+        required: false
       }]
 
     })
+
+    if (!question.boostpow_proofs) {
+      question.boostpow_proofs = []
+    }
 
     const difficulty = question.boostpow_proofs.reduce((sum, proof) => {
       return sum.plus(parseFloat(proof.difficulty))
@@ -261,6 +266,8 @@ export async function show(req, h) {
   } catch(error) {
 
     log.error(error)
+
+    console.log('error', error)
 
     return badRequest(error)
 
@@ -334,8 +341,6 @@ export async function showByStub(req, h) {
     }
 
     return { query, question }
-
-
 
   } catch(error) {
 
