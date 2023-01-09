@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  input:checked ~ .dot {
+    transform: translateX(100%);
+  }
+  input:checked ~ .toggle {
+    background-color: #085af6;
+  }
+}
+
+a.linkify-hover:hover {
+  text-decoration: underline;
+}
