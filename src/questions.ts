@@ -238,9 +238,9 @@ export async function parseQuestionsFromTxHex(txhex: string): Promise<Question[]
         if (out['s2'] === 'onchain' &&
             out['s3'] === '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN' &&
             out['s4'] === 'question' &&
-            out['s5']) {
+            out['s5'] || out['ls5']) {
 
-          const { content } = JSON.parse(out['s5'])
+          const { content } = JSON.parse(out['s5']|| out['ls5'])
   
           if (content) {
   
