@@ -65,11 +65,9 @@ export async function parseAnswersFromTxHex(txhex: string): Promise<Question[]> 
         if (out['s2'] === 'onchain' &&
             out['s3'] === '1HWaEAD5TXC2fWHDiua9Vue3Mf8V1ZmakN' &&
             out['s4'] === 'answer' &&
-            out['s5']) {
+            out['s5'] || out['ls5']) {
 
-          const { content, question_tx_id } = JSON.parse(out['s5'])
-
-          console.log("CONNT", { content, question_tx_id })
+          const { content, question_tx_id } = JSON.parse(out['s5'] || out['ls5'])
   
           if (!!content) {
 
