@@ -44,21 +44,29 @@ export async function index(req, h) {
 
   if (req.query.start_timestamp) {
 
+    const start_timestamp =req.query.start_timestamp
+
+    console.log('START TIMESTAMP', start_timestamp)
+
     where['timestamp'] = {
-      [Op.gte]: req.query.start_timestamp
+      [Op.gte]: start_timestamp
     }
 
-    query['timestamp']['>='] = req.query.start_timestamp
+    query['timestamp']['>='] = start_timestamp
 
   }
 
   if (req.query.end_timestamp) {
 
+    const end_timestamp = req.query.end_timestamp
+
+    console.log('END TIMESTAMP', end_timestamp)
+
     where['timestamp'] = {
-      [Op.lte]: req.query.end_timestamp
+      [Op.lte]: end_timestamp
     }
 
-    query['timestamp']['<='] = req.query.end_timestamp
+    query['timestamp']['<='] = end_timestamp
 
   }
 
@@ -79,14 +87,15 @@ export async function index(req, h) {
       order: [['difficulty', 'desc']],
 
     })
+
+    const answersWhere = Object.assign(query, {
+      tx_id: {
+        [Op.in]: proofs.map(proof => proof.content_tx_id)
+      }
+    })
     
     const answers = await models.Answer.findAll({
-      where: {
-        tx_id: {
-          [Op.in]: proofs.map(proof => proof.content_tx_id)
-        }
-      },
-
+      where: answersWhere,
       include: [{
         model: models.Question,
         as: 'question'
