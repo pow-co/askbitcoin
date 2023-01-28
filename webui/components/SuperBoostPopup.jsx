@@ -56,7 +56,7 @@ const SuperBoostPopup = ({ contentTxId, onClose }) => {
       })
       relayOne.send({
         currency: 'BSV',
-        amount: 0.00052,
+        amount: 0.0000218,
         to: '1MqPZFc31jUetZ5hxVtG4tijJSugAcSZCQ' // askbitcoin.ai revenue address
       })
       .then(result => {

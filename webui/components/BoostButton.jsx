@@ -61,14 +61,16 @@ const boost = async (contentTxid) => {
     throw new Error("please, log in!")
   }
   const stag = wrapRelayx(relayOne)
+
   const {txid, txhex, job} = await stag.boost.buy({
     content: contentTxid,
-    difficulty: 0.025,
-    value: 124000,
+    difficulty: 0.00025,
+    value: 1240,
   })
+  
   relayOne.send({
     currency: 'BSV',
-    amount: 0.00052,
+    amount: 0.0000218,
     to: '1MqPZFc31jUetZ5hxVtG4tijJSugAcSZCQ' // askbitcoin.ai revenue address
   })
   .then(result => {
