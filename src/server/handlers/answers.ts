@@ -8,7 +8,10 @@ import { models, sequelize } from '../../models'
 import * as moment from 'moment'
 
 import { Op } from 'sequelize'
+
 import { importAnswersByTxHex, importAnswersByTxid } from '../../answers'
+
+import BigNumber from 'bignumber.js'
 
 export async function create(req, h) {
 
@@ -213,8 +216,6 @@ export async function show(req, h) {
   
     }  
 
-    console.log('PARAMS', req.params)
-
     let answer = await models.Answer.findOne({
 
       where: { tx_id: req.params.tx_id },
@@ -222,11 +223,14 @@ export async function show(req, h) {
       include: [{
         model: models.Question,
         as: 'question'
+      }, {
+        model: models.BoostpowProof,
+        as: 'boostpow_proofs',
+        where,
+        required: false
       }]
 
     })
-
-    console.log("ANSWER 0", answer)
 
     if (!answer) {
 
@@ -239,6 +243,11 @@ export async function show(req, h) {
         include: [{
           model: models.Question,
           as: 'question'
+        }, {
+          model: models.BoostpowProof,
+          as: 'boostpow_proofs',
+          where,
+          required: false
         }]
 
       })
@@ -250,7 +259,11 @@ export async function show(req, h) {
 
     }
 
-    return { query, answer }
+    const difficulty = answer.boostpow_proofs.reduce((sum, proof) => {
+      return sum.plus(parseFloat(proof.difficulty))
+    }, new BigNumber(0)).toNumber()
+
+    return { query, answer, difficulty }
 
   } catch(error) {
 
