@@ -30,9 +30,9 @@ jobs:
             curl -Os https://uploader.codecov.io/latest/linux/codecov
             chmod +x codecov
             ./codecov
-      - run:
-          name: Tag and Release New Version
-          command: npx semantic-release
+            #- run:
+            #name: Tag and Release New Version
+            #command: npx semantic-release
 
 
   build_docker:
