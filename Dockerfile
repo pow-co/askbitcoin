@@ -17,8 +17,6 @@ WORKDIR /usr/src/app/web-ui
 
 RUN npm install
 
-RUN npm run build
-
 WORKDIR /usr/src/app
 
 RUN mkdir .rabbi
